@@ -14,13 +14,13 @@ export default function Splash({ onContinue }: { onContinue: () => void }) {
 
   function finish() {
     setLeaving(true)
-    setTimeout(onContinue, 250)
+    setTimeout(onContinue, 500)
   }
 
   return (
     <div
       onClick={finish}
-      className={`min-h-full flex flex-col items-center justify-center bg-slate-950 text-white px-4 cursor-pointer transition-opacity duration-250 ${
+      className={`absolute inset-0 z-50 flex flex-col items-center justify-center bg-slate-950 text-white px-4 cursor-pointer transition-opacity duration-500 ease-in-out ${
         leaving ? 'opacity-0' : 'opacity-100'
       }`}
     >

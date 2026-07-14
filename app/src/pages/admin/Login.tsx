@@ -1,4 +1,4 @@
-import { useState, type ReactElement } from 'react'
+import { useEffect, useState, type ReactElement } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { signInWithPassword, signUpWithPassword, signInWithOAuth, type OAuthProvider } from '../../lib/auth'
 import Splash from '../../components/Splash'
@@ -39,6 +39,12 @@ export default function Login() {
   const [oauthLoading, setOauthLoading] = useState<OAuthProvider | null>(null)
   const [signedUp, setSignedUp] = useState(false)
   const [showSplash, setShowSplash] = useState(true)
+  const [contentVisible, setContentVisible] = useState(false)
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setContentVisible(true))
+    return () => cancelAnimationFrame(frame)
+  }, [])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -69,12 +75,17 @@ export default function Login() {
     }
   }
 
-  if (showSplash) return <Splash onContinue={() => setShowSplash(false)} />
-
   return (
-    <div className="min-h-full flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        <h1 className="text-2xl font-semibold text-center mb-1">MenuFlex</h1>
+    <div className="relative min-h-full">
+      {showSplash && <Splash onContinue={() => setShowSplash(false)} />}
+
+      <div
+        className={`min-h-full flex items-center justify-center px-4 transition-all duration-500 ease-out ${
+          contentVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+        }`}
+      >
+        <div className="w-full max-w-sm">
+          <h1 className="text-2xl font-semibold text-center mb-1">MenuFlex</h1>
         <p className="text-sm text-neutral-500 text-center mb-8">Painel do negócio</p>
 
         {signedUp ? (
@@ -140,14 +151,15 @@ export default function Login() {
           </form>
         )}
 
-        {!signedUp && (
-          <button
-            onClick={() => setMode(mode === 'login' ? 'cadastro' : 'login')}
-            className="w-full text-center text-sm text-brand-dark mt-4"
-          >
-            {mode === 'login' ? 'Não tem conta? Cadastre seu negócio' : 'Já tem conta? Entrar'}
-          </button>
-        )}
+          {!signedUp && (
+            <button
+              onClick={() => setMode(mode === 'login' ? 'cadastro' : 'login')}
+              className="w-full text-center text-sm text-brand-dark mt-4"
+            >
+              {mode === 'login' ? 'Não tem conta? Cadastre seu negócio' : 'Já tem conta? Entrar'}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )
