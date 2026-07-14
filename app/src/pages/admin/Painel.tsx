@@ -2,19 +2,23 @@ import { useEffect, useState } from 'react'
 import { useSession, signOut } from '../../lib/auth'
 import { supabase } from '../../lib/supabaseClient'
 import { loadPlanFeatures } from '../../lib/planFeatures'
+import { SUPER_ADMIN_EMAIL } from '../../lib/constants'
 import type { Business, PlanFeatureRow } from '../../lib/types'
 import Login from './Login'
 import Onboarding from './Onboarding'
 import CardapioAdmin from './Cardapio'
 import FilaPedidos from './FilaPedidos'
+import MinhaEmpresa from './MinhaEmpresa'
 import Configuracoes from './Configuracoes'
 import Analytics from './Analytics'
 import Privacidade from './Privacidade'
+import SuperAdmin from './SuperAdmin'
 
-type Aba = 'fila' | 'cardapio' | 'configuracoes' | 'analytics' | 'privacidade'
+type Aba = 'fila' | 'minha_empresa' | 'cardapio' | 'configuracoes' | 'analytics' | 'privacidade' | 'super_admin'
 
 const ABAS: { value: Aba; label: string }[] = [
   { value: 'fila', label: 'Pedidos' },
+  { value: 'minha_empresa', label: 'Minha Empresa' },
   { value: 'cardapio', label: 'Cardápio' },
   { value: 'configuracoes', label: 'Configurações' },
   { value: 'analytics', label: 'Analytics' },
@@ -61,6 +65,9 @@ export default function Painel() {
     return <Onboarding ownerId={session.user.id} onCreated={() => setBusinessLoading(true)} />
   }
 
+  const isSuperAdmin = session.user.email === SUPER_ADMIN_EMAIL
+  const abas = isSuperAdmin ? [...ABAS, { value: 'super_admin' as Aba, label: 'Gerência RhoneyInc' }] : ABAS
+
   return (
     <div className="min-h-full flex flex-col">
       <header className="border-b border-neutral-200 px-4 py-3 flex items-center justify-between">
@@ -74,7 +81,7 @@ export default function Painel() {
       </header>
 
       <nav className="flex gap-1 px-4 py-2 overflow-x-auto border-b border-neutral-200">
-        {ABAS.map((a) => (
+        {abas.map((a) => (
           <button
             key={a.value}
             onClick={() => setAba(a.value)}
@@ -89,12 +96,14 @@ export default function Painel() {
 
       <main className="flex-1 p-4">
         {aba === 'fila' && <FilaPedidos business={business} />}
-        {aba === 'cardapio' && <CardapioAdmin business={business} />}
-        {aba === 'configuracoes' && (
-          <Configuracoes business={business} planFeatures={planFeatures} onUpdated={setBusiness} />
+        {aba === 'minha_empresa' && (
+          <MinhaEmpresa business={business} planFeatures={planFeatures} onUpdated={setBusiness} />
         )}
+        {aba === 'cardapio' && <CardapioAdmin business={business} />}
+        {aba === 'configuracoes' && <Configuracoes business={business} onUpdated={setBusiness} />}
         {aba === 'analytics' && <Analytics business={business} planFeatures={planFeatures} />}
         {aba === 'privacidade' && <Privacidade />}
+        {aba === 'super_admin' && isSuperAdmin && <SuperAdmin />}
       </main>
     </div>
   )

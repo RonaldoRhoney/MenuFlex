@@ -11,6 +11,10 @@ MenuFlex usa um projeto Supabase **próprio** (não é o mesmo do RhoneyInc nem 
 No **SQL Editor** do projeto, rode nesta ordem (uma de cada vez, "Run"):
 1. `supabase/migrations/0001_schema.sql` — cria todas as tabelas, funções (`is_business_admin`, `check_plan_feature`, `create_order`, etc.) e as políticas de RLS.
 2. `supabase/migrations/0002_seed.sql` — popula os planos (`plan_features`) e o negócio de demonstração "Point do Zé" (`/loja/point-do-ze`).
+3. `supabase/migrations/0003_item_options.sql` — grupos de opções por item (ex.: ponto da carne, adicionais), usados pelo `ItemOptionsModal` no front.
+4. `supabase/migrations/0004_planos_pagos.sql` — papel de super-admin (`rhoneyinc@gmail.com`, gerência de toda a plataforma) e a tabela `plan_payments` (upgrade de plano via Mercado Pago).
+5. `supabase/migrations/0005_perfil_negocio.sql` — campos de perfil do negócio (descrição, endereço, telefone, horário, logo) usados no menu "Minha Empresa", + policies de storage pro upload da logo.
+6. `supabase/migrations/0006_indicacoes_parceiros.sql` — tabela `partner_referrals` do programa de indicação (`/parceiros`).
 
 > Se preferir usar o Supabase CLI localmente (`supabase start` + `supabase db reset`), as duas migrations rodam automaticamente na ordem certa — o `0002_seed.sql` também funciona nesse modo porque a role local tem privilégio para inserir em `auth.users`.
 
@@ -58,3 +62,9 @@ Hospedagem recomendada: **Vercel** (mesmo padrão do RhoneyInc/MeuPet). Configur
 O gate de plano (`check_plan_feature`) roda **dentro** de `create_order()`, no banco — mesmo que alguém manipule o front-end para tentar criar um pedido delivery num negócio Free, o Postgres rejeita.
 
 Nunca cole a `service_role key` em nenhum arquivo do repositório.
+
+## Gerência da plataforma e pagamentos de plano
+
+- **Super-admin**: o e-mail `rhoneyinc@gmail.com` tem acesso a todos os negócios cadastrados (aba "Gerência RhoneyInc" no painel `/admin`, liberada só pra esse e-mail). Pra isso funcionar, crie a conta desse e-mail via **Authentication → Users** (ou deixe a pessoa se cadastrar normalmente pelo `/admin?cadastro=1`) — a policy `is_super_admin()` (0004) já reconhece o e-mail direto no JWT, sem precisar marcar nada a mais.
+- **Upgrade de plano (Básico/Premium)**: pago via **Mercado Pago** (PIX, boleto ou cartão) — a conta Mercado Pago deve estar associada a `rhoneyinc@gmail.com`, com saque via PIX pra conta Nubank do mesmo e-mail. O valor da assinatura é da RhoneyInc (dona da plataforma), não do negócio individual.
+- **Ainda falta** (fora do escopo do front): uma função serverless (Vercel ou Supabase Edge Function) que (1) cria a *preference* de pagamento no Mercado Pago com o access token secreto, (2) recebe o webhook de confirmação e marca `plan_payments.status = 'approved'` + atualiza `businesses.plan`. Até essa função existir e `VITE_CHECKOUT_API_URL` ser configurada, o botão de upgrade em Configurações mostra um aviso em vez de cobrar de verdade.

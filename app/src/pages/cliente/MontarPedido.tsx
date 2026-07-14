@@ -53,19 +53,24 @@ export default function MontarPedido({
 
       <div className="space-y-3 mb-6">
         {items.map((item) => (
-          <div key={item.menu_item_id} className="bg-white rounded-xl p-3 shadow-sm">
+          <div key={item.line_id} className="bg-white rounded-xl p-3 shadow-sm">
             <div className="flex justify-between items-center gap-3">
-              <span className="font-medium">{item.name}</span>
+              <div className="min-w-0">
+                <span className="font-medium">{item.name}</span>
+                {item.options_summary && (
+                  <p className="text-xs text-neutral-500 truncate">{item.options_summary}</p>
+                )}
+              </div>
               <div className="flex items-center gap-2 shrink-0">
                 <button
-                  onClick={() => onSetQuantity(item.menu_item_id, item.quantity - 1)}
+                  onClick={() => onSetQuantity(item.line_id, item.quantity - 1)}
                   className="w-7 h-7 rounded-full border border-neutral-300"
                 >
                   −
                 </button>
                 <span className="w-5 text-center">{item.quantity}</span>
                 <button
-                  onClick={() => onSetQuantity(item.menu_item_id, item.quantity + 1)}
+                  onClick={() => onSetQuantity(item.line_id, item.quantity + 1)}
                   className="w-7 h-7 rounded-full border border-neutral-300"
                 >
                   +
@@ -74,7 +79,7 @@ export default function MontarPedido({
             </div>
             <input
               value={item.notes}
-              onChange={(e) => onSetNotes(item.menu_item_id, e.target.value)}
+              onChange={(e) => onSetNotes(item.line_id, e.target.value)}
               placeholder="Observações (ex: sem cebola)"
               className="mt-2 w-full text-sm border border-neutral-200 rounded-lg px-3 py-1.5"
             />

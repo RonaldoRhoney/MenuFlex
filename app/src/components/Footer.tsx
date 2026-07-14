@@ -24,6 +24,7 @@ export default function Footer() {
             <h5 className="font-mono text-xs uppercase tracking-wider text-brand mb-3.5">Produto</h5>
             <a href="#cardapio" className="block text-sm text-white/75 hover:text-white mb-2.5">Cardápio</a>
             <a href="#planos" className="block text-sm text-white/75 hover:text-white mb-2.5">Planos</a>
+            <a href="/parceiros" className="block text-sm text-white/75 hover:text-white mb-2.5">Parceiros</a>
             <a href="/admin" className="block text-sm text-white/75 hover:text-white mb-2.5">Painel ADM</a>
           </div>
 

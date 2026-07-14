@@ -5,6 +5,8 @@ import type { OrderStatus } from '../../lib/types'
 interface AcompanharPedidoProps {
   orderId: string
   onVoltarAoCardapio: () => void
+  simulate?: boolean
+  simulatedTotal?: number
 }
 
 const PASSOS: { status: OrderStatus; label: string }[] = [
@@ -14,12 +16,28 @@ const PASSOS: { status: OrderStatus; label: string }[] = [
   { status: 'entregue', label: 'Entregue' },
 ]
 
-export default function AcompanharPedido({ orderId, onVoltarAoCardapio }: AcompanharPedidoProps) {
-  const [status, setStatus] = useState<OrderStatus | null>(null)
-  const [total, setTotal] = useState<number | null>(null)
+export default function AcompanharPedido({
+  orderId,
+  onVoltarAoCardapio,
+  simulate,
+  simulatedTotal,
+}: AcompanharPedidoProps) {
+  const [status, setStatus] = useState<OrderStatus | null>(simulate ? 'recebido' : null)
+  const [total, setTotal] = useState<number | null>(simulate ? (simulatedTotal ?? 0) : null)
+
+  // Sem banco ainda: avança o status sozinho, só pra demonstrar a tela por completo.
+  useEffect(() => {
+    if (!simulate) return
+    const t1 = setTimeout(() => setStatus('preparo'), 3500)
+    const t2 = setTimeout(() => setStatus('pronto'), 8000)
+    return () => {
+      clearTimeout(t1)
+      clearTimeout(t2)
+    }
+  }, [simulate])
 
   useEffect(() => {
-    if (!supabase) return
+    if (!supabase || simulate) return
 
     let active = true
 

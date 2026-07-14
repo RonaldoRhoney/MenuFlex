@@ -36,6 +36,17 @@ export async function signUpWithPassword(email: string, password: string) {
   if (error) throw error
 }
 
+export type OAuthProvider = 'google' | 'facebook'
+
+export async function signInWithOAuth(provider: OAuthProvider) {
+  if (!supabase) throw new Error('Supabase não configurado')
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: { redirectTo: `${window.location.origin}/admin` },
+  })
+  if (error) throw error
+}
+
 export async function signOut() {
   if (!supabase) return
   await supabase.auth.signOut()

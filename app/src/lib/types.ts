@@ -15,6 +15,11 @@ export interface Business {
   lng: number | null
   is_open: boolean
   created_at: string
+  description: string | null
+  address: string | null
+  phone: string | null
+  opening_hours: string | null
+  logo_url: string | null
 }
 
 export interface MenuCategory {
@@ -22,6 +27,20 @@ export interface MenuCategory {
   business_id: string
   name: string
   order_index: number
+}
+
+export interface MenuItemOptionChoice {
+  id: string
+  name: string
+  price_delta: number
+}
+
+export interface MenuItemOptionGroup {
+  id: string
+  name: string
+  required: boolean
+  multiple: boolean
+  choices: MenuItemOptionChoice[]
 }
 
 export interface MenuItem {
@@ -34,6 +53,34 @@ export interface MenuItem {
   image_url: string | null
   is_available: boolean
   order_index: number
+  option_groups?: MenuItemOptionGroup[]
+}
+
+export type ReferralStatus = 'novo' | 'contatado' | 'convertido' | 'descartado'
+
+export interface PartnerReferral {
+  id: string
+  referrer_name: string
+  referrer_phone: string
+  business_name: string
+  business_phone: string
+  business_city: string | null
+  status: ReferralStatus
+  created_at: string
+}
+
+export type PlanPaymentStatus = 'pending' | 'approved' | 'rejected'
+
+export interface PlanPayment {
+  id: string
+  business_id: string
+  plan: Plan
+  amount: number
+  mp_preference_id: string | null
+  mp_payment_id: string | null
+  status: PlanPaymentStatus
+  created_at: string
+  approved_at: string | null
 }
 
 export interface PlanFeatureRow {
@@ -64,9 +111,11 @@ export interface OrderItem {
 }
 
 export interface CartItem {
+  line_id: string
   menu_item_id: string
   name: string
   unit_price: number
   quantity: number
   notes: string
+  options_summary?: string
 }

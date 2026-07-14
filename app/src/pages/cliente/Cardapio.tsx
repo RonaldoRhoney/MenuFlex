@@ -1,18 +1,34 @@
+import { useState } from 'react'
 import type { Business, MenuCategory, MenuItem } from '../../lib/types'
+import ItemOptionsModal from '../../components/ItemOptionsModal'
+import LiveClock from '../../components/LiveClock'
 
 interface CardapioProps {
   business: Business
   categories: MenuCategory[]
   items: MenuItem[]
-  onAdd: (item: MenuItem) => void
+  onAdd: (item: MenuItem, opts?: { unitPrice?: number; optionsSummary?: string; quantity?: number }) => void
   cartCount: number
   onOpenCart: () => void
 }
 
 export default function Cardapio({ business, categories, items, onAdd, cartCount, onOpenCart }: CardapioProps) {
+  const [itemComOpcoes, setItemComOpcoes] = useState<MenuItem | null>(null)
+
+  function handleAddClick(item: MenuItem) {
+    if (item.option_groups && item.option_groups.length > 0) {
+      setItemComOpcoes(item)
+    } else {
+      onAdd(item)
+    }
+  }
+
   return (
     <div id="top" className="max-w-2xl mx-auto pb-28">
-      <header className="px-4 pt-8 pb-4 text-center">
+      <div className="px-4 pt-3 flex justify-center">
+        <LiveClock className="text-xs text-neutral-400" />
+      </div>
+      <header className="px-4 pt-2 pb-4 text-center">
         <h1 className="text-2xl font-semibold">{business.name}</h1>
         <span
           className={`inline-block mt-2 text-xs font-medium px-3 py-1 rounded-full ${
@@ -46,7 +62,7 @@ export default function Cardapio({ business, categories, items, onAdd, cartCount
                       </span>
                     </div>
                     <button
-                      onClick={() => onAdd(item)}
+                      onClick={() => handleAddClick(item)}
                       disabled={!business.is_open}
                       className="shrink-0 rounded-full bg-brand text-white w-9 h-9 text-lg font-bold disabled:opacity-40"
                       aria-label={`Adicionar ${item.name}`}
@@ -70,6 +86,17 @@ export default function Cardapio({ business, categories, items, onAdd, cartCount
             Ver pedido ({cartCount} {cartCount === 1 ? 'item' : 'itens'})
           </button>
         </div>
+      )}
+
+      {itemComOpcoes && (
+        <ItemOptionsModal
+          item={itemComOpcoes}
+          onClose={() => setItemComOpcoes(null)}
+          onConfirm={({ unitPrice, optionsSummary, quantity }) => {
+            onAdd(itemComOpcoes, { unitPrice, optionsSummary, quantity })
+            setItemComOpcoes(null)
+          }}
+        />
       )}
     </div>
   )

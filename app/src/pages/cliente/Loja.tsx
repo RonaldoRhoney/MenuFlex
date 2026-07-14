@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { supabase } from '../../lib/supabaseClient'
+import { supabase, DB_READY } from '../../lib/supabaseClient'
 import { loadPlanFeatures, getPlanUsageLimit } from '../../lib/planFeatures'
 import { useCart } from '../../lib/cart'
 import { getCurrentPosition, isWithinRadius } from '../../lib/geo'
 import { logConsent } from '../../lib/lgpd'
+import { MOCK_BUSINESS, MOCK_CATEGORIES, MOCK_ITEMS, MOCK_PLAN_FEATURES } from '../../lib/mockData'
 import type { Business, MenuCategory, MenuItem, PlanFeatureRow } from '../../lib/types'
 import Cardapio from './Cardapio'
 import MontarPedido from './MontarPedido'
@@ -28,6 +29,7 @@ export default function Loja() {
 
   const [view, setView] = useState<View>('cardapio')
   const [orderId, setOrderId] = useState<string | null>(null)
+  const [orderTotal, setOrderTotal] = useState<number>(0)
   const [submitting, setSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
@@ -37,8 +39,19 @@ export default function Loja() {
   const cart = useCart()
 
   useEffect(() => {
-    if (!supabase || !slug) return
+    if (!slug) return
     let active = true
+
+    // Sem Supabase configurado (.env.local ausente — ver SETUP.md): usa o cardápio
+    // fictício "Burger do Zé" pra dar pra demonstrar/testar o front sem banco.
+    if (!DB_READY) {
+      setBusiness(MOCK_BUSINESS)
+      setPlanFeatures(MOCK_PLAN_FEATURES)
+      setCategories(MOCK_CATEGORIES)
+      setItems(MOCK_ITEMS)
+      setLoading(false)
+      return
+    }
 
     async function load() {
       const [{ data: biz, error: bizError }, features] = await Promise.all([
@@ -116,10 +129,22 @@ export default function Loja() {
     name: string
     phone: string
   }) {
-    if (!supabase || !business) return
+    if (!business) return
     setSubmitting(true)
     setErrorMessage(null)
-    const { data, error } = await supabase.rpc('create_order', {
+
+    if (!DB_READY) {
+      // Sem banco ainda: simula a criação do pedido localmente (ver AcompanharPedido `simulate`).
+      await new Promise((resolve) => setTimeout(resolve, 500))
+      setSubmitting(false)
+      setOrderTotal(cart.total)
+      setOrderId(crypto.randomUUID())
+      cart.clear()
+      setView('acompanhar')
+      return
+    }
+
+    const { data, error } = await supabase!.rpc('create_order', {
       p_business_id: business.id,
       p_order_type: params.orderType,
       p_delivery_address: params.deliveryAddress || null,
@@ -129,7 +154,7 @@ export default function Loja() {
         menu_item_id: i.menu_item_id,
         quantity: i.quantity,
         unit_price: i.unit_price,
-        notes: i.notes || null,
+        notes: [i.options_summary, i.notes].filter(Boolean).join(' — ') || null,
       })),
     })
     setSubmitting(false)
@@ -183,7 +208,12 @@ export default function Loja() {
         )}
 
         {view === 'acompanhar' && orderId && (
-          <AcompanharPedido orderId={orderId} onVoltarAoCardapio={() => setView('cardapio')} />
+          <AcompanharPedido
+            orderId={orderId}
+            simulate={!DB_READY}
+            simulatedTotal={orderTotal}
+            onVoltarAoCardapio={() => setView('cardapio')}
+          />
         )}
       </div>
 
