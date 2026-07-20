@@ -6,7 +6,7 @@ import { useCart } from '../../lib/cart'
 import { getCurrentPosition, isWithinRadius } from '../../lib/geo'
 import { logConsent } from '../../lib/lgpd'
 import { MOCK_BUSINESS, MOCK_CATEGORIES, MOCK_ITEMS, MOCK_PLAN_FEATURES } from '../../lib/mockData'
-import type { Business, MenuCategory, MenuItem, PlanFeatureRow } from '../../lib/types'
+import type { Business, MenuCategory, MenuItem, MenuItemOptionGroup, PlanFeatureRow } from '../../lib/types'
 import Cardapio from './Cardapio'
 import MontarPedido from './MontarPedido'
 import AcompanharPedido from './AcompanharPedido'
@@ -14,6 +14,48 @@ import Footer from '../../components/Footer'
 import ConsentModal from '../../components/ConsentModal'
 
 const GEO_CONSENT_KEY = 'menuflex_geo_consent_v1'
+
+// Busca os grupos de opção (ex.: "Ponto da carne") de todos os itens de uma vez
+// e devolve os mesmos MenuItem com `option_groups` preenchido — mesmo formato que
+// o cardápio mockado já usa, então ItemOptionsModal funciona igual nos dois casos.
+async function anexarGruposDeOpcao(items: MenuItem[]): Promise<MenuItem[]> {
+  if (!supabase || items.length === 0) return items
+
+  const { data: groups } = await supabase
+    .from('menu_item_option_groups')
+    .select('id, menu_item_id, name, required, multiple, order_index, menu_item_options(id, name, price_delta, order_index)')
+    .in(
+      'menu_item_id',
+      items.map((i) => i.id),
+    )
+    .order('order_index')
+
+  if (!groups || groups.length === 0) return items
+
+  const porItem = new Map<string, MenuItemOptionGroup[]>()
+  for (const g of groups as unknown as Array<{
+    id: string
+    menu_item_id: string
+    name: string
+    required: boolean
+    multiple: boolean
+    menu_item_options: Array<{ id: string; name: string; price_delta: number; order_index: number }>
+  }>) {
+    const lista = porItem.get(g.menu_item_id) ?? []
+    lista.push({
+      id: g.id,
+      name: g.name,
+      required: g.required,
+      multiple: g.multiple,
+      choices: [...g.menu_item_options]
+        .sort((a, b) => a.order_index - b.order_index)
+        .map((o) => ({ id: o.id, name: o.name, price_delta: o.price_delta })),
+    })
+    porItem.set(g.menu_item_id, lista)
+  }
+
+  return items.map((item) => (porItem.has(item.id) ? { ...item, option_groups: porItem.get(item.id) } : item))
+}
 
 type View = 'cardapio' | 'pedido' | 'acompanhar'
 
@@ -72,8 +114,12 @@ export default function Loja() {
         supabase!.from('menu_items').select('*').eq('business_id', biz.id).order('order_index'),
       ])
       if (!active) return
+
+      const itemsComOpcoes = await anexarGruposDeOpcao((menuItems as MenuItem[]) ?? [])
+      if (!active) return
+
       setCategories((cats as MenuCategory[]) ?? [])
-      setItems((menuItems as MenuItem[]) ?? [])
+      setItems(itemsComOpcoes)
       setLoading(false)
     }
 

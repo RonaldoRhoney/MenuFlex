@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import type { Business, MenuCategory, MenuItem } from '../../lib/types'
+import ItemOptionsEditor from './ItemOptionsEditor'
 
 interface CardapioAdminProps {
   business: Business
@@ -11,6 +12,7 @@ export default function CardapioAdmin({ business }: CardapioAdminProps) {
   const [items, setItems] = useState<MenuItem[]>([])
   const [newCategoryName, setNewCategoryName] = useState('')
   const [newItem, setNewItem] = useState({ category_id: '', name: '', description: '', price: '' })
+  const [itemComOpcoesAbertoId, setItemComOpcoesAbertoId] = useState<string | null>(null)
 
   async function reload() {
     if (!supabase) return
@@ -127,24 +129,35 @@ export default function CardapioAdmin({ business }: CardapioAdminProps) {
 
         <div className="space-y-2">
           {items.map((item) => (
-            <div key={item.id} className="flex items-center justify-between bg-white rounded-lg p-3 shadow-sm">
-              <div>
-                <p className="font-medium text-sm">{item.name}</p>
-                <p className="text-xs text-neutral-500">R$ {item.price.toFixed(2).replace('.', ',')}</p>
+            <div key={item.id} className="bg-white rounded-lg shadow-sm overflow-hidden">
+              <div className="flex items-center justify-between p-3">
+                <div>
+                  <p className="font-medium text-sm">{item.name}</p>
+                  <p className="text-xs text-neutral-500">R$ {item.price.toFixed(2).replace('.', ',')}</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() =>
+                      setItemComOpcoesAbertoId(itemComOpcoesAbertoId === item.id ? null : item.id)
+                    }
+                    className="text-xs px-2 py-1 rounded-full bg-brand/10 text-brand-dark font-medium"
+                  >
+                    {itemComOpcoesAbertoId === item.id ? 'Fechar opções' : 'Opções'}
+                  </button>
+                  <button
+                    onClick={() => toggleAvailable(item)}
+                    className={`text-xs px-2 py-1 rounded-full ${
+                      item.is_available ? 'bg-green-100 text-green-700' : 'bg-neutral-200 text-neutral-500'
+                    }`}
+                  >
+                    {item.is_available ? 'Disponível' : 'Indisponível'}
+                  </button>
+                  <button onClick={() => deleteItem(item.id)} className="text-xs text-red-600">
+                    Excluir
+                  </button>
+                </div>
               </div>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => toggleAvailable(item)}
-                  className={`text-xs px-2 py-1 rounded-full ${
-                    item.is_available ? 'bg-green-100 text-green-700' : 'bg-neutral-200 text-neutral-500'
-                  }`}
-                >
-                  {item.is_available ? 'Disponível' : 'Indisponível'}
-                </button>
-                <button onClick={() => deleteItem(item.id)} className="text-xs text-red-600">
-                  Excluir
-                </button>
-              </div>
+              {itemComOpcoesAbertoId === item.id && <ItemOptionsEditor menuItemId={item.id} />}
             </div>
           ))}
         </div>

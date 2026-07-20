@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { getCurrentPosition } from '../../lib/geo'
-import type { BusinessType } from '../../lib/types'
+import type { Business, BusinessType } from '../../lib/types'
 
 interface OnboardingProps {
   ownerId: string
-  onCreated: () => void
+  onCreated: (business: Business) => void
 }
 
 function slugify(name: string) {
@@ -55,25 +55,29 @@ export default function Onboarding({ ownerId, onCreated }: OnboardingProps) {
     setSubmitting(true)
     setError(null)
     const slug = slugify(name)
-    const { error: insertError } = await supabase.from('businesses').insert({
-      owner_id: ownerId,
-      name,
-      slug,
-      type,
-      plan: 'free',
-      lat,
-      lng,
-    })
+    const { data, error: insertError } = await supabase
+      .from('businesses')
+      .insert({
+        owner_id: ownerId,
+        name,
+        slug,
+        type,
+        plan: 'free',
+        lat,
+        lng,
+      })
+      .select()
+      .single()
     setSubmitting(false)
-    if (insertError) {
+    if (insertError || !data) {
       setError(
-        insertError.message.includes('duplicate')
+        insertError?.message.includes('duplicate')
           ? 'Já existe um negócio com esse nome — tente um nome um pouco diferente.'
-          : insertError.message,
+          : insertError?.message ?? 'Não foi possível criar o negócio agora.',
       )
       return
     }
-    onCreated()
+    onCreated(data as Business)
   }
 
   return (

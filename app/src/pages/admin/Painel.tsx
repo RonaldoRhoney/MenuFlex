@@ -62,7 +62,15 @@ export default function Painel() {
   if (!session) return <Login />
 
   if (!business) {
-    return <Onboarding ownerId={session.user.id} onCreated={() => setBusinessLoading(true)} />
+    return (
+      <Onboarding
+        ownerId={session.user.id}
+        onCreated={(novoNegocio) => {
+          setBusiness(novoNegocio)
+          loadPlanFeatures().then(setPlanFeatures)
+        }}
+      />
+    )
   }
 
   const isSuperAdmin = session.user.email === SUPER_ADMIN_EMAIL
