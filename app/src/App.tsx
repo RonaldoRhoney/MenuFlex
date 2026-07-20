@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
+import { useEffect } from 'react'
+import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom'
 import Loja from './pages/cliente/Loja'
 import Painel from './pages/admin/Painel'
 import Parceiros from './pages/Parceiros'
@@ -162,9 +163,30 @@ function PaginaEstatica({ titulo, children }: { titulo: string; children: React.
   )
 }
 
+// Registro de acesso anônimo (sem cookies, sem IP guardado) — best-effort,
+// nunca bloqueia nem afeta a navegação se a chamada falhar. Dispara a cada
+// troca de rota da SPA (não só no load inicial).
+function PageTracker() {
+  const location = useLocation()
+  useEffect(() => {
+    try {
+      const payload = JSON.stringify({ path: location.pathname })
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon('/api/track', new Blob([payload], { type: 'application/json' }))
+      } else {
+        fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload, keepalive: true }).catch(() => {})
+      }
+    } catch {
+      // analytics é best-effort — nunca deve quebrar a navegação
+    }
+  }, [location.pathname])
+  return null
+}
+
 function App() {
   return (
     <BrowserRouter>
+      <PageTracker />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/loja/:slug" element={<Loja />} />

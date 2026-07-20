@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import type { Business, Plan, PartnerReferral, ReferralStatus } from '../../lib/types'
+import PlatformMetrics from '../../components/admin/PlatformMetrics'
 
 // Só renderiza pra rhoneyinc@gmail.com (ver Painel.tsx) — mas o que garante de verdade
 // que só esse e-mail vê todos os negócios/indicações é a policy is_super_admin() em
@@ -16,7 +17,7 @@ const STATUS_INDICACAO: { value: ReferralStatus; label: string }[] = [
 ]
 
 export default function SuperAdmin() {
-  const [aba, setAba] = useState<'negocios' | 'indicacoes'>('negocios')
+  const [aba, setAba] = useState<'metricas' | 'negocios' | 'indicacoes'>('metricas')
   const [businesses, setBusinesses] = useState<Business[]>([])
   const [referrals, setReferrals] = useState<PartnerReferral[]>([])
   const [loading, setLoading] = useState(true)
@@ -64,6 +65,14 @@ export default function SuperAdmin() {
 
       <div className="flex gap-1 mb-4 border-b border-neutral-200">
         <button
+          onClick={() => setAba('metricas')}
+          className={`px-3 py-2 text-sm font-medium border-b-2 -mb-px ${
+            aba === 'metricas' ? 'border-brand text-brand-dark' : 'border-transparent text-neutral-500'
+          }`}
+        >
+          Métricas
+        </button>
+        <button
           onClick={() => setAba('negocios')}
           className={`px-3 py-2 text-sm font-medium border-b-2 -mb-px ${
             aba === 'negocios' ? 'border-brand text-brand-dark' : 'border-transparent text-neutral-500'
@@ -85,6 +94,8 @@ export default function SuperAdmin() {
           )}
         </button>
       </div>
+
+      {aba === 'metricas' && <PlatformMetrics />}
 
       {aba === 'negocios' && (
         <div className="space-y-2">

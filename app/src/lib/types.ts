@@ -17,6 +17,7 @@ export interface Business {
   created_at: string
   description: string | null
   address: string | null
+  neighborhood: string | null
   phone: string | null
   opening_hours: string | null
   logo_url: string | null

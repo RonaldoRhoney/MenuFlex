@@ -22,6 +22,7 @@ export default function MinhaEmpresa({ business, planFeatures, onUpdated }: Minh
   const [type, setType] = useState<BusinessType>(business.type)
   const [description, setDescription] = useState(business.description ?? '')
   const [address, setAddress] = useState(business.address ?? '')
+  const [neighborhood, setNeighborhood] = useState(business.neighborhood ?? '')
   const [phone, setPhone] = useState(business.phone ?? '')
   const [openingHours, setOpeningHours] = useState(business.opening_hours ?? '')
   const [accentColor, setAccentColor] = useState(business.theme_config?.accent ?? '#f97316')
@@ -51,6 +52,7 @@ export default function MinhaEmpresa({ business, planFeatures, onUpdated }: Minh
         type,
         description: description || null,
         address: address || null,
+        neighborhood: neighborhood || null,
         phone: phone || null,
         opening_hours: openingHours || null,
         theme_config: podePersonalizar ? { ...business.theme_config, accent: accentColor } : business.theme_config,
@@ -174,6 +176,16 @@ export default function MinhaEmpresa({ business, planFeatures, onUpdated }: Minh
               placeholder="Rua, número, bairro"
               className="w-full border border-neutral-300 rounded-lg px-3 py-2 text-sm"
             />
+          </div>
+          <div>
+            <label className="text-sm font-medium mb-1 block">Bairro</label>
+            <input
+              value={neighborhood}
+              onChange={(e) => setNeighborhood(e.target.value)}
+              placeholder="Ex: Umarizal"
+              className="w-full border border-neutral-300 rounded-lg px-3 py-2 text-sm"
+            />
+            <p className="text-xs text-neutral-400 mt-1">Usado só pra estatística agregada de onde a RhoneyInc está presente.</p>
           </div>
           <div>
             <label className="text-sm font-medium mb-1 block">Telefone / WhatsApp</label>

@@ -18,6 +18,7 @@ export const MOCK_BUSINESS: Business = {
   created_at: new Date().toISOString(),
   description: 'Hambúrgueres artesanais feitos na hora, no coração de Belém.',
   address: 'Tv. Padre Eutíquio, 1200 — Batista Campos, Belém-PA',
+  neighborhood: 'Batista Campos',
   phone: '(91) 99999-0000',
   opening_hours: 'Ter a Dom, 18h às 23h',
   logo_url: null,
