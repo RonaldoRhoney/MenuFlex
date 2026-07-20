@@ -61,6 +61,27 @@ export default function Painel() {
 
   if (!session) return <Login />
 
+  const isSuperAdmin = session.user.email === SUPER_ADMIN_EMAIL
+
+  // A RhoneyInc (super-admin) gerencia a plataforma inteira — não é dona de
+  // um negócio específico, então não faz sentido forçar ela a passar pelo
+  // onboarding de "cadastre seu negócio" só pra acessar a Gerência.
+  if (!business && isSuperAdmin) {
+    return (
+      <div className="min-h-full flex flex-col">
+        <header className="border-b border-neutral-200 px-4 py-3 flex items-center justify-between">
+          <h1 className="font-semibold">RhoneyInc — Gerência MenuFlex</h1>
+          <button onClick={signOut} className="text-sm text-neutral-500">
+            Sair
+          </button>
+        </header>
+        <main className="flex-1 p-4">
+          <SuperAdmin />
+        </main>
+      </div>
+    )
+  }
+
   if (!business) {
     return (
       <Onboarding
@@ -73,7 +94,6 @@ export default function Painel() {
     )
   }
 
-  const isSuperAdmin = session.user.email === SUPER_ADMIN_EMAIL
   const abas = isSuperAdmin ? [...ABAS, { value: 'super_admin' as Aba, label: 'Gerência RhoneyInc' }] : ABAS
 
   return (
