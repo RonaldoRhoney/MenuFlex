@@ -26,6 +26,18 @@ const TIPOS: { value: BusinessType; label: string }[] = [
   { value: 'outro', label: 'Outro' },
 ]
 
+// De acordo com o tipo escolhido, busca no catálogo colaborativo
+// (menu_item_catalog) as categorias mais relevantes pra já deixar o
+// cardápio com uma sugestão inicial, em vez do dono começar do zero. Não
+// é IA — é o mesmo dicionário compartilhado do autocomplete de itens.
+const CATEGORIAS_POR_TIPO: Record<BusinessType, string[]> = {
+  lanche_rua: ['Lanches', 'Salgados', 'Acompanhamentos', 'Bebidas'],
+  hamburgueria: ['Lanches', 'Acompanhamentos', 'Bebidas'],
+  bar: ['Salgados', 'Acompanhamentos', 'Bebidas'],
+  restaurante: ['Salgados', 'Acompanhamentos', 'Bebidas', 'Sobremesas'],
+  outro: ['Bebidas'],
+}
+
 export default function Onboarding({ ownerId, onCreated }: OnboardingProps) {
   const [name, setName] = useState('')
   const [type, setType] = useState<BusinessType>('lanche_rua')
@@ -77,7 +89,50 @@ export default function Onboarding({ ownerId, onCreated }: OnboardingProps) {
       )
       return
     }
+    await sugerirCardapioInicial(data as Business)
     onCreated(data as Business)
+  }
+
+  // Best-effort: se falhar, o negócio já foi criado e o dono cadastra na mão —
+  // nunca bloqueia o cadastro por causa da sugestão.
+  async function sugerirCardapioInicial(business: Business) {
+    if (!supabase) return
+    try {
+      const hints = CATEGORIAS_POR_TIPO[business.type]
+      const { data: catalogo } = await supabase
+        .from('menu_item_catalog')
+        .select('name, description, suggested_price, category_hint')
+        .in('category_hint', hints)
+        .order('usage_count', { ascending: false })
+
+      if (!catalogo || catalogo.length === 0) return
+
+      const categoriasEncontradas = hints.filter((h) => catalogo.some((i) => i.category_hint === h))
+      const { data: categoriasCriadas } = await supabase
+        .from('menu_categories')
+        .insert(categoriasEncontradas.map((name, order_index) => ({ business_id: business.id, name, order_index })))
+        .select()
+      if (!categoriasCriadas) return
+
+      const itensParaCriar = categoriasCriadas.flatMap((cat) =>
+        catalogo
+          .filter((i) => i.category_hint === cat.name)
+          .slice(0, 4)
+          .map((i, order_index) => ({
+            business_id: business.id,
+            category_id: cat.id,
+            name: i.name,
+            description: i.description,
+            price: i.suggested_price ?? 0,
+            order_index,
+          })),
+      )
+      if (itensParaCriar.length > 0) {
+        await supabase.from('menu_items').insert(itensParaCriar)
+      }
+    } catch {
+      // sugestão é best-effort — negócio já existe, dono segue cadastrando na mão
+    }
   }
 
   return (
@@ -108,6 +163,9 @@ export default function Onboarding({ ownerId, onCreated }: OnboardingProps) {
               </option>
             ))}
           </select>
+          <p className="text-xs text-white/40 mt-1">
+            Já criamos categorias e alguns itens sugeridos com base no tipo — você edita, remove ou completa depois.
+          </p>
         </div>
 
         <div>
