@@ -26,11 +26,11 @@ import AdminShell, {
 type Aba = 'fila' | 'minha_empresa' | 'cardapio' | 'configuracoes' | 'analytics' | 'privacidade' | 'super_admin'
 
 const ABAS = [
-  { value: 'fila' as Aba, label: 'Pedidos', icon: <IconPedidos /> },
   { value: 'minha_empresa' as Aba, label: 'Minha Empresa', icon: <IconEmpresa /> },
   { value: 'cardapio' as Aba, label: 'Cardápio', icon: <IconCardapio /> },
-  { value: 'configuracoes' as Aba, label: 'Configurações', icon: <IconConfig /> },
+  { value: 'fila' as Aba, label: 'Pedidos', icon: <IconPedidos /> },
   { value: 'analytics' as Aba, label: 'Analytics', icon: <IconAnalytics /> },
+  { value: 'configuracoes' as Aba, label: 'Configurações', icon: <IconConfig /> },
   { value: 'privacidade' as Aba, label: 'Privacidade', icon: <IconPrivacidade /> },
 ]
 
