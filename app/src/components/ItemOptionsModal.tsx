@@ -42,14 +42,14 @@ export default function ItemOptionsModal({ item, onClose, onConfirm }: ItemOptio
   const totalPrice = unitPrice * quantity
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 px-0 sm:px-4">
-      <div className="w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl max-h-[85vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 px-0 sm:px-4 animate-fade-in">
+      <div className="w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl max-h-[85vh] overflow-y-auto animate-slide-up sm:animate-pop-in">
         <div className="p-4 border-b border-neutral-100 flex items-start justify-between gap-3">
           <div>
             <h2 className="font-semibold">{item.name}</h2>
             {item.description && <p className="text-sm text-neutral-500 mt-0.5">{item.description}</p>}
           </div>
-          <button onClick={onClose} className="text-neutral-400 text-xl leading-none px-1" aria-label="Fechar">
+          <button onClick={onClose} className="text-neutral-400 hover:text-neutral-700 text-xl leading-none px-1 transition-colors" aria-label="Fechar">
             ×
           </button>
         </div>
@@ -69,8 +69,8 @@ export default function ItemOptionsModal({ item, onClose, onConfirm }: ItemOptio
                   return (
                     <label
                       key={choice.id}
-                      className={`flex items-center justify-between rounded-lg border px-3 py-2 text-sm cursor-pointer ${
-                        checked ? 'border-brand bg-brand/5' : 'border-neutral-200'
+                      className={`flex items-center justify-between rounded-lg border px-3 py-2 text-sm cursor-pointer transition-colors duration-150 ${
+                        checked ? 'border-brand bg-brand/5' : 'border-neutral-200 hover:border-neutral-300'
                       }`}
                     >
                       <span className="flex items-center gap-2">
@@ -98,12 +98,15 @@ export default function ItemOptionsModal({ item, onClose, onConfirm }: ItemOptio
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                className="w-8 h-8 rounded-full border border-neutral-300"
+                className="w-8 h-8 rounded-full border border-neutral-300 transition-transform active:scale-90 hover:border-brand"
               >
                 −
               </button>
-              <span className="w-6 text-center">{quantity}</span>
-              <button onClick={() => setQuantity((q) => q + 1)} className="w-8 h-8 rounded-full border border-neutral-300">
+              <span className="w-6 text-center tabular-nums">{quantity}</span>
+              <button
+                onClick={() => setQuantity((q) => q + 1)}
+                className="w-8 h-8 rounded-full border border-neutral-300 transition-transform active:scale-90 hover:border-brand"
+              >
                 +
               </button>
             </div>
@@ -116,7 +119,7 @@ export default function ItemOptionsModal({ item, onClose, onConfirm }: ItemOptio
             onClick={() =>
               onConfirm({ unitPrice, optionsSummary: summaryParts.join(' · '), quantity })
             }
-            className="w-full rounded-xl bg-brand text-white py-3 font-medium disabled:opacity-40"
+            className="w-full rounded-xl bg-brand text-white py-3 font-medium disabled:opacity-40 transition-transform active:scale-[0.98] enabled:hover:bg-brand-dark"
           >
             Adicionar · R$ {totalPrice.toFixed(2).replace('.', ',')}
           </button>

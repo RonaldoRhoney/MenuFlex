@@ -18,6 +18,7 @@ export default function FilaPedidos({ business }: FilaPedidosProps) {
   const [orders, setOrders] = useState<Order[]>([])
   const [soundEnabled, setSoundEnabled] = useState(false)
   const [alerting, setAlerting] = useState(false)
+  const [newOrderId, setNewOrderId] = useState<string | null>(null)
   const alertingRef = useRef(false)
 
   useEffect(() => {
@@ -41,6 +42,8 @@ export default function FilaPedidos({ business }: FilaPedidosProps) {
         { event: 'INSERT', schema: 'public', table: 'orders', filter: `business_id=eq.${business.id}` },
         (payload) => {
           setOrders((prev) => [payload.new as Order, ...prev])
+          setNewOrderId((payload.new as Order).id)
+          setTimeout(() => setNewOrderId((cur) => (cur === (payload.new as Order).id ? null : cur)), 1800)
           alertingRef.current = true
           setAlerting(true)
           if (soundEnabled) startAlertLoop()
@@ -89,7 +92,7 @@ export default function FilaPedidos({ business }: FilaPedidosProps) {
         </button>
       )}
       {alerting && (
-        <div className="w-full mb-4 rounded-lg bg-brand text-white py-2.5 text-sm font-medium flex items-center justify-between px-4">
+        <div className="w-full mb-4 rounded-lg bg-brand text-white py-2.5 text-sm font-medium flex items-center justify-between px-4 animate-pop-in">
           <span>Novo pedido chegou!</span>
           <button onClick={ackAlert} className="underline">
             Confirmar
@@ -105,13 +108,18 @@ export default function FilaPedidos({ business }: FilaPedidosProps) {
               {orders
                 .filter((o) => o.status === col.status)
                 .map((order) => (
-                  <div key={order.id} className="bg-slate-900 border border-white/10 rounded-lg p-3">
+                  <div
+                    key={order.id}
+                    className={`bg-slate-900 border border-white/10 rounded-lg p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-white/20 animate-slide-up ${
+                      order.id === newOrderId ? 'animate-highlight-new' : ''
+                    }`}
+                  >
                     <p className="text-xs text-white/40 mb-1">#{order.id.slice(0, 8)} · {order.order_type}</p>
                     <p className="font-medium text-sm mb-2">R$ {order.total.toFixed(2).replace('.', ',')}</p>
                     {col.next && (
                       <button
                         onClick={() => advance(order, col.next!)}
-                        className="text-xs bg-brand text-white rounded-full px-3 py-1"
+                        className="text-xs bg-brand text-white rounded-full px-3 py-1 transition-transform active:scale-90 hover:bg-brand-dark"
                       >
                         Marcar {COLUNAS.find((c) => c.status === col.next)?.label}
                       </button>

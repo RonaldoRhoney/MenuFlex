@@ -66,24 +66,24 @@ export default function SuperAdmin() {
       <div className="flex gap-1 mb-4 border-b border-white/10">
         <button
           onClick={() => setAba('metricas')}
-          className={`px-3 py-2 text-sm font-medium border-b-2 -mb-px ${
-            aba === 'metricas' ? 'border-brand text-brand' : 'border-transparent text-white/40'
+          className={`px-3 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+            aba === 'metricas' ? 'border-brand text-brand' : 'border-transparent text-white/40 hover:text-white/70'
           }`}
         >
           Métricas
         </button>
         <button
           onClick={() => setAba('negocios')}
-          className={`px-3 py-2 text-sm font-medium border-b-2 -mb-px ${
-            aba === 'negocios' ? 'border-brand text-brand' : 'border-transparent text-white/40'
+          className={`px-3 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+            aba === 'negocios' ? 'border-brand text-brand' : 'border-transparent text-white/40 hover:text-white/70'
           }`}
         >
           Negócios
         </button>
         <button
           onClick={() => setAba('indicacoes')}
-          className={`px-3 py-2 text-sm font-medium border-b-2 -mb-px ${
-            aba === 'indicacoes' ? 'border-brand text-brand' : 'border-transparent text-white/40'
+          className={`px-3 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+            aba === 'indicacoes' ? 'border-brand text-brand' : 'border-transparent text-white/40 hover:text-white/70'
           }`}
         >
           Indicações
@@ -100,7 +100,7 @@ export default function SuperAdmin() {
       {aba === 'negocios' && (
         <div className="space-y-2">
           {businesses.map((b) => (
-            <div key={b.id} className="flex items-center justify-between rounded-lg border border-white/10 bg-slate-900 px-3 py-2.5 text-sm">
+            <div key={b.id} className="flex items-center justify-between rounded-lg border border-white/10 bg-slate-900 px-3 py-2.5 text-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-white/20 animate-fade-in">
               <div>
                 <p className="font-medium">{b.name}</p>
                 <a
@@ -138,7 +138,7 @@ export default function SuperAdmin() {
       {aba === 'indicacoes' && (
         <div className="space-y-2">
           {referrals.map((r) => (
-            <div key={r.id} className="rounded-lg border border-white/10 bg-slate-900 px-3 py-2.5 text-sm">
+            <div key={r.id} className="rounded-lg border border-white/10 bg-slate-900 px-3 py-2.5 text-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-white/20 animate-fade-in">
               <div className="flex items-start justify-between gap-2 mb-1.5">
                 <div>
                   <p className="font-medium">{r.business_name}</p>

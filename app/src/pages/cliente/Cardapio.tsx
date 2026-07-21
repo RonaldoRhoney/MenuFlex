@@ -47,8 +47,12 @@ export default function Cardapio({ business, categories, items, onAdd, cartCount
             <div key={cat.id}>
               <h2 className="text-lg font-semibold mb-3">{cat.name}</h2>
               <div className="space-y-3">
-                {catItems.map((item) => (
-                  <div key={item.id} className="flex items-center gap-3 bg-white rounded-xl p-3 shadow-sm">
+                {catItems.map((item, i) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center gap-3 bg-white rounded-xl p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md animate-fade-in"
+                    style={{ animationDelay: `${Math.min(i, 8) * 40}ms` }}
+                  >
                     {item.image_url && (
                       <img src={item.image_url} alt={item.name} className="w-16 h-16 rounded-lg object-cover shrink-0" />
                     )}
@@ -64,7 +68,7 @@ export default function Cardapio({ business, categories, items, onAdd, cartCount
                     <button
                       onClick={() => handleAddClick(item)}
                       disabled={!business.is_open}
-                      className="shrink-0 rounded-full bg-brand text-white w-9 h-9 text-lg font-bold disabled:opacity-40"
+                      className="shrink-0 rounded-full bg-brand text-white w-9 h-9 text-lg font-bold disabled:opacity-40 transition-transform active:scale-90 hover:scale-110"
                       aria-label={`Adicionar ${item.name}`}
                     >
                       +
@@ -78,10 +82,10 @@ export default function Cardapio({ business, categories, items, onAdd, cartCount
       </section>
 
       {cartCount > 0 && (
-        <div className="fixed bottom-0 inset-x-0 p-4">
+        <div className="fixed bottom-0 inset-x-0 p-4 animate-slide-up">
           <button
             onClick={onOpenCart}
-            className="w-full max-w-2xl mx-auto block rounded-xl bg-brand text-white py-3 font-medium shadow-lg"
+            className="w-full max-w-2xl mx-auto block rounded-xl bg-brand text-white py-3 font-medium shadow-lg transition-transform active:scale-[0.98] hover:shadow-xl"
           >
             Ver pedido ({cartCount} {cartCount === 1 ? 'item' : 'itens'})
           </button>

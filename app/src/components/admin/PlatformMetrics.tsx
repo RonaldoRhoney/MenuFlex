@@ -19,9 +19,9 @@ interface Summary {
 
 function KpiCard({ label, value, accent }: { label: string; value: number | string; accent?: boolean }) {
   return (
-    <div className="rounded-lg border border-white/10 bg-slate-900 px-4 py-3 relative overflow-hidden">
+    <div className="rounded-lg border border-white/10 bg-slate-900 px-4 py-3 relative overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:border-white/20 animate-fade-in">
       <div className={`absolute top-0 left-0 right-0 h-0.5 ${accent ? 'bg-brand' : 'bg-white/15'}`} />
-      <p className={`text-2xl font-semibold ${accent ? 'text-brand' : ''}`}>{value}</p>
+      <p className={`text-2xl font-semibold tabular-nums ${accent ? 'text-brand' : ''}`}>{value}</p>
       <p className="text-xs text-white/40 mt-0.5">{label}</p>
     </div>
   )

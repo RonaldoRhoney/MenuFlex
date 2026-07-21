@@ -12,3 +12,46 @@ html, body, #root {
 body {
   @apply bg-neutral-50 text-neutral-900 antialiased m-0;
 }
+
+/* ============================================================
+   Fluidez/dinamismo compartilhado entre telas — poucas animações,
+   reaproveitadas em todo lugar, em vez de cada tela inventar a sua.
+   ============================================================ */
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fade-in .35s cubic-bezier(.16,.8,.24,1) both;
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-slide-up {
+  animation: slide-up .3s cubic-bezier(.16,.8,.24,1) both;
+}
+
+@keyframes pop-in {
+  0% { opacity: 0; transform: scale(.92); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.animate-pop-in {
+  animation: pop-in .25s cubic-bezier(.34,1.56,.64,1) both;
+}
+
+@keyframes highlight-new {
+  0% { background-color: rgba(249, 115, 22, 0.22); }
+  100% { background-color: transparent; }
+}
+.animate-highlight-new {
+  animation: highlight-new 1.8s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in, .animate-slide-up, .animate-pop-in, .animate-highlight-new {
+    animation: none !important;
+  }
+}

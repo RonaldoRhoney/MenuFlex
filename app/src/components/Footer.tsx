@@ -18,6 +18,12 @@ export default function Footer() {
             <span className="font-mono text-xs tracking-wide bg-brand/15 text-brand inline-block px-3 py-1.5 rounded-lg">
               Uma conta. Todos os softwares.
             </span>
+            <div className="flex gap-2.5 mt-4">
+              <a href="#" className="w-[34px] h-[34px] rounded-full bg-white/8 grid place-items-center text-sm hover:bg-white/15 transition-colors">📷</a>
+              <a href="#" className="w-[34px] h-[34px] rounded-full bg-white/8 grid place-items-center text-sm hover:bg-white/15 transition-colors">🎵</a>
+              <a href="#" className="w-[34px] h-[34px] rounded-full bg-white/8 grid place-items-center text-sm hover:bg-white/15 transition-colors">💬</a>
+              <a href="#" className="w-[34px] h-[34px] rounded-full bg-white/8 grid place-items-center text-sm hover:bg-white/15 transition-colors">▶️</a>
+            </div>
           </div>
 
           <div>
