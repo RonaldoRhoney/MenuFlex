@@ -39,7 +39,7 @@ export default function AdminShell<T extends string>({
       {/* Sidebar — desktop */}
       <aside className="hidden sm:flex w-60 shrink-0 flex-col border-r border-white/10">
         <div className="px-5 py-5 border-b border-white/10">
-          <Link to="/" className="flex items-center gap-2 mb-4">
+          <Link to="/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 mb-4" title="Abrir site em nova aba">
             <span className="w-7 h-7 rounded-lg bg-brand flex items-center justify-center font-bold text-sm shrink-0">M</span>
             <span className="font-semibold text-sm">MenuFlex</span>
           </Link>
@@ -60,7 +60,7 @@ export default function AdminShell<T extends string>({
           ))}
         </nav>
         <div className="px-3 py-4 border-t border-white/10 space-y-1">
-          <Link to="/parceiros" className={navLinkClass(false)}>
+          <Link to="/parceiros" target="_blank" rel="noopener noreferrer" className={navLinkClass(false)}>
             <IconHeart />
             Parceiros
           </Link>

@@ -4,6 +4,7 @@ import Loja from './pages/cliente/Loja'
 import Painel from './pages/admin/Painel'
 import Parceiros from './pages/Parceiros'
 import Footer from './components/Footer'
+import { useSession } from './lib/auth'
 
 const PLANOS = [
   {
@@ -42,6 +43,8 @@ const PLANOS = [
 ]
 
 function Home() {
+  const { session } = useSession()
+
   return (
     <div className="min-h-full flex flex-col">
       <div className="flex-1 bg-slate-950 text-white">
@@ -51,15 +54,26 @@ function Home() {
             <span className="font-semibold">MenuFlex</span>
           </div>
           <div className="flex items-center gap-5">
-            <Link to="/admin" className="text-sm text-white/80 hover:text-white">
-              Entrar
-            </Link>
-            <Link
-              to="/admin?cadastro=1"
-              className="rounded-full bg-brand text-white text-sm font-medium px-4 py-2 hover:bg-brand-dark"
-            >
-              Criar meu negócio
-            </Link>
+            {session ? (
+              <Link
+                to="/admin"
+                className="rounded-full bg-brand text-white text-sm font-medium px-4 py-2 hover:bg-brand-dark"
+              >
+                Ir para o painel
+              </Link>
+            ) : (
+              <>
+                <Link to="/admin" className="text-sm text-white/80 hover:text-white">
+                  Entrar
+                </Link>
+                <Link
+                  to="/admin?cadastro=1"
+                  className="rounded-full bg-brand text-white text-sm font-medium px-4 py-2 hover:bg-brand-dark"
+                >
+                  Criar meu negócio
+                </Link>
+              </>
+            )}
           </div>
         </nav>
 
