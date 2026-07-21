@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useSession, signOut } from '../../lib/auth'
 import { supabase } from '../../lib/supabaseClient'
 import { loadPlanFeatures } from '../../lib/planFeatures'
@@ -70,7 +71,17 @@ export default function Painel() {
     return (
       <div className="min-h-full flex flex-col">
         <header className="border-b border-neutral-200 px-4 py-3 flex items-center justify-between">
-          <h1 className="font-semibold">RhoneyInc — Gerência MenuFlex</h1>
+          <div>
+            <h1 className="font-semibold">RhoneyInc — Gerência MenuFlex</h1>
+            <nav className="flex gap-3 mt-1">
+              <Link to="/" className="text-xs text-neutral-500 hover:text-brand-dark">
+                ← Página inicial
+              </Link>
+              <Link to="/parceiros" className="text-xs text-neutral-500 hover:text-brand-dark">
+                Parceiros
+              </Link>
+            </nav>
+          </div>
           <button onClick={signOut} className="text-sm text-neutral-500">
             Sair
           </button>

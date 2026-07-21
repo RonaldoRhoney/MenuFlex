@@ -103,7 +103,14 @@ export default function SuperAdmin() {
             <div key={b.id} className="flex items-center justify-between rounded-lg border border-neutral-200 px-3 py-2.5 text-sm">
               <div>
                 <p className="font-medium">{b.name}</p>
-                <p className="text-xs text-neutral-500">/loja/{b.slug}</p>
+                <a
+                  href={`/loja/${b.slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-brand-dark hover:underline"
+                >
+                  /loja/{b.slug} ↗
+                </a>
               </div>
               <div className="flex items-center gap-2">
                 <span className={`text-xs px-2 py-0.5 rounded-full ${b.is_open ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
