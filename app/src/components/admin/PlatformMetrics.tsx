@@ -19,10 +19,10 @@ interface Summary {
 
 function KpiCard({ label, value, accent }: { label: string; value: number | string; accent?: boolean }) {
   return (
-    <div className="rounded-lg border border-neutral-200 bg-white px-4 py-3 relative overflow-hidden">
-      <div className={`absolute top-0 left-0 right-0 h-0.5 ${accent ? 'bg-brand' : 'bg-neutral-300'}`} />
-      <p className={`text-2xl font-semibold ${accent ? 'text-brand-dark' : ''}`}>{value}</p>
-      <p className="text-xs text-neutral-500 mt-0.5">{label}</p>
+    <div className="rounded-lg border border-white/10 bg-slate-900 px-4 py-3 relative overflow-hidden">
+      <div className={`absolute top-0 left-0 right-0 h-0.5 ${accent ? 'bg-brand' : 'bg-white/15'}`} />
+      <p className={`text-2xl font-semibold ${accent ? 'text-brand' : ''}`}>{value}</p>
+      <p className="text-xs text-white/40 mt-0.5">{label}</p>
     </div>
   )
 }
@@ -63,8 +63,8 @@ export default function PlatformMetrics() {
     load()
   }, [])
 
-  if (loading) return <p className="text-sm text-neutral-400">Carregando métricas...</p>
-  if (error) return <p className="text-sm text-red-600">{error}</p>
+  if (loading) return <p className="text-sm text-white/40">Carregando métricas...</p>
+  if (error) return <p className="text-sm text-red-400">{error}</p>
   if (!data) return null
 
   return (
@@ -78,42 +78,42 @@ export default function PlatformMetrics() {
       </div>
 
       <div>
-        <h3 className="text-xs font-medium uppercase tracking-wide text-brand-dark mb-2">Acessos · últimos 14 dias</h3>
-        <div className="rounded-lg border border-neutral-200 bg-white p-3">
+        <h3 className="text-xs font-medium uppercase tracking-wide text-brand mb-2">Acessos · últimos 14 dias</h3>
+        <div className="rounded-lg border border-white/10 bg-slate-900 p-3">
           <BarChart data={data.por_dia} />
         </div>
       </div>
 
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
-          <h3 className="text-xs font-medium uppercase tracking-wide text-brand-dark mb-2">Dispositivos</h3>
-          <div className="rounded-lg border border-neutral-200 bg-white p-3">
+          <h3 className="text-xs font-medium uppercase tracking-wide text-brand mb-2">Dispositivos</h3>
+          <div className="rounded-lg border border-white/10 bg-slate-900 p-3">
             <BarRank items={data.dispositivos} />
           </div>
         </div>
         <div>
-          <h3 className="text-xs font-medium uppercase tracking-wide text-brand-dark mb-2">Navegadores</h3>
-          <div className="rounded-lg border border-neutral-200 bg-white p-3">
+          <h3 className="text-xs font-medium uppercase tracking-wide text-brand mb-2">Navegadores</h3>
+          <div className="rounded-lg border border-white/10 bg-slate-900 p-3">
             <BarRank items={data.navegadores} />
           </div>
         </div>
         <div>
-          <h3 className="text-xs font-medium uppercase tracking-wide text-brand-dark mb-2">Países</h3>
-          <div className="rounded-lg border border-neutral-200 bg-white p-3">
+          <h3 className="text-xs font-medium uppercase tracking-wide text-brand mb-2">Países</h3>
+          <div className="rounded-lg border border-white/10 bg-slate-900 p-3">
             <BarRank items={data.paises} />
           </div>
         </div>
         <div>
-          <h3 className="text-xs font-medium uppercase tracking-wide text-brand-dark mb-2">Cidades</h3>
-          <div className="rounded-lg border border-neutral-200 bg-white p-3">
+          <h3 className="text-xs font-medium uppercase tracking-wide text-brand mb-2">Cidades</h3>
+          <div className="rounded-lg border border-white/10 bg-slate-900 p-3">
             <BarRank items={data.cidades} />
           </div>
         </div>
         <div className="sm:col-span-2">
-          <h3 className="text-xs font-medium uppercase tracking-wide text-brand-dark mb-2">
+          <h3 className="text-xs font-medium uppercase tracking-wide text-brand mb-2">
             Bairros dos negócios cadastrados
           </h3>
-          <div className="rounded-lg border border-neutral-200 bg-white p-3">
+          <div className="rounded-lg border border-white/10 bg-slate-900 p-3">
             <BarRank items={data.bairros} />
           </div>
         </div>

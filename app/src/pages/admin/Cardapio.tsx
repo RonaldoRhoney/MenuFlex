@@ -76,13 +76,13 @@ export default function CardapioAdmin({ business }: CardapioAdminProps) {
             value={newCategoryName}
             onChange={(e) => setNewCategoryName(e.target.value)}
             placeholder="Nova categoria (ex: Bebidas)"
-            className="flex-1 border border-neutral-300 rounded-lg px-3 py-2 text-sm"
+            className="flex-1 border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm placeholder:text-white/30"
           />
           <button className="rounded-lg bg-brand text-white px-4 text-sm font-medium">Adicionar</button>
         </form>
         <div className="flex flex-wrap gap-2">
           {categories.map((c) => (
-            <span key={c.id} className="text-sm bg-neutral-100 rounded-full px-3 py-1">
+            <span key={c.id} className="text-sm bg-white/5 border border-white/10 rounded-full px-3 py-1">
               {c.name}
             </span>
           ))}
@@ -95,7 +95,7 @@ export default function CardapioAdmin({ business }: CardapioAdminProps) {
           <select
             value={newItem.category_id}
             onChange={(e) => setNewItem({ ...newItem, category_id: e.target.value })}
-            className="col-span-2 border border-neutral-300 rounded-lg px-3 py-2 text-sm"
+            className="col-span-2 border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm"
           >
             <option value="">Categoria...</option>
             {categories.map((c) => (
@@ -108,13 +108,13 @@ export default function CardapioAdmin({ business }: CardapioAdminProps) {
             value={newItem.name}
             onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
             placeholder="Nome do item"
-            className="col-span-2 border border-neutral-300 rounded-lg px-3 py-2 text-sm"
+            className="col-span-2 border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm placeholder:text-white/30"
           />
           <input
             value={newItem.description}
             onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
             placeholder="Descrição"
-            className="col-span-2 border border-neutral-300 rounded-lg px-3 py-2 text-sm"
+            className="col-span-2 border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm placeholder:text-white/30"
           />
           <input
             value={newItem.price}
@@ -122,37 +122,37 @@ export default function CardapioAdmin({ business }: CardapioAdminProps) {
             placeholder="Preço"
             type="number"
             step="0.01"
-            className="border border-neutral-300 rounded-lg px-3 py-2 text-sm"
+            className="border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm placeholder:text-white/30"
           />
           <button className="rounded-lg bg-brand text-white px-4 text-sm font-medium">Adicionar item</button>
         </form>
 
         <div className="space-y-2">
           {items.map((item) => (
-            <div key={item.id} className="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div key={item.id} className="bg-slate-900 border border-white/10 rounded-lg overflow-hidden">
               <div className="flex items-center justify-between p-3">
                 <div>
                   <p className="font-medium text-sm">{item.name}</p>
-                  <p className="text-xs text-neutral-500">R$ {item.price.toFixed(2).replace('.', ',')}</p>
+                  <p className="text-xs text-white/40">R$ {item.price.toFixed(2).replace('.', ',')}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() =>
                       setItemComOpcoesAbertoId(itemComOpcoesAbertoId === item.id ? null : item.id)
                     }
-                    className="text-xs px-2 py-1 rounded-full bg-brand/10 text-brand-dark font-medium"
+                    className="text-xs px-2 py-1 rounded-full bg-brand/10 text-brand font-medium"
                   >
                     {itemComOpcoesAbertoId === item.id ? 'Fechar opções' : 'Opções'}
                   </button>
                   <button
                     onClick={() => toggleAvailable(item)}
                     className={`text-xs px-2 py-1 rounded-full ${
-                      item.is_available ? 'bg-green-100 text-green-700' : 'bg-neutral-200 text-neutral-500'
+                      item.is_available ? 'bg-green-500/15 text-green-400' : 'bg-white/10 text-white/40'
                     }`}
                   >
                     {item.is_available ? 'Disponível' : 'Indisponível'}
                   </button>
-                  <button onClick={() => deleteItem(item.id)} className="text-xs text-red-600">
+                  <button onClick={() => deleteItem(item.id)} className="text-xs text-red-400">
                     Excluir
                   </button>
                 </div>

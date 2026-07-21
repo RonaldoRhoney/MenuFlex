@@ -23,7 +23,7 @@ export default function Privacidade() {
     <div className="max-w-md space-y-6">
       <section>
         <h2 className="font-semibold mb-2">Sobre seus dados (LGPD)</h2>
-        <p className="text-sm text-neutral-600 leading-relaxed">
+        <p className="text-sm text-white/60 leading-relaxed">
           O MenuFlex coleta apenas os dados necessários para operar seu negócio: cadastro do
           negócio, cardápio, pedidos e, com seu consentimento explícito, a localização usada
           para sugerir a instalação do app a clientes por perto. Você pode solicitar a
@@ -34,7 +34,7 @@ export default function Privacidade() {
       <section>
         <h2 className="font-semibold mb-3">Solicitar exclusão de dados</h2>
         {sent ? (
-          <p className="text-sm text-green-700">Solicitação enviada. Vamos processar e confirmar por e-mail.</p>
+          <p className="text-sm text-green-400">Solicitação enviada. Vamos processar e confirmar por e-mail.</p>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-3">
             <input
@@ -42,22 +42,22 @@ export default function Privacidade() {
               placeholder="Seu e-mail"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full border border-neutral-300 rounded-lg px-3 py-2 text-sm"
+              className="w-full border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm placeholder:text-white/30"
             />
             <input
               placeholder="Seu telefone (opcional)"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="w-full border border-neutral-300 rounded-lg px-3 py-2 text-sm"
+              className="w-full border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm placeholder:text-white/30"
             />
             <textarea
               placeholder="Detalhes (opcional)"
               value={details}
               onChange={(e) => setDetails(e.target.value)}
-              className="w-full border border-neutral-300 rounded-lg px-3 py-2 text-sm"
+              className="w-full border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm placeholder:text-white/30"
               rows={3}
             />
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            {error && <p className="text-sm text-red-400">{error}</p>}
             <button className="rounded-lg bg-brand text-white px-4 py-2 text-sm font-medium">
               Enviar solicitação
             </button>

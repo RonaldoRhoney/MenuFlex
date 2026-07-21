@@ -30,9 +30,10 @@ export default function Footer() {
 
           <div>
             <h5 className="font-mono text-xs uppercase tracking-wider text-brand mb-3.5">RhoneyInc</h5>
-            <a href="https://rhoneyinc.com" className="block text-sm text-white/75 hover:text-white mb-2.5">MeuPet</a>
-            <a href="https://rhoneyinc.com" className="block text-sm text-white/75 hover:text-white mb-2.5">FinWise</a>
-            <a href="https://rhoneyinc.com" className="block text-sm text-white/75 hover:text-white mb-2.5">Sobre nós</a>
+            <a href="https://meupet-zeta.vercel.app" target="_blank" rel="noopener" className="block text-sm text-white/75 hover:text-white mb-2.5">MeuPet</a>
+            <a href="https://finwise.rhoneyinc.com" target="_blank" rel="noopener" className="block text-sm text-white/75 hover:text-white mb-2.5">FinWise</a>
+            <a href="https://fitnow.rhoneyinc.com" target="_blank" rel="noopener" className="block text-sm text-white/75 hover:text-white mb-2.5">FitNow</a>
+            <a href="https://rhoneyinc.com" target="_blank" rel="noopener" className="block text-sm text-white/75 hover:text-white mb-2.5">Sobre nós</a>
           </div>
 
           <div>

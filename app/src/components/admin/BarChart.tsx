@@ -11,7 +11,7 @@ export default function BarChart({ data }: BarChartProps) {
   const [hoverIdx, setHoverIdx] = useState<number | null>(null)
 
   if (data.length === 0) {
-    return <p className="text-sm text-neutral-400 py-8 text-center">Sem dados ainda.</p>
+    return <p className="text-sm text-white/40 py-8 text-center">Sem dados ainda.</p>
   }
 
   const W = 640
@@ -42,8 +42,8 @@ export default function BarChart({ data }: BarChartProps) {
           const y = yAt(v)
           return (
             <g key={i}>
-              <line x1={padL} y1={y} x2={W - padR} y2={y} stroke="#e5e5e5" strokeWidth={1} />
-              <text x={padL - 6} y={y + 3} textAnchor="end" fontSize={9} fill="#a3a3a3">
+              <line x1={padL} y1={y} x2={W - padR} y2={y} stroke="rgba(255,255,255,0.08)" strokeWidth={1} />
+              <text x={padL - 6} y={y + 3} textAnchor="end" fontSize={9} fill="rgba(255,255,255,0.35)">
                 {v}
               </text>
             </g>
@@ -73,7 +73,7 @@ export default function BarChart({ data }: BarChartProps) {
           if (i % labelEvery !== 0 && i !== data.length - 1) return null
           const [, mes, dia] = d.dia.split('-')
           return (
-            <text key={d.dia} x={xCenterAt(i)} y={H - 6} textAnchor="middle" fontSize={9} fill="#a3a3a3">
+            <text key={d.dia} x={xCenterAt(i)} y={H - 6} textAnchor="middle" fontSize={9} fill="rgba(255,255,255,0.35)">
               {dia}/{mes}
             </text>
           )

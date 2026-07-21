@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { useSession, signOut } from '../../lib/auth'
+import { useSession } from '../../lib/auth'
 import { supabase } from '../../lib/supabaseClient'
 import { loadPlanFeatures } from '../../lib/planFeatures'
 import { SUPER_ADMIN_EMAIL } from '../../lib/constants'
@@ -14,16 +13,25 @@ import Configuracoes from './Configuracoes'
 import Analytics from './Analytics'
 import Privacidade from './Privacidade'
 import SuperAdmin from './SuperAdmin'
+import AdminShell, {
+  IconPedidos,
+  IconEmpresa,
+  IconCardapio,
+  IconConfig,
+  IconAnalytics,
+  IconPrivacidade,
+  IconGerencia,
+} from './AdminShell'
 
 type Aba = 'fila' | 'minha_empresa' | 'cardapio' | 'configuracoes' | 'analytics' | 'privacidade' | 'super_admin'
 
-const ABAS: { value: Aba; label: string }[] = [
-  { value: 'fila', label: 'Pedidos' },
-  { value: 'minha_empresa', label: 'Minha Empresa' },
-  { value: 'cardapio', label: 'Cardápio' },
-  { value: 'configuracoes', label: 'Configurações' },
-  { value: 'analytics', label: 'Analytics' },
-  { value: 'privacidade', label: 'Privacidade' },
+const ABAS = [
+  { value: 'fila' as Aba, label: 'Pedidos', icon: <IconPedidos /> },
+  { value: 'minha_empresa' as Aba, label: 'Minha Empresa', icon: <IconEmpresa /> },
+  { value: 'cardapio' as Aba, label: 'Cardápio', icon: <IconCardapio /> },
+  { value: 'configuracoes' as Aba, label: 'Configurações', icon: <IconConfig /> },
+  { value: 'analytics' as Aba, label: 'Analytics', icon: <IconAnalytics /> },
+  { value: 'privacidade' as Aba, label: 'Privacidade', icon: <IconPrivacidade /> },
 ]
 
 export default function Painel() {
@@ -57,7 +65,7 @@ export default function Painel() {
   }, [session?.user])
 
   if (sessionLoading || (session && businessLoading)) {
-    return <div className="p-8 text-center text-neutral-400">Carregando...</div>
+    return <div className="min-h-full flex items-center justify-center bg-slate-950 text-white/50 text-sm">Carregando...</div>
   }
 
   if (!session) return <Login />
@@ -69,27 +77,15 @@ export default function Painel() {
   // onboarding de "cadastre seu negócio" só pra acessar a Gerência.
   if (!business && isSuperAdmin) {
     return (
-      <div className="min-h-full flex flex-col">
-        <header className="border-b border-neutral-200 px-4 py-3 flex items-center justify-between">
-          <div>
-            <h1 className="font-semibold">RhoneyInc — Gerência MenuFlex</h1>
-            <nav className="flex gap-3 mt-1">
-              <Link to="/" className="text-xs text-neutral-500 hover:text-brand-dark">
-                ← Página inicial
-              </Link>
-              <Link to="/parceiros" className="text-xs text-neutral-500 hover:text-brand-dark">
-                Parceiros
-              </Link>
-            </nav>
-          </div>
-          <button onClick={signOut} className="text-sm text-neutral-500">
-            Sair
-          </button>
-        </header>
-        <main className="flex-1 p-4">
-          <SuperAdmin />
-        </main>
-      </div>
+      <AdminShell
+        title="RhoneyInc"
+        subtitle="Gerência MenuFlex"
+        abas={[{ value: 'super_admin', label: 'Gerência RhoneyInc', icon: <IconGerencia /> }]}
+        aba="super_admin"
+        onSelectAba={() => {}}
+      >
+        <SuperAdmin />
+      </AdminShell>
     )
   }
 
@@ -105,45 +101,27 @@ export default function Painel() {
     )
   }
 
-  const abas = isSuperAdmin ? [...ABAS, { value: 'super_admin' as Aba, label: 'Gerência RhoneyInc' }] : ABAS
+  const abas = isSuperAdmin
+    ? [...ABAS, { value: 'super_admin' as Aba, label: 'Gerência RhoneyInc', icon: <IconGerencia /> }]
+    : ABAS
 
   return (
-    <div className="min-h-full flex flex-col">
-      <header className="border-b border-neutral-200 px-4 py-3 flex items-center justify-between">
-        <div>
-          <h1 className="font-semibold">{business.name}</h1>
-          <p className="text-xs text-neutral-500">Plano {business.plan}</p>
-        </div>
-        <button onClick={signOut} className="text-sm text-neutral-500">
-          Sair
-        </button>
-      </header>
-
-      <nav className="flex gap-1 px-4 py-2 overflow-x-auto border-b border-neutral-200">
-        {abas.map((a) => (
-          <button
-            key={a.value}
-            onClick={() => setAba(a.value)}
-            className={`shrink-0 px-3 py-1.5 rounded-lg text-sm ${
-              aba === a.value ? 'bg-brand text-white' : 'text-neutral-600'
-            }`}
-          >
-            {a.label}
-          </button>
-        ))}
-      </nav>
-
-      <main className="flex-1 p-4">
-        {aba === 'fila' && <FilaPedidos business={business} />}
-        {aba === 'minha_empresa' && (
-          <MinhaEmpresa business={business} planFeatures={planFeatures} onUpdated={setBusiness} />
-        )}
-        {aba === 'cardapio' && <CardapioAdmin business={business} />}
-        {aba === 'configuracoes' && <Configuracoes business={business} onUpdated={setBusiness} />}
-        {aba === 'analytics' && <Analytics business={business} planFeatures={planFeatures} />}
-        {aba === 'privacidade' && <Privacidade />}
-        {aba === 'super_admin' && isSuperAdmin && <SuperAdmin />}
-      </main>
-    </div>
+    <AdminShell
+      title={business.name}
+      subtitle={`Plano ${business.plan}`}
+      abas={abas}
+      aba={aba}
+      onSelectAba={setAba}
+    >
+      {aba === 'fila' && <FilaPedidos business={business} />}
+      {aba === 'minha_empresa' && (
+        <MinhaEmpresa business={business} planFeatures={planFeatures} onUpdated={setBusiness} />
+      )}
+      {aba === 'cardapio' && <CardapioAdmin business={business} />}
+      {aba === 'configuracoes' && <Configuracoes business={business} onUpdated={setBusiness} />}
+      {aba === 'analytics' && <Analytics business={business} planFeatures={planFeatures} />}
+      {aba === 'privacidade' && <Privacidade />}
+      {aba === 'super_admin' && isSuperAdmin && <SuperAdmin />}
+    </AdminShell>
   )
 }

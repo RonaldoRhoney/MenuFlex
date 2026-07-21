@@ -76,7 +76,7 @@ export default function Login() {
   }
 
   return (
-    <div className="relative min-h-full">
+    <div className="relative min-h-full bg-slate-950 text-white">
       {showSplash && <Splash onContinue={() => setShowSplash(false)} />}
 
       <div
@@ -86,10 +86,10 @@ export default function Login() {
       >
         <div className="w-full max-w-sm">
           <h1 className="text-2xl font-semibold text-center mb-1">MenuFlex</h1>
-        <p className="text-sm text-neutral-500 text-center mb-8">Painel do negócio</p>
+        <p className="text-sm text-white/50 text-center mb-8">Painel do negócio</p>
 
         {signedUp ? (
-          <p className="text-sm text-center text-neutral-600">
+          <p className="text-sm text-center text-white/60">
             Cadastro criado! Confirme seu e-mail e depois entre para começar o onboarding do seu negócio.
           </p>
         ) : (
@@ -101,7 +101,7 @@ export default function Login() {
                   type="button"
                   onClick={() => handleOAuth(provider)}
                   disabled={oauthLoading !== null}
-                  className="w-full flex items-center justify-center gap-2.5 rounded-lg border border-neutral-300 py-2.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50 disabled:opacity-50"
+                  className="w-full flex items-center justify-center gap-2.5 rounded-lg border border-white/15 bg-slate-900 py-2.5 text-sm font-medium text-white/80 hover:bg-white/5 disabled:opacity-50"
                 >
                   {icon}
                   {oauthLoading === provider ? 'Aguarde...' : `Continuar com ${label}`}
@@ -110,9 +110,9 @@ export default function Login() {
             </div>
 
             <div className="flex items-center gap-3 mb-5">
-              <span className="flex-1 h-px bg-neutral-200" />
-              <span className="text-xs text-neutral-400">ou com e-mail</span>
-              <span className="flex-1 h-px bg-neutral-200" />
+              <span className="flex-1 h-px bg-white/10" />
+              <span className="text-xs text-white/40">ou com e-mail</span>
+              <span className="flex-1 h-px bg-white/10" />
             </div>
           </>
         )}
@@ -126,7 +126,7 @@ export default function Login() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full border border-neutral-300 rounded-lg px-3 py-2 text-sm"
+                className="w-full border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm"
               />
             </div>
             <div>
@@ -137,10 +137,10 @@ export default function Login() {
                 minLength={6}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full border border-neutral-300 rounded-lg px-3 py-2 text-sm"
+                className="w-full border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm"
               />
             </div>
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            {error && <p className="text-sm text-red-400">{error}</p>}
             <button
               type="submit"
               disabled={loading}
@@ -154,7 +154,7 @@ export default function Login() {
           {!signedUp && (
             <button
               onClick={() => setMode(mode === 'login' ? 'cadastro' : 'login')}
-              className="w-full text-center text-sm text-brand-dark mt-4"
+              className="w-full text-center text-sm text-brand mt-4"
             >
               {mode === 'login' ? 'Não tem conta? Cadastre seu negócio' : 'Já tem conta? Entrar'}
             </button>

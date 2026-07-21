@@ -81,7 +81,7 @@ export default function Onboarding({ ownerId, onCreated }: OnboardingProps) {
   }
 
   return (
-    <div className="min-h-full flex items-center justify-center px-4 py-10">
+    <div className="min-h-full flex items-center justify-center px-4 py-10 bg-slate-950 text-white">
       <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
         <h1 className="text-xl font-semibold text-center mb-2">Cadastre seu negócio</h1>
 
@@ -91,7 +91,7 @@ export default function Onboarding({ ownerId, onCreated }: OnboardingProps) {
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full border border-neutral-300 rounded-lg px-3 py-2 text-sm"
+            className="w-full border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm"
           />
         </div>
 
@@ -100,7 +100,7 @@ export default function Onboarding({ ownerId, onCreated }: OnboardingProps) {
           <select
             value={type}
             onChange={(e) => setType(e.target.value as BusinessType)}
-            className="w-full border border-neutral-300 rounded-lg px-3 py-2 text-sm"
+            className="w-full border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm"
           >
             {TIPOS.map((t) => (
               <option key={t.value} value={t.value}>
@@ -115,20 +115,20 @@ export default function Onboarding({ ownerId, onCreated }: OnboardingProps) {
             type="button"
             onClick={handleLocate}
             disabled={locating}
-            className="w-full rounded-lg border border-neutral-300 py-2 text-sm"
+            className="w-full rounded-lg border border-white/15 bg-slate-900 py-2 text-sm"
           >
             {locating ? 'Localizando...' : lat ? 'Localização capturada ✓' : 'Usar minha localização atual'}
           </button>
-          <p className="text-xs text-neutral-500 mt-1">
+          <p className="text-xs text-white/40 mt-1">
             Usada para sugerir a instalação do app a clientes por perto (raio conforme seu plano).
           </p>
         </div>
 
-        <p className="text-xs text-neutral-500">
+        <p className="text-xs text-white/40">
           Você começa no plano Free — dá pra fazer upgrade depois em Configurações.
         </p>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-red-400">{error}</p>}
 
         <button
           type="submit"

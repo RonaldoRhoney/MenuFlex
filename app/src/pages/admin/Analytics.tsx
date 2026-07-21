@@ -24,7 +24,7 @@ export default function Analytics({ business, planFeatures }: AnalyticsProps) {
   }, [business.id, podeBasico])
 
   if (!podeBasico) {
-    return <p className="text-sm text-neutral-500">Analytics disponível a partir do plano Básico.</p>
+    return <p className="text-sm text-white/40">Analytics disponível a partir do plano Básico.</p>
   }
 
   const totalPedidos = orders.length
@@ -39,18 +39,18 @@ export default function Analytics({ business, planFeatures }: AnalyticsProps) {
   return (
     <div className="space-y-6 max-w-md">
       <div className="grid grid-cols-2 gap-3">
-        <div className="bg-white rounded-xl p-4 shadow-sm">
-          <p className="text-xs text-neutral-500">Pedidos</p>
+        <div className="bg-slate-900 border border-white/10 rounded-xl p-4">
+          <p className="text-xs text-white/40">Pedidos</p>
           <p className="text-xl font-semibold">{totalPedidos}</p>
         </div>
-        <div className="bg-white rounded-xl p-4 shadow-sm">
-          <p className="text-xs text-neutral-500">Faturamento</p>
+        <div className="bg-slate-900 border border-white/10 rounded-xl p-4">
+          <p className="text-xs text-white/40">Faturamento</p>
           <p className="text-xl font-semibold">R$ {faturamento.toFixed(2).replace('.', ',')}</p>
         </div>
       </div>
 
       {podeAvancado ? (
-        <div className="bg-white rounded-xl p-4 shadow-sm">
+        <div className="bg-slate-900 border border-white/10 rounded-xl p-4">
           <h3 className="text-sm font-medium mb-2">Pedidos por tipo</h3>
           {Object.entries(porTipo).map(([tipo, count]) => (
             <div key={tipo} className="flex justify-between text-sm mb-1">
@@ -58,13 +58,13 @@ export default function Analytics({ business, planFeatures }: AnalyticsProps) {
               <span>{count}</span>
             </div>
           ))}
-          <div className="flex justify-between text-sm mt-2 pt-2 border-t border-neutral-100">
+          <div className="flex justify-between text-sm mt-2 pt-2 border-t border-white/10">
             <span>Cancelados</span>
             <span>{cancelados}</span>
           </div>
         </div>
       ) : (
-        <p className="text-sm text-neutral-500">Relatórios avançados (por tipo de pedido, cancelamentos) disponíveis no Premium.</p>
+        <p className="text-sm text-white/40">Relatórios avançados (por tipo de pedido, cancelamentos) disponíveis no Premium.</p>
       )}
     </div>
   )

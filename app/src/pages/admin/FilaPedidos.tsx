@@ -83,7 +83,7 @@ export default function FilaPedidos({ business }: FilaPedidosProps) {
       {!soundEnabled && (
         <button
           onClick={enableSound}
-          className="w-full mb-4 rounded-lg bg-amber-100 text-amber-800 py-2.5 text-sm font-medium"
+          className="w-full mb-4 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 py-2.5 text-sm font-medium"
         >
           🔔 Ativar alerta sonoro de novos pedidos (obrigatório no navegador — clique uma vez)
         </button>
@@ -99,14 +99,14 @@ export default function FilaPedidos({ business }: FilaPedidosProps) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {COLUNAS.map((col) => (
-          <div key={col.status} className="bg-neutral-100 rounded-xl p-3">
-            <h3 className="font-medium text-sm mb-3">{col.label}</h3>
+          <div key={col.status} className="bg-white/[0.03] border border-white/10 rounded-xl p-3">
+            <h3 className="font-medium text-sm mb-3 text-white/80">{col.label}</h3>
             <div className="space-y-2">
               {orders
                 .filter((o) => o.status === col.status)
                 .map((order) => (
-                  <div key={order.id} className="bg-white rounded-lg p-3 shadow-sm">
-                    <p className="text-xs text-neutral-500 mb-1">#{order.id.slice(0, 8)} · {order.order_type}</p>
+                  <div key={order.id} className="bg-slate-900 border border-white/10 rounded-lg p-3">
+                    <p className="text-xs text-white/40 mb-1">#{order.id.slice(0, 8)} · {order.order_type}</p>
                     <p className="font-medium text-sm mb-2">R$ {order.total.toFixed(2).replace('.', ',')}</p>
                     {col.next && (
                       <button
@@ -118,6 +118,9 @@ export default function FilaPedidos({ business }: FilaPedidosProps) {
                     )}
                   </div>
                 ))}
+              {orders.filter((o) => o.status === col.status).length === 0 && (
+                <p className="text-xs text-white/30 py-2">Nenhum pedido aqui.</p>
+              )}
             </div>
           </div>
         ))}

@@ -73,7 +73,7 @@ export default function Configuracoes({ business, onUpdated }: ConfiguracoesProp
         <button
           onClick={toggleOpen}
           className={`px-4 py-2 rounded-full text-sm font-medium ${
-            isOpen ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+            isOpen ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-400'
           }`}
         >
           {isOpen ? 'Aberto — clique para fechar' : 'Fechado — clique para abrir'}
@@ -90,16 +90,16 @@ export default function Configuracoes({ business, onUpdated }: ConfiguracoesProp
               <div
                 key={p.value}
                 className={`rounded-lg border px-3 py-2.5 text-sm ${
-                  isCurrent ? 'border-brand bg-brand/5' : 'border-neutral-200'
+                  isCurrent ? 'border-brand bg-brand/5' : 'border-white/10'
                 }`}
               >
                 <div className="flex justify-between items-center mb-1.5">
                   <span className="font-medium">{p.label}</span>
-                  <span className="text-neutral-500">{p.preco}</span>
+                  <span className="text-white/40">{p.preco}</span>
                 </div>
                 <ul className="space-y-1 mb-2">
                   {p.itens.map((item) => (
-                    <li key={item} className="flex items-start gap-1.5 text-xs text-neutral-500">
+                    <li key={item} className="flex items-start gap-1.5 text-xs text-white/40">
                       <span className="text-brand shrink-0">✓</span>
                       {item}
                     </li>
@@ -119,8 +119,8 @@ export default function Configuracoes({ business, onUpdated }: ConfiguracoesProp
             )
           })}
         </div>
-        {upgradeError && <p className="text-xs text-red-600 mt-2">{upgradeError}</p>}
-        <p className="text-xs text-neutral-500 mt-2">
+        {upgradeError && <p className="text-xs text-red-400 mt-2">{upgradeError}</p>}
+        <p className="text-xs text-white/40 mt-2">
           Pagamento processado via Mercado Pago (PIX, boleto ou cartão) — o valor é repassado à
           RhoneyInc, responsável pela plataforma.
         </p>

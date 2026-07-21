@@ -92,21 +92,21 @@ export default function ItemOptionsEditor({ menuItemId }: ItemOptionsEditorProps
   }
 
   if (loading) {
-    return <div className="px-3 pb-3 text-xs text-neutral-400">Carregando opções...</div>
+    return <div className="px-3 pb-3 text-xs text-white/40">Carregando opções...</div>
   }
 
   return (
-    <div className="px-3 pb-3 pt-1 border-t border-neutral-100 bg-neutral-50 space-y-3">
+    <div className="px-3 pb-3 pt-1 border-t border-white/10 bg-black/20 space-y-3">
       {groups.map((group) => (
-        <div key={group.id} className="bg-white rounded-lg p-3 border border-neutral-200">
+        <div key={group.id} className="bg-slate-900 rounded-lg p-3 border border-white/10">
           <div className="flex items-center justify-between mb-2">
             <div>
               <p className="text-sm font-medium">{group.name}</p>
-              <p className="text-xs text-neutral-400">
+              <p className="text-xs text-white/40">
                 {group.required ? 'Obrigatório' : 'Opcional'} · {group.multiple ? 'Múltipla escolha' : 'Escolha única'}
               </p>
             </div>
-            <button onClick={() => deleteGroup(group.id)} className="text-xs text-red-600 shrink-0">
+            <button onClick={() => deleteGroup(group.id)} className="text-xs text-red-400 shrink-0">
               Excluir grupo
             </button>
           </div>
@@ -117,20 +117,20 @@ export default function ItemOptionsEditor({ menuItemId }: ItemOptionsEditorProps
                 <span>
                   {choice.name}
                   {choice.price_delta !== 0 && (
-                    <span className="text-neutral-400">
+                    <span className="text-white/40">
                       {' '}
                       ({choice.price_delta > 0 ? '+' : ''}
                       R$ {choice.price_delta.toFixed(2).replace('.', ',')})
                     </span>
                   )}
                 </span>
-                <button onClick={() => deleteChoice(choice.id)} className="text-xs text-red-600">
+                <button onClick={() => deleteChoice(choice.id)} className="text-xs text-red-400">
                   Remover
                 </button>
               </div>
             ))}
             {group.menu_item_options.length === 0 && (
-              <p className="text-xs text-neutral-400">Nenhuma opção cadastrada ainda.</p>
+              <p className="text-xs text-white/40">Nenhuma opção cadastrada ainda.</p>
             )}
           </div>
 
@@ -141,7 +141,7 @@ export default function ItemOptionsEditor({ menuItemId }: ItemOptionsEditorProps
                 setNewChoice({ ...newChoice, [group.id]: { name: e.target.value, price_delta: newChoice[group.id]?.price_delta ?? '' } })
               }
               placeholder="Ex: Ao ponto"
-              className="flex-1 border border-neutral-300 rounded-lg px-2 py-1.5 text-xs"
+              className="flex-1 border border-white/15 bg-slate-950 rounded-lg px-2 py-1.5 text-xs placeholder:text-white/30"
             />
             <input
               value={newChoice[group.id]?.price_delta ?? ''}
@@ -151,7 +151,7 @@ export default function ItemOptionsEditor({ menuItemId }: ItemOptionsEditorProps
               placeholder="+R$"
               type="number"
               step="0.01"
-              className="w-20 border border-neutral-300 rounded-lg px-2 py-1.5 text-xs"
+              className="w-20 border border-white/15 bg-slate-950 rounded-lg px-2 py-1.5 text-xs placeholder:text-white/30"
             />
             <button
               onClick={() => addChoice(group.id)}
@@ -163,14 +163,14 @@ export default function ItemOptionsEditor({ menuItemId }: ItemOptionsEditorProps
         </div>
       ))}
 
-      <form onSubmit={addGroup} className="bg-white rounded-lg p-3 border border-dashed border-neutral-300 space-y-2">
+      <form onSubmit={addGroup} className="bg-slate-900 rounded-lg p-3 border border-dashed border-white/15 space-y-2">
         <input
           value={newGroupName}
           onChange={(e) => setNewGroupName(e.target.value)}
           placeholder="Novo grupo (ex: Ponto da carne, Adicionais)"
-          className="w-full border border-neutral-300 rounded-lg px-2 py-1.5 text-xs"
+          className="w-full border border-white/15 bg-slate-950 rounded-lg px-2 py-1.5 text-xs placeholder:text-white/30"
         />
-        <div className="flex items-center gap-4 text-xs text-neutral-600">
+        <div className="flex items-center gap-4 text-xs text-white/60">
           <label className="flex items-center gap-1.5">
             <input type="checkbox" checked={newGroupRequired} onChange={(e) => setNewGroupRequired(e.target.checked)} />
             Obrigatório

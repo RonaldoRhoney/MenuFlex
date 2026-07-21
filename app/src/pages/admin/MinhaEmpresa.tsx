@@ -104,11 +104,11 @@ export default function MinhaEmpresa({ business, planFeatures, onUpdated }: Minh
         <h2 className="font-semibold mb-3">Logo do negócio</h2>
         {podePersonalizar ? (
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-xl border border-neutral-200 bg-neutral-50 flex items-center justify-center overflow-hidden shrink-0">
+            <div className="w-16 h-16 rounded-xl border border-white/10 bg-slate-950 flex items-center justify-center overflow-hidden shrink-0">
               {business.logo_url ? (
                 <img src={business.logo_url} alt="Logo" className="w-full h-full object-cover" />
               ) : (
-                <span className="text-xs text-neutral-400">Sem logo</span>
+                <span className="text-xs text-white/40">Sem logo</span>
               )}
             </div>
             <label className="text-sm text-brand-dark font-medium cursor-pointer">
@@ -126,7 +126,7 @@ export default function MinhaEmpresa({ business, planFeatures, onUpdated }: Minh
             </label>
           </div>
         ) : (
-          <p className="text-sm text-neutral-500">
+          <p className="text-sm text-white/40">
             Disponível a partir do plano Básico — faça upgrade em Configurações para enviar sua logo.
           </p>
         )}
@@ -141,7 +141,7 @@ export default function MinhaEmpresa({ business, planFeatures, onUpdated }: Minh
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="w-full border border-neutral-300 rounded-lg px-3 py-2 text-sm"
+              className="w-full border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm placeholder:text-white/30"
             />
           </div>
           <div>
@@ -149,7 +149,7 @@ export default function MinhaEmpresa({ business, planFeatures, onUpdated }: Minh
             <select
               value={type}
               onChange={(e) => setType(e.target.value as BusinessType)}
-              className="w-full border border-neutral-300 rounded-lg px-3 py-2 text-sm"
+              className="w-full border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm placeholder:text-white/30"
             >
               {TIPOS.map((t) => (
                 <option key={t.value} value={t.value}>
@@ -165,7 +165,7 @@ export default function MinhaEmpresa({ business, planFeatures, onUpdated }: Minh
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
               placeholder="Uma frase sobre o seu negócio para o cliente ver no cardápio"
-              className="w-full border border-neutral-300 rounded-lg px-3 py-2 text-sm"
+              className="w-full border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm placeholder:text-white/30"
             />
           </div>
           <div>
@@ -174,7 +174,7 @@ export default function MinhaEmpresa({ business, planFeatures, onUpdated }: Minh
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               placeholder="Rua, número, bairro"
-              className="w-full border border-neutral-300 rounded-lg px-3 py-2 text-sm"
+              className="w-full border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm placeholder:text-white/30"
             />
           </div>
           <div>
@@ -183,9 +183,9 @@ export default function MinhaEmpresa({ business, planFeatures, onUpdated }: Minh
               value={neighborhood}
               onChange={(e) => setNeighborhood(e.target.value)}
               placeholder="Ex: Umarizal"
-              className="w-full border border-neutral-300 rounded-lg px-3 py-2 text-sm"
+              className="w-full border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm placeholder:text-white/30"
             />
-            <p className="text-xs text-neutral-400 mt-1">Usado só pra estatística agregada de onde a RhoneyInc está presente.</p>
+            <p className="text-xs text-white/40 mt-1">Usado só pra estatística agregada de onde a RhoneyInc está presente.</p>
           </div>
           <div>
             <label className="text-sm font-medium mb-1 block">Telefone / WhatsApp</label>
@@ -193,7 +193,7 @@ export default function MinhaEmpresa({ business, planFeatures, onUpdated }: Minh
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="(00) 00000-0000"
-              className="w-full border border-neutral-300 rounded-lg px-3 py-2 text-sm"
+              className="w-full border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm placeholder:text-white/30"
             />
           </div>
           <div>
@@ -202,7 +202,7 @@ export default function MinhaEmpresa({ business, planFeatures, onUpdated }: Minh
               value={openingHours}
               onChange={(e) => setOpeningHours(e.target.value)}
               placeholder="Ex: Ter a Dom, 18h às 23h"
-              className="w-full border border-neutral-300 rounded-lg px-3 py-2 text-sm"
+              className="w-full border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm placeholder:text-white/30"
             />
           </div>
         </div>
@@ -218,12 +218,12 @@ export default function MinhaEmpresa({ business, planFeatures, onUpdated }: Minh
             className="w-10 h-10"
           />
         ) : (
-          <p className="text-sm text-neutral-500">Disponível a partir do plano Básico.</p>
+          <p className="text-sm text-white/40">Disponível a partir do plano Básico.</p>
         )}
       </section>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      {savedOk && <p className="text-sm text-green-600">Dados salvos.</p>}
+      {error && <p className="text-sm text-red-400">{error}</p>}
+      {savedOk && <p className="text-sm text-green-400">Dados salvos.</p>}
 
       <button
         type="submit"

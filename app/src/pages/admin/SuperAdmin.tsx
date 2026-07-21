@@ -54,20 +54,20 @@ export default function SuperAdmin() {
     setSalvandoId(null)
   }
 
-  if (loading) return <p className="text-sm text-neutral-400">Carregando...</p>
+  if (loading) return <p className="text-sm text-white/40">Carregando...</p>
 
   return (
     <div>
       <h2 className="font-semibold mb-1">Gerência RhoneyInc</h2>
-      <p className="text-sm text-neutral-500 mb-4">
+      <p className="text-sm text-white/40 mb-4">
         {businesses.length} negócio(s) · {referrals.length} indicação(ões)
       </p>
 
-      <div className="flex gap-1 mb-4 border-b border-neutral-200">
+      <div className="flex gap-1 mb-4 border-b border-white/10">
         <button
           onClick={() => setAba('metricas')}
           className={`px-3 py-2 text-sm font-medium border-b-2 -mb-px ${
-            aba === 'metricas' ? 'border-brand text-brand-dark' : 'border-transparent text-neutral-500'
+            aba === 'metricas' ? 'border-brand text-brand' : 'border-transparent text-white/40'
           }`}
         >
           Métricas
@@ -75,7 +75,7 @@ export default function SuperAdmin() {
         <button
           onClick={() => setAba('negocios')}
           className={`px-3 py-2 text-sm font-medium border-b-2 -mb-px ${
-            aba === 'negocios' ? 'border-brand text-brand-dark' : 'border-transparent text-neutral-500'
+            aba === 'negocios' ? 'border-brand text-brand' : 'border-transparent text-white/40'
           }`}
         >
           Negócios
@@ -83,7 +83,7 @@ export default function SuperAdmin() {
         <button
           onClick={() => setAba('indicacoes')}
           className={`px-3 py-2 text-sm font-medium border-b-2 -mb-px ${
-            aba === 'indicacoes' ? 'border-brand text-brand-dark' : 'border-transparent text-neutral-500'
+            aba === 'indicacoes' ? 'border-brand text-brand' : 'border-transparent text-white/40'
           }`}
         >
           Indicações
@@ -100,27 +100,27 @@ export default function SuperAdmin() {
       {aba === 'negocios' && (
         <div className="space-y-2">
           {businesses.map((b) => (
-            <div key={b.id} className="flex items-center justify-between rounded-lg border border-neutral-200 px-3 py-2.5 text-sm">
+            <div key={b.id} className="flex items-center justify-between rounded-lg border border-white/10 bg-slate-900 px-3 py-2.5 text-sm">
               <div>
                 <p className="font-medium">{b.name}</p>
                 <a
                   href={`/loja/${b.slug}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs text-brand-dark hover:underline"
+                  className="text-xs text-brand hover:underline"
                 >
                   /loja/{b.slug} ↗
                 </a>
               </div>
               <div className="flex items-center gap-2">
-                <span className={`text-xs px-2 py-0.5 rounded-full ${b.is_open ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                <span className={`text-xs px-2 py-0.5 rounded-full ${b.is_open ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-400'}`}>
                   {b.is_open ? 'Aberto' : 'Fechado'}
                 </span>
                 <select
                   value={b.plan}
                   disabled={salvandoId === b.id}
                   onChange={(e) => alterarPlano(b, e.target.value as Plan)}
-                  className="text-xs font-medium px-2 py-1 rounded-full bg-brand/10 text-brand-dark capitalize border-0"
+                  className="text-xs font-medium px-2 py-1 rounded-full bg-brand/10 text-brand capitalize border-0"
                 >
                   {PLANOS.map((p) => (
                     <option key={p} value={p}>
@@ -131,18 +131,18 @@ export default function SuperAdmin() {
               </div>
             </div>
           ))}
-          {businesses.length === 0 && <p className="text-sm text-neutral-400">Nenhum negócio cadastrado ainda.</p>}
+          {businesses.length === 0 && <p className="text-sm text-white/40">Nenhum negócio cadastrado ainda.</p>}
         </div>
       )}
 
       {aba === 'indicacoes' && (
         <div className="space-y-2">
           {referrals.map((r) => (
-            <div key={r.id} className="rounded-lg border border-neutral-200 px-3 py-2.5 text-sm">
+            <div key={r.id} className="rounded-lg border border-white/10 bg-slate-900 px-3 py-2.5 text-sm">
               <div className="flex items-start justify-between gap-2 mb-1.5">
                 <div>
                   <p className="font-medium">{r.business_name}</p>
-                  <p className="text-xs text-neutral-500">
+                  <p className="text-xs text-white/40">
                     {r.business_phone}
                     {r.business_city && ` · ${r.business_city}`}
                   </p>
@@ -151,7 +151,7 @@ export default function SuperAdmin() {
                   value={r.status}
                   disabled={salvandoId === r.id}
                   onChange={(e) => alterarStatusIndicacao(r, e.target.value as ReferralStatus)}
-                  className="text-xs font-medium px-2 py-1 rounded-full bg-neutral-100 border-0 shrink-0"
+                  className="text-xs font-medium px-2 py-1 rounded-full bg-white/10 border-0 shrink-0"
                 >
                   {STATUS_INDICACAO.map((s) => (
                     <option key={s.value} value={s.value}>
@@ -160,13 +160,13 @@ export default function SuperAdmin() {
                   ))}
                 </select>
               </div>
-              <p className="text-xs text-neutral-500">
+              <p className="text-xs text-white/40">
                 Indicado por <strong>{r.referrer_name}</strong> · {r.referrer_phone} ·{' '}
                 {new Date(r.created_at).toLocaleDateString('pt-BR')}
               </p>
             </div>
           ))}
-          {referrals.length === 0 && <p className="text-sm text-neutral-400">Nenhuma indicação recebida ainda.</p>}
+          {referrals.length === 0 && <p className="text-sm text-white/40">Nenhuma indicação recebida ainda.</p>}
         </div>
       )}
     </div>
