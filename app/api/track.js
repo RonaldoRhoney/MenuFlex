@@ -15,7 +15,7 @@
 //   SUPABASE_SERVICE_ROLE_KEY
 // ============================================================
 
-const { createClient } = require('@supabase/supabase-js');
+import { createClient } from '@supabase/supabase-js';
 
 function detectarDispositivo(userAgent) {
   const ua = (userAgent || '').toLowerCase();
@@ -33,7 +33,7 @@ function detectarNavegador(userAgent) {
   return 'Outro';
 }
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Método não permitido.' });
     return;
@@ -68,4 +68,4 @@ module.exports = async (req, res) => {
   }
 
   res.status(200).json({ ok: true });
-};
+}

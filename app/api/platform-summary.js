@@ -15,11 +15,11 @@
 //   SUPABASE_SERVICE_ROLE_KEY
 // ============================================================
 
-const { createClient } = require('@supabase/supabase-js');
+import { createClient } from '@supabase/supabase-js';
 
 const SUPER_ADMIN_EMAIL = 'rhoneyinc@gmail.com';
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   if (req.method !== 'GET') {
     res.status(405).json({ error: 'Método não permitido.' });
     return;
@@ -118,4 +118,4 @@ module.exports = async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: 'Erro ao consultar métricas.' });
   }
-};
+}
