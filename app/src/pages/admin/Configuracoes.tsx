@@ -59,9 +59,12 @@ export default function Configuracoes({ business, onUpdated }: ConfiguracoesProp
     setUpgrading(plan)
     try {
       const checkoutUrl = await startPlanUpgrade(business, plan)
-      window.location.href = checkoutUrl
+      // Abre em nova aba — o painel ADM continua aberto, o dono não perde a
+      // sessão nem o lugar onde estava caso desista do pagamento no meio.
+      window.open(checkoutUrl, '_blank', 'noopener')
     } catch (err) {
       setUpgradeError(err instanceof Error ? err.message : 'Erro ao iniciar pagamento')
+    } finally {
       setUpgrading(null)
     }
   }
