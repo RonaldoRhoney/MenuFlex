@@ -21,7 +21,7 @@ export default defineConfig({
         orientation: 'portrait',
         lang: 'pt-BR',
         background_color: '#ffffff',
-        theme_color: '#16a34a',
+        theme_color: '#f97316',
         icons: [
           { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
           { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
