@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-do
 import Loja from './pages/cliente/Loja'
 import Painel from './pages/admin/Painel'
 import Parceiros from './pages/Parceiros'
+import PoliticaPrivacidade from './pages/PoliticaPrivacidade'
+import TermosUso from './pages/TermosUso'
 import Footer from './components/Footer'
 import { useSession } from './lib/auth'
 
@@ -206,27 +208,8 @@ function App() {
         <Route path="/loja/:slug" element={<Loja />} />
         <Route path="/admin" element={<Painel />} />
         <Route path="/parceiros" element={<Parceiros />} />
-        <Route
-          path="/privacidade"
-          element={
-            <PaginaEstatica titulo="Política de Privacidade">
-              <p>
-                O MenuFlex coleta apenas os dados necessários para operar o cardápio e os
-                pedidos de cada negócio cadastrado: nome e telefone informados na hora do
-                pedido, e, mediante consentimento explícito, sua localização — usada só para
-                sugerir a instalação do app quando você está fisicamente perto de um negócio.
-              </p>
-              <p>
-                Você pode solicitar a exclusão dos seus dados a qualquer momento pelo painel
-                do negócio (aba Privacidade) ou entrando em contato.
-              </p>
-            </PaginaEstatica>
-          }
-        />
-        <Route
-          path="/termos"
-          element={<PaginaEstatica titulo="Termos de uso"><p>MVP em fase de validação — termos completos em breve.</p></PaginaEstatica>}
-        />
+        <Route path="/privacidade" element={<PoliticaPrivacidade />} />
+        <Route path="/termos" element={<TermosUso />} />
         <Route
           path="/contato"
           element={<PaginaEstatica titulo="Contato"><p>contato@rhoneyinc.com</p></PaginaEstatica>}
