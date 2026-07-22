@@ -1,0 +1,113 @@
+{
+  "name": "MenuFlex - 1 - Pedido de exclusão de dados (LGPD)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "menuflex-lgpd-exclusao",
+        "options": {}
+      },
+      "id": "webhook1",
+      "name": "Webhook - novo pedido de exclusão",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [180, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            { "value1": "={{$json.headers['x-menuflex-secret']}}", "value2": "SEU_WEBHOOK_SECRET_AQUI" }
+          ]
+        }
+      },
+      "id": "if1secret",
+      "name": "Confirma secret",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [400, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "SEU_TELEGRAM_CHAT_ID_AQUI",
+        "text": "=🗑️ *Pedido de exclusão de dados (LGPD) — MenuFlex*\n📧 E-mail: {{$json.body.record.contact_email || 'não informado'}}\n📞 Telefone: {{$json.body.record.contact_phone || 'não informado'}}\n💬 Detalhes: {{$json.body.record.details || '—'}}\n🕐 Horário: {{$json.body.record.created_at}}\nStatus: 🔴 Pendente — processar e marcar como concluído no Supabase",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "telegram1",
+      "name": "Telegram - avisa admin",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [620, 220],
+      "credentials": {
+        "telegramApi": {
+          "id": "PREENCHER_APOS_IMPORTAR",
+          "name": "Telegram MeuPet Bot"
+        }
+      },
+      "retryOnFail": true,
+      "waitBetweenTries": 300000
+    },
+    {
+      "parameters": {
+        "fromEmail": "SEU_EMAIL_REMETENTE_AQUI",
+        "toEmail": "={{$json.body.record.contact_email}}",
+        "subject": "MenuFlex — recebemos seu pedido de exclusão de dados",
+        "text": "=Olá,\n\nConfirmamos o recebimento do seu pedido de exclusão de dados no MenuFlex, enviado em {{$json.body.record.created_at}}.\n\nVamos processar sua solicitação e excluir os dados pessoais associados, conforme a LGPD. Você será avisado quando a exclusão for concluída.\n\nSe você não fez esse pedido, ignore este e-mail ou responda para contato.\n\nEquipe MenuFlex",
+        "options": {}
+      },
+      "id": "email1",
+      "name": "E-mail - confirma recebimento (dormente até SMTP)",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [620, 400],
+      "credentials": {
+        "smtp": {
+          "id": "PREENCHER_APOS_CONFIGURAR_SMTP",
+          "name": "SMTP MenuFlex"
+        }
+      },
+      "continueOnFail": true,
+      "retryOnFail": true,
+      "waitBetweenTries": 300000
+    },
+    {
+      "parameters": {
+        "content": "## Por que esse IF?\nSem isso, qualquer um que descobrisse a URL do webhook poderia forjar um POST e disparar a automação (Database Webhooks do Supabase não assinam a requisição). O node compara o header customizado `x-menuflex-secret` com um valor secreto que só você e o Supabase Webhook conhecem. Configure o mesmo valor em: Supabase → Database → Webhooks → HTTP Headers → `x-menuflex-secret: <valor>`.\n\nGere o valor com `openssl rand -hex 24` — use um valor DIFERENTE do `x-meupet-secret` do MeuPet, mesmo compartilhando a mesma instância n8n.",
+        "height": 260,
+        "width": 320
+      },
+      "id": "note1",
+      "name": "Nota - segredo compartilhado",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [400, 550]
+    },
+    {
+      "parameters": {
+        "content": "## Node de e-mail fica dormente até você configurar SMTP\nO MenuFlex ainda não tem um provedor de e-mail configurado (ex: Resend, SendGrid, Gmail SMTP). Este node está pronto mas `continueOnFail: true` — se falhar (sem credencial válida), o workflow segue em frente sem travar o aviso ao admin no Telegram. Quando tiver um SMTP, crie a credencial no n8n, associe aqui, e o e-mail de confirmação passa a sair de verdade.",
+        "height": 220,
+        "width": 300
+      },
+      "id": "note2",
+      "name": "Nota - e-mail dormente",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [620, 600]
+    }
+  ],
+  "connections": {
+    "Webhook - novo pedido de exclusão": {
+      "main": [[{ "node": "Confirma secret", "type": "main", "index": 0 }]]
+    },
+    "Confirma secret": {
+      "main": [[
+        { "node": "Telegram - avisa admin", "type": "main", "index": 0 },
+        { "node": "E-mail - confirma recebimento (dormente até SMTP)", "type": "main", "index": 0 }
+      ]]
+    }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" }
+}
