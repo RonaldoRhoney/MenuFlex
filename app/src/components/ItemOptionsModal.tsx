@@ -46,7 +46,7 @@ export default function ItemOptionsModal({ item, onClose, onConfirm }: ItemOptio
       <div className="w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl max-h-[85vh] overflow-y-auto animate-slide-up sm:animate-pop-in">
         <div className="p-4 border-b border-neutral-100 flex items-start justify-between gap-3">
           <div>
-            <h2 className="font-semibold">{item.name}</h2>
+            <h2 className="font-display text-lg font-semibold tracking-tight">{item.name}</h2>
             {item.description && <p className="text-sm text-neutral-500 mt-0.5">{item.description}</p>}
           </div>
           <button onClick={onClose} className="text-neutral-400 hover:text-neutral-700 text-xl leading-none px-1 transition-colors" aria-label="Fechar">

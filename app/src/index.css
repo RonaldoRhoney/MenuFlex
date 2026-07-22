@@ -3,6 +3,8 @@
 @theme {
   --color-brand: #f97316;
   --color-brand-dark: #ea580c;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Fraunces', ui-serif, Georgia, serif;
 }
 
 html, body, #root {
@@ -10,7 +12,7 @@ html, body, #root {
 }
 
 body {
-  @apply bg-neutral-50 text-neutral-900 antialiased m-0;
+  @apply bg-neutral-50 text-neutral-900 antialiased m-0 font-sans;
 }
 
 /* ============================================================
