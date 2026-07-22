@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useSession } from '../../lib/auth'
 import { supabase } from '../../lib/supabaseClient'
 import { loadPlanFeatures } from '../../lib/planFeatures'
@@ -13,6 +13,7 @@ import Configuracoes from './Configuracoes'
 import Analytics from './Analytics'
 import Privacidade from './Privacidade'
 import SuperAdmin from './SuperAdmin'
+import Splash from '../../components/Splash'
 import AdminShell, {
   IconPedidos,
   IconEmpresa,
@@ -41,6 +42,21 @@ export default function Painel() {
   const [planFeatures, setPlanFeatures] = useState<PlanFeatureRow[]>([])
   const [aba, setAba] = useState<Aba>('fila')
 
+  // Mesma animação de entrada do Splash (Login.tsx) — mas disparada quando a
+  // sessão passa de "sem sessão" pra "logado", não só na primeira tela antes
+  // do login. hadSessionRef começa null (ainda não sabemos) pra não disparar
+  // à toa quando a página carrega com uma sessão já existente (refresh).
+  const [justLoggedIn, setJustLoggedIn] = useState(false)
+  const hadSessionRef = useRef<boolean | null>(null)
+
+  useEffect(() => {
+    if (sessionLoading) return
+    if (hadSessionRef.current === false && session) {
+      setJustLoggedIn(true)
+    }
+    hadSessionRef.current = !!session
+  }, [session, sessionLoading])
+
   useEffect(() => {
     if (!supabase || !session?.user) {
       setBusinessLoading(false)
@@ -64,8 +80,15 @@ export default function Painel() {
     }
   }, [session?.user])
 
+  const splashOverlay = justLoggedIn && <Splash onContinue={() => setJustLoggedIn(false)} />
+
   if (sessionLoading || (session && businessLoading)) {
-    return <div className="min-h-full flex items-center justify-center bg-slate-950 text-white/50 text-sm">Carregando...</div>
+    return (
+      <div className="relative min-h-full">
+        {splashOverlay}
+        <div className="min-h-full flex items-center justify-center bg-slate-950 text-white/50 text-sm">Carregando...</div>
+      </div>
+    )
   }
 
   if (!session) return <Login />
@@ -77,27 +100,33 @@ export default function Painel() {
   // onboarding de "cadastre seu negócio" só pra acessar a Gerência.
   if (!business && isSuperAdmin) {
     return (
-      <AdminShell
-        title="RhoneyInc"
-        subtitle="Gerência MenuFlex"
-        abas={[{ value: 'super_admin', label: 'Gerência RhoneyInc', icon: <IconGerencia /> }]}
-        aba="super_admin"
-        onSelectAba={() => {}}
-      >
-        <SuperAdmin />
-      </AdminShell>
+      <div className="relative min-h-full">
+        {splashOverlay}
+        <AdminShell
+          title="RhoneyInc"
+          subtitle="Gerência MenuFlex"
+          abas={[{ value: 'super_admin', label: 'Gerência RhoneyInc', icon: <IconGerencia /> }]}
+          aba="super_admin"
+          onSelectAba={() => {}}
+        >
+          <SuperAdmin />
+        </AdminShell>
+      </div>
     )
   }
 
   if (!business) {
     return (
-      <Onboarding
-        ownerId={session.user.id}
-        onCreated={(novoNegocio) => {
-          setBusiness(novoNegocio)
-          loadPlanFeatures().then(setPlanFeatures)
-        }}
-      />
+      <div className="relative min-h-full">
+        {splashOverlay}
+        <Onboarding
+          ownerId={session.user.id}
+          onCreated={(novoNegocio) => {
+            setBusiness(novoNegocio)
+            loadPlanFeatures().then(setPlanFeatures)
+          }}
+        />
+      </div>
     )
   }
 
@@ -106,22 +135,25 @@ export default function Painel() {
     : ABAS
 
   return (
-    <AdminShell
-      title={business.name}
-      subtitle={`Plano ${business.plan}`}
-      abas={abas}
-      aba={aba}
-      onSelectAba={setAba}
-    >
-      {aba === 'fila' && <FilaPedidos business={business} />}
-      {aba === 'minha_empresa' && (
-        <MinhaEmpresa business={business} planFeatures={planFeatures} onUpdated={setBusiness} />
-      )}
-      {aba === 'cardapio' && <CardapioAdmin business={business} />}
-      {aba === 'configuracoes' && <Configuracoes business={business} onUpdated={setBusiness} />}
-      {aba === 'analytics' && <Analytics business={business} planFeatures={planFeatures} />}
-      {aba === 'privacidade' && <Privacidade />}
-      {aba === 'super_admin' && isSuperAdmin && <SuperAdmin />}
-    </AdminShell>
+    <div className="relative min-h-full">
+      {splashOverlay}
+      <AdminShell
+        title={business.name}
+        subtitle={`Plano ${business.plan}`}
+        abas={abas}
+        aba={aba}
+        onSelectAba={setAba}
+      >
+        {aba === 'fila' && <FilaPedidos business={business} />}
+        {aba === 'minha_empresa' && (
+          <MinhaEmpresa business={business} planFeatures={planFeatures} onUpdated={setBusiness} />
+        )}
+        {aba === 'cardapio' && <CardapioAdmin business={business} />}
+        {aba === 'configuracoes' && <Configuracoes business={business} onUpdated={setBusiness} />}
+        {aba === 'analytics' && <Analytics business={business} planFeatures={planFeatures} />}
+        {aba === 'privacidade' && <Privacidade />}
+        {aba === 'super_admin' && isSuperAdmin && <SuperAdmin />}
+      </AdminShell>
+    </div>
   )
 }
