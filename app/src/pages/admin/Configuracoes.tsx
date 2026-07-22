@@ -121,8 +121,8 @@ export default function Configuracoes({ business, onUpdated }: ConfiguracoesProp
   }
 
   return (
-    <div className="space-y-8 max-w-md">
-      <section>
+    <div className="space-y-8 max-w-3xl">
+      <section className="max-w-md">
         <h2 className="font-semibold mb-3">Status do negócio</h2>
 
         <label className="flex items-center gap-2.5 mb-3 cursor-pointer">
@@ -196,7 +196,7 @@ export default function Configuracoes({ business, onUpdated }: ConfiguracoesProp
 
       <section>
         <h2 className="font-semibold mb-3">Plano atual: {business.plan}</h2>
-        <div className="space-y-2">
+        <div className="grid sm:grid-cols-3 gap-3 items-start">
           {PLANOS.map((p) => {
             const isCurrent = business.plan === p.value
             const isUpgrade = PLAN_RANK[p.value] > PLAN_RANK[business.plan]
