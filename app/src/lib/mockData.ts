@@ -22,6 +22,7 @@ export const MOCK_BUSINESS: Business = {
   phone: '(91) 99999-0000',
   opening_hours: 'Ter a Dom, 18h às 23h',
   logo_url: null,
+  usa_horario_programado: false,
 }
 
 export const MOCK_CATEGORIES: MenuCategory[] = [

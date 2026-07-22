@@ -5,6 +5,7 @@ import { loadPlanFeatures, getPlanUsageLimit } from '../../lib/planFeatures'
 import { useCart } from '../../lib/cart'
 import { getCurrentPosition, isWithinRadius } from '../../lib/geo'
 import { logConsent } from '../../lib/lgpd'
+import { fetchBusinessHours, isOpenNow } from '../../lib/businessHours'
 import { MOCK_BUSINESS, MOCK_CATEGORIES, MOCK_ITEMS, MOCK_PLAN_FEATURES } from '../../lib/mockData'
 import type { Business, MenuCategory, MenuItem, MenuItemOptionGroup, PlanFeatureRow } from '../../lib/types'
 import Cardapio from './Cardapio'
@@ -106,14 +107,20 @@ export default function Loja() {
         setLoading(false)
         return
       }
-      setBusiness(biz as Business)
       setPlanFeatures(features)
 
-      const [{ data: cats }, { data: menuItems }] = await Promise.all([
+      const [{ data: cats }, { data: menuItems }, horarios] = await Promise.all([
         supabase!.from('menu_categories').select('*').eq('business_id', biz.id).order('order_index'),
         supabase!.from('menu_items').select('*').eq('business_id', biz.id).order('order_index'),
+        (biz as Business).usa_horario_programado ? fetchBusinessHours(biz.id) : Promise.resolve([]),
       ])
       if (!active) return
+
+      // Com horário programado, o "aberto agora" real vem do cálculo — não do
+      // is_open manual (que só é lido quando o negócio não usa a agenda).
+      setBusiness(
+        (biz as Business).usa_horario_programado ? { ...(biz as Business), is_open: isOpenNow(horarios) } : (biz as Business),
+      )
 
       const itemsComOpcoes = await anexarGruposDeOpcao((menuItems as MenuItem[]) ?? [])
       if (!active) return
