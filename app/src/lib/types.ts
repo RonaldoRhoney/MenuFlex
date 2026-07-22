@@ -21,6 +21,15 @@ export interface Business {
   phone: string | null
   opening_hours: string | null
   logo_url: string | null
+  usa_horario_programado: boolean
+}
+
+export interface BusinessHour {
+  business_id: string
+  day_of_week: number
+  opens_at: string | null
+  closes_at: string | null
+  closed: boolean
 }
 
 export interface MenuCategory {
@@ -28,6 +37,26 @@ export interface MenuCategory {
   business_id: string
   name: string
   order_index: number
+}
+
+export interface Segment {
+  id: string
+  name: string
+  slug: string
+  icon: string | null
+  order_index: number
+  active: boolean
+}
+
+export interface MenuItemCatalogEntry {
+  id: string
+  name: string
+  description: string | null
+  suggested_price: number | null
+  category_hint: string | null
+  image_url: string | null
+  segment_id: string | null
+  usage_count: number
 }
 
 export interface MenuItemOptionChoice {
@@ -55,6 +84,8 @@ export interface MenuItem {
   is_available: boolean
   order_index: number
   option_groups?: MenuItemOptionGroup[]
+  origem_catalogo_id?: string | null
+  veio_do_catalogo?: boolean
 }
 
 export type ReferralStatus = 'novo' | 'contatado' | 'convertido' | 'descartado'

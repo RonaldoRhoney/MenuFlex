@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { checkPlanFeature } from '../../lib/planFeatures'
-import type { Business, BusinessType, PlanFeatureRow } from '../../lib/types'
+import { fetchBusinessSegmentIds, fetchSegments, saveBusinessSegments } from '../../lib/catalog'
+import type { Business, BusinessType, PlanFeatureRow, Segment } from '../../lib/types'
 
 interface MinhaEmpresaProps {
   business: Business
@@ -31,6 +32,33 @@ export default function MinhaEmpresa({ business, planFeatures, onUpdated }: Minh
   const [savedOk, setSavedOk] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [uploadingLogo, setUploadingLogo] = useState(false)
+
+  const [segments, setSegments] = useState<Segment[]>([])
+  const [selectedSegmentIds, setSelectedSegmentIds] = useState<string[]>([])
+  const [savingSegments, setSavingSegments] = useState(false)
+  const [segmentsSavedOk, setSegmentsSavedOk] = useState(false)
+
+  useEffect(() => {
+    fetchSegments().then(setSegments)
+    fetchBusinessSegmentIds(business.id).then(setSelectedSegmentIds)
+  }, [business.id])
+
+  function toggleSegment(id: string) {
+    setSelectedSegmentIds((prev) => (prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]))
+    setSegmentsSavedOk(false)
+  }
+
+  // Segmentos ficam numa tabela própria (business_segments), separada do resto
+  // do formulário — salva independente pra não misturar com a atualização dos
+  // dados básicos do negócio.
+  async function handleSaveSegments() {
+    if (!supabase || selectedSegmentIds.length === 0) return
+    setSavingSegments(true)
+    await supabase.from('business_segments').delete().eq('business_id', business.id)
+    await saveBusinessSegments(business.id, selectedSegmentIds)
+    setSavingSegments(false)
+    setSegmentsSavedOk(true)
+  }
 
   // Logo e identidade visual entram a partir de qualquer plano pago (Básico libera
   // logo própria; Premium libera identidade completa) — mesma feature já usada em
@@ -206,6 +234,39 @@ export default function MinhaEmpresa({ business, planFeatures, onUpdated }: Minh
             />
           </div>
         </div>
+      </section>
+
+      <section>
+        <h2 className="font-semibold mb-3">Segmentos</h2>
+        <p className="text-xs text-white/40 mb-3">
+          Define quais sugestões de produto aparecem em "Cardápio &gt; Adicionar do catálogo".
+        </p>
+        <div className="flex flex-wrap gap-2 mb-3">
+          {segments.map((s) => {
+            const marcado = selectedSegmentIds.includes(s.id)
+            return (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => toggleSegment(s.id)}
+                className={`text-sm rounded-full px-3 py-1.5 border ${
+                  marcado ? 'bg-brand border-brand text-white' : 'border-white/15 bg-slate-900 text-white/70'
+                }`}
+              >
+                {s.name}
+              </button>
+            )
+          })}
+        </div>
+        <button
+          type="button"
+          onClick={handleSaveSegments}
+          disabled={savingSegments || selectedSegmentIds.length === 0}
+          className="rounded-lg border border-white/15 bg-slate-900 px-4 py-2 text-sm disabled:opacity-50"
+        >
+          {savingSegments ? 'Salvando...' : 'Salvar segmentos'}
+        </button>
+        {segmentsSavedOk && <p className="text-sm text-green-400 mt-2">Segmentos salvos.</p>}
       </section>
 
       <section>

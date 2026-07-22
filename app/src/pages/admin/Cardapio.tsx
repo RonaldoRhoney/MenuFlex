@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
-import type { Business, MenuCategory, MenuItem } from '../../lib/types'
+import { fetchBusinessSegmentIds, fetchSegments } from '../../lib/catalog'
+import type { Business, MenuCategory, MenuItem, Segment } from '../../lib/types'
 import ItemOptionsEditor from './ItemOptionsEditor'
+import MontarCardapio from './MontarCardapio'
 
 interface CardapioAdminProps {
   business: Business
@@ -22,6 +24,16 @@ export default function CardapioAdmin({ business }: CardapioAdminProps) {
   const [itemComOpcoesAbertoId, setItemComOpcoesAbertoId] = useState<string | null>(null)
   const [sugestoes, setSugestoes] = useState<CatalogSuggestion[]>([])
   const [mostrarSugestoes, setMostrarSugestoes] = useState(false)
+  const [segmentosDoNegocio, setSegmentosDoNegocio] = useState<Segment[]>([])
+  const [mostrarCatalogo, setMostrarCatalogo] = useState(false)
+
+  useEffect(() => {
+    async function loadSegmentos() {
+      const [todos, idsDoNegocio] = await Promise.all([fetchSegments(), fetchBusinessSegmentIds(business.id)])
+      setSegmentosDoNegocio(todos.filter((s) => idsDoNegocio.includes(s.id)))
+    }
+    loadSegmentos()
+  }, [business.id])
 
   async function reload() {
     if (!supabase) return
@@ -141,8 +153,32 @@ export default function CardapioAdmin({ business }: CardapioAdminProps) {
     reload()
   }
 
+  if (mostrarCatalogo) {
+    return (
+      <MontarCardapio
+        business={business}
+        segments={segmentosDoNegocio}
+        onDone={() => {
+          setMostrarCatalogo(false)
+          reload()
+        }}
+        onSkip={() => setMostrarCatalogo(false)}
+        skipLabel="Voltar"
+      />
+    )
+  }
+
   return (
     <div className="space-y-8">
+      {segmentosDoNegocio.length > 0 && (
+        <button
+          onClick={() => setMostrarCatalogo(true)}
+          className="w-full rounded-lg border border-brand/40 bg-brand/10 text-brand px-4 py-2.5 text-sm font-medium"
+        >
+          Adicionar do catálogo
+        </button>
+      )}
+
       <section>
         <h2 className="font-semibold mb-3">Categorias</h2>
         <form onSubmit={addCategory} className="flex gap-2 mb-3">

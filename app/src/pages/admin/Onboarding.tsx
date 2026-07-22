@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { getCurrentPosition } from '../../lib/geo'
-import type { Business, BusinessType } from '../../lib/types'
+import { fetchSegments, legacyTypeFromSegmentSlugs, saveBusinessSegments } from '../../lib/catalog'
+import type { Business, Segment } from '../../lib/types'
+import MontarCardapio from './MontarCardapio'
 
 interface OnboardingProps {
   ownerId: string
@@ -18,34 +20,24 @@ function slugify(name: string) {
     .replace(/(^-|-$)/g, '')
 }
 
-const TIPOS: { value: BusinessType; label: string }[] = [
-  { value: 'lanche_rua', label: 'Lanche de rua' },
-  { value: 'bar', label: 'Bar' },
-  { value: 'restaurante', label: 'Restaurante' },
-  { value: 'hamburgueria', label: 'Hamburgueria' },
-  { value: 'outro', label: 'Outro' },
-]
-
-// De acordo com o tipo escolhido, busca no catálogo colaborativo
-// (menu_item_catalog) as categorias mais relevantes pra já deixar o
-// cardápio com uma sugestão inicial, em vez do dono começar do zero. Não
-// é IA — é o mesmo dicionário compartilhado do autocomplete de itens.
-const CATEGORIAS_POR_TIPO: Record<BusinessType, string[]> = {
-  lanche_rua: ['Lanches', 'Salgados', 'Acompanhamentos', 'Bebidas'],
-  hamburgueria: ['Lanches', 'Acompanhamentos', 'Bebidas'],
-  bar: ['Salgados', 'Acompanhamentos', 'Bebidas'],
-  restaurante: ['Salgados', 'Acompanhamentos', 'Bebidas', 'Sobremesas'],
-  outro: ['Bebidas'],
-}
-
 export default function Onboarding({ ownerId, onCreated }: OnboardingProps) {
   const [name, setName] = useState('')
-  const [type, setType] = useState<BusinessType>('lanche_rua')
+  const [segments, setSegments] = useState<Segment[]>([])
+  const [selectedSegmentIds, setSelectedSegmentIds] = useState<string[]>([])
   const [lat, setLat] = useState<number | null>(null)
   const [lng, setLng] = useState<number | null>(null)
   const [locating, setLocating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [createdBusiness, setCreatedBusiness] = useState<Business | null>(null)
+
+  useEffect(() => {
+    fetchSegments().then(setSegments)
+  }, [])
+
+  function toggleSegment(id: string) {
+    setSelectedSegmentIds((prev) => (prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]))
+  }
 
   async function handleLocate() {
     setLocating(true)
@@ -63,17 +55,18 @@ export default function Onboarding({ ownerId, onCreated }: OnboardingProps) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!supabase) return
+    if (!supabase || selectedSegmentIds.length === 0) return
     setSubmitting(true)
     setError(null)
     const slug = slugify(name)
+    const selectedSlugs = segments.filter((s) => selectedSegmentIds.includes(s.id)).map((s) => s.slug)
     const { data, error: insertError } = await supabase
       .from('businesses')
       .insert({
         owner_id: ownerId,
         name,
         slug,
-        type,
+        type: legacyTypeFromSegmentSlugs(selectedSlugs),
         plan: 'free',
         lat,
         lng,
@@ -89,50 +82,22 @@ export default function Onboarding({ ownerId, onCreated }: OnboardingProps) {
       )
       return
     }
-    await sugerirCardapioInicial(data as Business)
-    onCreated(data as Business)
+    await saveBusinessSegments(data.id, selectedSegmentIds)
+    setCreatedBusiness(data as Business)
   }
 
-  // Best-effort: se falhar, o negócio já foi criado e o dono cadastra na mão —
-  // nunca bloqueia o cadastro por causa da sugestão.
-  async function sugerirCardapioInicial(business: Business) {
-    if (!supabase) return
-    try {
-      const hints = CATEGORIAS_POR_TIPO[business.type]
-      const { data: catalogo } = await supabase
-        .from('menu_item_catalog')
-        .select('name, description, suggested_price, category_hint')
-        .in('category_hint', hints)
-        .order('usage_count', { ascending: false })
-
-      if (!catalogo || catalogo.length === 0) return
-
-      const categoriasEncontradas = hints.filter((h) => catalogo.some((i) => i.category_hint === h))
-      const { data: categoriasCriadas } = await supabase
-        .from('menu_categories')
-        .insert(categoriasEncontradas.map((name, order_index) => ({ business_id: business.id, name, order_index })))
-        .select()
-      if (!categoriasCriadas) return
-
-      const itensParaCriar = categoriasCriadas.flatMap((cat) =>
-        catalogo
-          .filter((i) => i.category_hint === cat.name)
-          .slice(0, 4)
-          .map((i, order_index) => ({
-            business_id: business.id,
-            category_id: cat.id,
-            name: i.name,
-            description: i.description,
-            price: i.suggested_price ?? 0,
-            order_index,
-          })),
-      )
-      if (itensParaCriar.length > 0) {
-        await supabase.from('menu_items').insert(itensParaCriar)
-      }
-    } catch {
-      // sugestão é best-effort — negócio já existe, dono segue cadastrando na mão
-    }
+  if (createdBusiness) {
+    const segmentosDoNegocio = segments.filter((s) => selectedSegmentIds.includes(s.id))
+    return (
+      <div className="min-h-full bg-slate-950 text-white px-4 py-10">
+        <MontarCardapio
+          business={createdBusiness}
+          segments={segmentosDoNegocio}
+          onDone={() => onCreated(createdBusiness)}
+          onSkip={() => onCreated(createdBusiness)}
+        />
+      </div>
+    )
   }
 
   return (
@@ -151,20 +116,27 @@ export default function Onboarding({ ownerId, onCreated }: OnboardingProps) {
         </div>
 
         <div>
-          <label className="text-sm font-medium mb-1 block">Tipo</label>
-          <select
-            value={type}
-            onChange={(e) => setType(e.target.value as BusinessType)}
-            className="w-full border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm"
-          >
-            {TIPOS.map((t) => (
-              <option key={t.value} value={t.value}>
-                {t.label}
-              </option>
-            ))}
-          </select>
+          <label className="text-sm font-medium mb-1 block">Segmentos (marque um ou mais)</label>
+          <div className="flex flex-wrap gap-2">
+            {segments.map((s) => {
+              const marcado = selectedSegmentIds.includes(s.id)
+              return (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => toggleSegment(s.id)}
+                  className={`text-sm rounded-full px-3 py-1.5 border ${
+                    marcado ? 'bg-brand border-brand text-white' : 'border-white/15 bg-slate-900 text-white/70'
+                  }`}
+                >
+                  {s.name}
+                </button>
+              )
+            })}
+          </div>
           <p className="text-xs text-white/40 mt-1">
-            Já criamos categorias e alguns itens sugeridos com base no tipo — você edita, remove ou completa depois.
+            Depois de criar, sugerimos produtos prontos com base nos segmentos escolhidos — você marca o que
+            vende e ajusta o preço.
           </p>
         </div>
 
@@ -190,7 +162,7 @@ export default function Onboarding({ ownerId, onCreated }: OnboardingProps) {
 
         <button
           type="submit"
-          disabled={submitting}
+          disabled={submitting || selectedSegmentIds.length === 0}
           className="w-full rounded-lg bg-brand text-white py-2.5 font-medium disabled:opacity-50"
         >
           {submitting ? 'Criando...' : 'Criar negócio'}
