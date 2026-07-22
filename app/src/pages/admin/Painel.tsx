@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
-import { useSession } from '../../lib/auth'
+import { useEffect, useState } from 'react'
+import { useSession, consumeLoginIntent } from '../../lib/auth'
 import { supabase } from '../../lib/supabaseClient'
 import { loadPlanFeatures } from '../../lib/planFeatures'
 import { SUPER_ADMIN_EMAIL } from '../../lib/constants'
@@ -42,19 +42,17 @@ export default function Painel() {
   const [planFeatures, setPlanFeatures] = useState<PlanFeatureRow[]>([])
   const [aba, setAba] = useState<Aba>('fila')
 
-  // Mesma animação de entrada do Splash (Login.tsx) — mas disparada quando a
-  // sessão passa de "sem sessão" pra "logado", não só na primeira tela antes
-  // do login. hadSessionRef começa null (ainda não sabemos) pra não disparar
-  // à toa quando a página carrega com uma sessão já existente (refresh).
+  // Mesma animação de entrada do Splash (Login.tsx), agora também no login
+  // bem-sucedido. A flag de intenção (sessionStorage, ver lib/auth.ts) —não
+  // um estado em memória— é o que permite isso sobreviver ao redirect de
+  // página inteira do login por Google/Facebook.
   const [justLoggedIn, setJustLoggedIn] = useState(false)
-  const hadSessionRef = useRef<boolean | null>(null)
 
   useEffect(() => {
     if (sessionLoading) return
-    if (hadSessionRef.current === false && session) {
+    if (session && consumeLoginIntent()) {
       setJustLoggedIn(true)
     }
-    hadSessionRef.current = !!session
   }, [session, sessionLoading])
 
   useEffect(() => {
