@@ -113,26 +113,36 @@ export default async function handler(req, res) {
       porDia[dia] = (porDia[dia] || 0) + 1;
     }
 
-    // Donos/staff de negócio (aba "Usuários") — cruza business_admins com o
-    // e-mail/último acesso que só vem da Admin API (auth.users não é
-    // consultável direto pelo client, nem com service_role via PostgREST).
-    const usuarios = (adminsNegocio.data || [])
-      .map((row) => {
-        const authUser = usersById.get(row.user_id);
-        if (!authUser) return null;
+    // TODOS os usuários cadastrados (aba "Usuários") — não só quem completou
+    // o onboarding (tem negócio). auth.users não é consultável direto pelo
+    // client nem com service_role via PostgREST, só pela Admin API; cruza
+    // com business_admins pra saber quem tem negócio vinculado.
+    const adminByUserId = new Map((adminsNegocio.data || []).map((row) => [row.user_id, row]));
+    const usuarios = Array.from(usersById.values())
+      .map((authUser) => {
+        const admRow = adminByUserId.get(authUser.id);
         return {
-          id: row.user_id,
+          id: authUser.id,
           email: authUser.email ?? null,
-          created_at: authUser.created_at ?? row.created_at,
+          created_at: authUser.created_at,
           last_sign_in_at: authUser.last_sign_in_at ?? null,
-          role: row.role,
-          business_name: row.businesses?.name ?? null,
-          business_slug: row.businesses?.slug ?? null,
-          business_plan: row.businesses?.plan ?? null,
+          role: admRow?.role ?? null,
+          business_name: admRow?.businesses?.name ?? null,
+          business_slug: admRow?.businesses?.slug ?? null,
+          business_plan: admRow?.businesses?.plan ?? null,
+          completou_cadastro: !!admRow,
         };
       })
-      .filter(Boolean)
       .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
+
+    const usuariosCompletos = usuarios.filter((u) => u.completou_cadastro).length;
+
+    const cadastrosPorDia = {};
+    for (const u of usuarios) {
+      if (!u.created_at) continue;
+      const dia = u.created_at.slice(0, 10);
+      cadastrosPorDia[dia] = (cadastrosPorDia[dia] || 0) + 1;
+    }
 
     // Financeiro: MRR estimado a partir do plano ativo de cada negócio (não
     // depende de plan_payments estar em dia — reflete o que a régua de
@@ -186,6 +196,14 @@ export default async function handler(req, res) {
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([dia, total]) => ({ dia, total })),
       usuarios,
+      usuarios_resumo: {
+        total: usuarios.length,
+        completos: usuariosCompletos,
+        pendentes: usuarios.length - usuariosCompletos,
+      },
+      cadastros_por_dia: Object.entries(cadastrosPorDia)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([dia, total]) => ({ dia, total })),
       financeiro: {
         mrr_estimado: mrrEstimado,
         negocios_por_plano: negociosPorPlano,

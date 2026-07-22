@@ -5,10 +5,11 @@ export interface UsuarioPlataforma {
   email: string | null
   created_at: string
   last_sign_in_at: string | null
-  role: string
+  role: string | null
   business_name: string | null
   business_slug: string | null
   business_plan: string | null
+  completou_cadastro: boolean
 }
 
 export interface PlatformSummary {
@@ -24,6 +25,8 @@ export interface PlatformSummary {
   bairros: { label: string; total: number }[]
   por_dia: { dia: string; total: number }[]
   usuarios: UsuarioPlataforma[]
+  usuarios_resumo: { total: number; completos: number; pendentes: number }
+  cadastros_por_dia: { dia: string; total: number }[]
   financeiro: {
     mrr_estimado: number
     negocios_por_plano: { free: number; basico: number; premium: number }

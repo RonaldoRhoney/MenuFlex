@@ -142,7 +142,7 @@ export default function SuperAdmin() {
         ) : summaryError || !summary ? (
           <p className="text-sm text-red-400">{summaryError ?? 'Erro ao carregar usuários.'}</p>
         ) : (
-          <UsersPanel usuarios={summary.usuarios} />
+          <UsersPanel usuarios={summary.usuarios} resumo={summary.usuarios_resumo} cadastrosPorDia={summary.cadastros_por_dia} />
         ))}
 
       {aba === 'negocios' && (
