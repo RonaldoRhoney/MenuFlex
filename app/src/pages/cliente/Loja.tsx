@@ -6,8 +6,9 @@ import { useCart } from '../../lib/cart'
 import { getCurrentPosition, isWithinRadius } from '../../lib/geo'
 import { logConsent } from '../../lib/lgpd'
 import { fetchBusinessHours, isOpenNow } from '../../lib/businessHours'
+import { setBusinessJsonLd, clearBusinessJsonLd } from '../../lib/structuredData'
 import { MOCK_BUSINESS, MOCK_CATEGORIES, MOCK_ITEMS, MOCK_PLAN_FEATURES } from '../../lib/mockData'
-import type { Business, MenuCategory, MenuItem, MenuItemOptionGroup, PlanFeatureRow } from '../../lib/types'
+import type { Business, BusinessHour, MenuCategory, MenuItem, MenuItemOptionGroup, PlanFeatureRow } from '../../lib/types'
 import Cardapio from './Cardapio'
 import MontarPedido from './MontarPedido'
 import AcompanharPedido from './AcompanharPedido'
@@ -64,6 +65,7 @@ export default function Loja() {
   const { slug } = useParams<{ slug: string }>()
 
   const [business, setBusiness] = useState<Business | null>(null)
+  const [businessHours, setBusinessHours] = useState<BusinessHour[]>([])
   const [categories, setCategories] = useState<MenuCategory[]>([])
   const [items, setItems] = useState<MenuItem[]>([])
   const [planFeatures, setPlanFeatures] = useState<PlanFeatureRow[]>([])
@@ -121,6 +123,7 @@ export default function Loja() {
       setBusiness(
         (biz as Business).usa_horario_programado ? { ...(biz as Business), is_open: isOpenNow(horarios) } : (biz as Business),
       )
+      setBusinessHours(horarios)
 
       const itemsComOpcoes = await anexarGruposDeOpcao((menuItems as MenuItem[]) ?? [])
       if (!active) return
@@ -135,6 +138,19 @@ export default function Loja() {
       active = false
     }
   }, [slug])
+
+  // SEO: título da aba por negócio (antes era fixo "MenuFlex" em toda página
+  // da SPA) + JSON-LD schema.org/Restaurant com o horário estruturado, pra o
+  // Google conseguir mostrar "Aberto agora"/horário direto na busca.
+  useEffect(() => {
+    if (!business) return
+    document.title = `${business.name} — Cardápio digital`
+    setBusinessJsonLd(business, businessHours)
+    return () => {
+      document.title = 'MenuFlex — Cardápio digital e pedidos'
+      clearBusinessJsonLd()
+    }
+  }, [business, businessHours])
 
   // Prompt de instalação por proximidade — só pergunta consentimento se ainda
   // não perguntou nesse navegador, e só depois do cardápio já ter carregado.
