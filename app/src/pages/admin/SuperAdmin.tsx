@@ -24,6 +24,9 @@ export default function SuperAdmin() {
   const [referrals, setReferrals] = useState<PartnerReferral[]>([])
   const [loading, setLoading] = useState(true)
   const [salvandoId, setSalvandoId] = useState<string | null>(null)
+  const [negocioParaExcluir, setNegocioParaExcluir] = useState<Business | null>(null)
+  const [confirmacaoNome, setConfirmacaoNome] = useState('')
+  const [excluindo, setExcluindo] = useState(false)
 
   const [summary, setSummary] = useState<PlatformSummary | null>(null)
   const [summaryError, setSummaryError] = useState<string | null>(null)
@@ -55,6 +58,16 @@ export default function SuperAdmin() {
     await supabase.from('businesses').update({ plan: novoPlano }).eq('id', business.id)
     await reload()
     setSalvandoId(null)
+  }
+
+  async function confirmarExclusao() {
+    if (!supabase || !negocioParaExcluir || confirmacaoNome !== negocioParaExcluir.name) return
+    setExcluindo(true)
+    await supabase.from('businesses').delete().eq('id', negocioParaExcluir.id)
+    setExcluindo(false)
+    setNegocioParaExcluir(null)
+    setConfirmacaoNome('')
+    await reload()
   }
 
   async function alterarStatusIndicacao(referral: PartnerReferral, novoStatus: ReferralStatus) {
@@ -163,10 +176,53 @@ export default function SuperAdmin() {
                     </option>
                   ))}
                 </select>
+                <button
+                  onClick={() => {
+                    setNegocioParaExcluir(b)
+                    setConfirmacaoNome('')
+                  }}
+                  className="text-xs px-2 py-1 rounded-full bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"
+                >
+                  Excluir
+                </button>
               </div>
             </div>
           ))}
           {businesses.length === 0 && <p className="text-sm text-white/40">Nenhum negócio cadastrado ainda.</p>}
+        </div>
+      )}
+
+      {negocioParaExcluir && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+          <div className="w-full max-w-sm bg-slate-900 border border-white/10 rounded-2xl p-5">
+            <h3 className="font-semibold mb-2">Excluir "{negocioParaExcluir.name}"?</h3>
+            <p className="text-sm text-white/50 mb-4 leading-relaxed">
+              Isso apaga permanentemente o cardápio, pedidos, pagamentos e todo o histórico desse
+              negócio — não tem como desfazer. Digite o nome exato do negócio pra confirmar.
+            </p>
+            <input
+              value={confirmacaoNome}
+              onChange={(e) => setConfirmacaoNome(e.target.value)}
+              placeholder={negocioParaExcluir.name}
+              className="w-full border border-white/15 bg-slate-950 rounded-lg px-3 py-2 text-sm mb-4"
+              autoFocus
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={() => setNegocioParaExcluir(null)}
+                className="flex-1 rounded-lg border border-white/15 py-2 text-sm font-medium"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmarExclusao}
+                disabled={confirmacaoNome !== negocioParaExcluir.name || excluindo}
+                className="flex-1 rounded-lg bg-red-500 text-white py-2 text-sm font-medium disabled:opacity-40"
+              >
+                {excluindo ? 'Excluindo...' : 'Excluir permanentemente'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
