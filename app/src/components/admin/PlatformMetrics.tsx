@@ -1,21 +1,6 @@
-import { useEffect, useState } from 'react'
-import { supabase } from '../../lib/supabaseClient'
 import BarChart from './BarChart'
 import BarRank from './BarRank'
-
-interface Summary {
-  total_geral: number
-  total_7d: number
-  total_30d: number
-  total_usuarios: number
-  total_negocios: number
-  dispositivos: { label: string; total: number }[]
-  navegadores: { label: string; total: number }[]
-  paises: { label: string; total: number }[]
-  cidades: { label: string; total: number }[]
-  bairros: { label: string; total: number }[]
-  por_dia: { dia: string; total: number }[]
-}
+import type { PlatformSummary } from '../../lib/platformSummary'
 
 function KpiCard({ label, value, accent }: { label: string; value: number | string; accent?: boolean }) {
   return (
@@ -27,48 +12,27 @@ function KpiCard({ label, value, accent }: { label: string; value: number | stri
   )
 }
 
-export default function PlatformMetrics() {
-  const [data, setData] = useState<Summary | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
+function formatarReais(valor: number) {
+  return `R$ ${valor.toFixed(2).replace('.', ',')}`
+}
 
-  useEffect(() => {
-    async function load() {
-      if (!supabase) return
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
-      if (!session) {
-        setError('Sessão inválida.')
-        setLoading(false)
-        return
-      }
-      try {
-        const resp = await fetch('/api/platform-summary', {
-          headers: { Authorization: `Bearer ${session.access_token}` },
-        })
-        const json = await resp.json()
-        if (!resp.ok) {
-          setError(json.error || 'Erro desconhecido.')
-          setLoading(false)
-          return
-        }
-        setData(json as Summary)
-      } catch {
-        setError('Não foi possível carregar as métricas agora.')
-      } finally {
-        setLoading(false)
-      }
-    }
-    load()
-  }, [])
+const LABEL_STATUS_PAGAMENTO: Record<string, string> = {
+  pending: 'Pendente',
+  approved: 'Aprovado',
+  rejected: 'Rejeitado',
+}
 
-  if (loading) return <p className="text-sm text-white/40">Carregando métricas...</p>
-  if (error) return <p className="text-sm text-red-400">{error}</p>
-  if (!data) return null
+const LABEL_STATUS_PEDIDO: Record<string, string> = {
+  recebido: 'Recebido',
+  preparo: 'Em preparo',
+  pronto: 'Pronto',
+  entregue: 'Entregue',
+  cancelado: 'Cancelado',
+}
 
+export default function PlatformMetrics({ data }: { data: PlatformSummary }) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
         <KpiCard label="Usuários" value={data.total_usuarios} accent />
         <KpiCard label="Negócios" value={data.total_negocios} accent />
@@ -115,6 +79,58 @@ export default function PlatformMetrics() {
           </h3>
           <div className="rounded-lg border border-white/10 bg-slate-900 p-3">
             <BarRank items={data.bairros} />
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-xs font-medium uppercase tracking-wide text-brand mb-2">Financeiro</h3>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-3">
+          <KpiCard label="MRR estimado" value={formatarReais(data.financeiro.mrr_estimado)} accent />
+          <KpiCard label="Receita aprovada (30d)" value={formatarReais(data.financeiro.receita_aprovada_30d)} />
+          <KpiCard label="Receita aprovada (total)" value={formatarReais(data.financeiro.receita_aprovada_total)} />
+          <KpiCard label="Negócios pagantes" value={data.financeiro.negocios_por_plano.basico + data.financeiro.negocios_por_plano.premium} />
+        </div>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <p className="text-xs text-white/40 mb-2">Negócios por plano</p>
+            <div className="rounded-lg border border-white/10 bg-slate-900 p-3">
+              <BarRank
+                items={Object.entries(data.financeiro.negocios_por_plano)
+                  .map(([label, total]) => ({ label, total }))
+                  .sort((a, b) => b.total - a.total)}
+              />
+            </div>
+          </div>
+          <div>
+            <p className="text-xs text-white/40 mb-2">Pagamentos por status (Mercado Pago)</p>
+            <div className="rounded-lg border border-white/10 bg-slate-900 p-3">
+              <BarRank
+                items={Object.entries(data.financeiro.pagamentos_por_status)
+                  .map(([status, total]) => ({ label: LABEL_STATUS_PAGAMENTO[status] ?? status, total }))
+                  .sort((a, b) => b.total - a.total)}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-xs font-medium uppercase tracking-wide text-brand mb-2">Operação · últimos 30 dias</h3>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-3">
+          <KpiCard label="Pedidos hoje" value={data.operacional.pedidos_hoje} accent />
+          <KpiCard label="Pedidos (7d)" value={data.operacional.pedidos_7d} />
+          <KpiCard label="Pedidos (30d)" value={data.operacional.pedidos_30d} />
+          <KpiCard label="Ticket médio (30d)" value={formatarReais(data.operacional.ticket_medio_30d)} />
+        </div>
+        <div>
+          <p className="text-xs text-white/40 mb-2">Pedidos por status</p>
+          <div className="rounded-lg border border-white/10 bg-slate-900 p-3">
+            <BarRank
+              items={Object.entries(data.operacional.pedidos_por_status_30d)
+                .map(([status, total]) => ({ label: LABEL_STATUS_PEDIDO[status] ?? status, total }))
+                .sort((a, b) => b.total - a.total)}
+            />
           </div>
         </div>
       </div>

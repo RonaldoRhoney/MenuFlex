@@ -5,10 +5,10 @@ interface BarRankProps {
 // Ranking horizontal (dispositivos, países, cidades, bairros) — barras finas,
 // cor única de magnitude (não é identidade categórica, é ranking por contagem).
 export default function BarRank({ items }: BarRankProps) {
-  if (items.length === 0) {
+  const max = items.length > 0 ? Math.max(...items.map((i) => i.total)) : 0
+  if (items.length === 0 || max <= 0) {
     return <p className="text-sm text-white/40 py-4 text-center">Sem dados ainda.</p>
   }
-  const max = items[0].total
 
   return (
     <div className="space-y-2.5">

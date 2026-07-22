@@ -19,6 +19,11 @@ import { createClient } from '@supabase/supabase-js';
 
 const SUPER_ADMIN_EMAIL = 'rhoneyinc@gmail.com';
 
+// Mesmos valores exibidos em src/App.tsx (seção de planos) — usados aqui só
+// pra estimar MRR a partir de businesses.plan. Se o preço mudar lá, mude aqui
+// também (não há uma única fonte de verdade pra isso ainda).
+const PRECO_PLANO = { free: 0, basico: 19.9, premium: 39.9 };
+
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     res.status(405).json({ error: 'Método não permitido.' });
@@ -65,21 +70,29 @@ export default async function handler(req, res) {
       return count ?? 0;
     };
 
-    const [totalGeral, total7d, total30d, linhas, negocios, listaUsuarios] = await Promise.all([
-      contarViews(),
-      contarViews(inicio7d),
-      contarViews(inicio30d),
-      admin.from('page_views').select('device, browser, country, city, created_at').gte('created_at', inicio30d).limit(5000),
-      admin.from('businesses').select('neighborhood, plan, is_open'),
-      admin.auth.admin.listUsers({ perPage: 1000 }),
-    ]);
+    const [totalGeral, total7d, total30d, linhas, negocios, listaUsuarios, adminsNegocio, pagamentos, pedidos] =
+      await Promise.all([
+        contarViews(),
+        contarViews(inicio7d),
+        contarViews(inicio30d),
+        admin.from('page_views').select('device, browser, country, city, created_at').gte('created_at', inicio30d).limit(5000),
+        admin.from('businesses').select('id, neighborhood, plan, is_open'),
+        admin.auth.admin.listUsers({ perPage: 1000 }),
+        admin.from('business_admins').select('user_id, role, created_at, businesses(id, name, plan, slug)'),
+        admin.from('plan_payments').select('status, amount, created_at'),
+        admin.from('orders').select('status, total, created_at').gte('created_at', inicio30d),
+      ]);
 
     if (linhas.error) throw linhas.error;
     if (negocios.error) throw negocios.error;
+    if (adminsNegocio.error) throw adminsNegocio.error;
+    if (pagamentos.error) throw pagamentos.error;
+    if (pedidos.error) throw pedidos.error;
 
     const rows = linhas.data || [];
     const negociosRows = negocios.data || [];
-    const totalUsuarios = listaUsuarios?.data?.users?.length ?? 0;
+    const usersById = new Map((listaUsuarios?.data?.users || []).map((u) => [u.id, u]));
+    const totalUsuarios = usersById.size;
 
     const contarPor = (arr, campo) => {
       const mapa = {};
@@ -100,6 +113,64 @@ export default async function handler(req, res) {
       porDia[dia] = (porDia[dia] || 0) + 1;
     }
 
+    // Donos/staff de negócio (aba "Usuários") — cruza business_admins com o
+    // e-mail/último acesso que só vem da Admin API (auth.users não é
+    // consultável direto pelo client, nem com service_role via PostgREST).
+    const usuarios = (adminsNegocio.data || [])
+      .map((row) => {
+        const authUser = usersById.get(row.user_id);
+        if (!authUser) return null;
+        return {
+          id: row.user_id,
+          email: authUser.email ?? null,
+          created_at: authUser.created_at ?? row.created_at,
+          last_sign_in_at: authUser.last_sign_in_at ?? null,
+          role: row.role,
+          business_name: row.businesses?.name ?? null,
+          business_slug: row.businesses?.slug ?? null,
+          business_plan: row.businesses?.plan ?? null,
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
+
+    // Financeiro: MRR estimado a partir do plano ativo de cada negócio (não
+    // depende de plan_payments estar em dia — reflete o que a régua de
+    // features já aplica agora) + status dos pagamentos via Mercado Pago.
+    const negociosPorPlano = { free: 0, basico: 0, premium: 0 };
+    for (const b of negociosRows) {
+      negociosPorPlano[b.plan] = (negociosPorPlano[b.plan] || 0) + 1;
+    }
+    const mrrEstimado = Object.entries(negociosPorPlano).reduce(
+      (soma, [plano, qtd]) => soma + qtd * (PRECO_PLANO[plano] ?? 0),
+      0,
+    );
+
+    const pagamentosRows = pagamentos.data || [];
+    const statusPagamentos = { pending: 0, approved: 0, rejected: 0 };
+    let receitaAprovadaTotal = 0;
+    let receitaAprovada30d = 0;
+    for (const p of pagamentosRows) {
+      statusPagamentos[p.status] = (statusPagamentos[p.status] || 0) + 1;
+      if (p.status === 'approved') {
+        receitaAprovadaTotal += Number(p.amount) || 0;
+        if (p.created_at >= inicio30d) receitaAprovada30d += Number(p.amount) || 0;
+      }
+    }
+
+    // Operacional: volume e ticket médio de pedidos (todos os negócios),
+    // últimos 30 dias.
+    const pedidosRows = pedidos.data || [];
+    const pedidosHoje = pedidosRows.filter((o) => o.created_at.slice(0, 10) === agora.toISOString().slice(0, 10)).length;
+    const pedidos7d = pedidosRows.filter((o) => o.created_at >= inicio7d).length;
+    const pedidosPorStatus = {};
+    let somaTotal = 0;
+    for (const o of pedidosRows) {
+      pedidosPorStatus[o.status] = (pedidosPorStatus[o.status] || 0) + 1;
+      somaTotal += Number(o.total) || 0;
+    }
+    const ticketMedio30d = pedidosRows.length > 0 ? somaTotal / pedidosRows.length : 0;
+
     res.status(200).json({
       total_geral: totalGeral,
       total_7d: total7d,
@@ -114,6 +185,21 @@ export default async function handler(req, res) {
       por_dia: Object.entries(porDia)
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([dia, total]) => ({ dia, total })),
+      usuarios,
+      financeiro: {
+        mrr_estimado: mrrEstimado,
+        negocios_por_plano: negociosPorPlano,
+        pagamentos_por_status: statusPagamentos,
+        receita_aprovada_total: receitaAprovadaTotal,
+        receita_aprovada_30d: receitaAprovada30d,
+      },
+      operacional: {
+        pedidos_hoje: pedidosHoje,
+        pedidos_7d: pedidos7d,
+        pedidos_30d: pedidosRows.length,
+        ticket_medio_30d: ticketMedio30d,
+        pedidos_por_status_30d: pedidosPorStatus,
+      },
     });
   } catch (err) {
     res.status(500).json({ error: 'Erro ao consultar métricas.' });

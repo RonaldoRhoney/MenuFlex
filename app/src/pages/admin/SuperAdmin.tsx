@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
+import { fetchPlatformSummary, type PlatformSummary } from '../../lib/platformSummary'
 import type { Business, Plan, PartnerReferral, ReferralStatus } from '../../lib/types'
 import PlatformMetrics from '../../components/admin/PlatformMetrics'
+import UsersPanel from '../../components/admin/UsersPanel'
 
 // Só renderiza pra rhoneyinc@gmail.com (ver Painel.tsx) — mas o que garante de verdade
 // que só esse e-mail vê todos os negócios/indicações é a policy is_super_admin() em
@@ -17,11 +19,15 @@ const STATUS_INDICACAO: { value: ReferralStatus; label: string }[] = [
 ]
 
 export default function SuperAdmin() {
-  const [aba, setAba] = useState<'metricas' | 'negocios' | 'indicacoes'>('metricas')
+  const [aba, setAba] = useState<'metricas' | 'usuarios' | 'negocios' | 'indicacoes'>('metricas')
   const [businesses, setBusinesses] = useState<Business[]>([])
   const [referrals, setReferrals] = useState<PartnerReferral[]>([])
   const [loading, setLoading] = useState(true)
   const [salvandoId, setSalvandoId] = useState<string | null>(null)
+
+  const [summary, setSummary] = useState<PlatformSummary | null>(null)
+  const [summaryError, setSummaryError] = useState<string | null>(null)
+  const [summaryLoading, setSummaryLoading] = useState(true)
 
   async function reload() {
     if (!supabase) return
@@ -36,6 +42,11 @@ export default function SuperAdmin() {
 
   useEffect(() => {
     reload()
+    fetchPlatformSummary().then(({ data, error }) => {
+      setSummary(data)
+      setSummaryError(error)
+      setSummaryLoading(false)
+    })
   }, [])
 
   async function alterarPlano(business: Business, novoPlano: Plan) {
@@ -73,6 +84,14 @@ export default function SuperAdmin() {
           Métricas
         </button>
         <button
+          onClick={() => setAba('usuarios')}
+          className={`px-3 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+            aba === 'usuarios' ? 'border-brand text-brand' : 'border-transparent text-white/40 hover:text-white/70'
+          }`}
+        >
+          Usuários
+        </button>
+        <button
           onClick={() => setAba('negocios')}
           className={`px-3 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
             aba === 'negocios' ? 'border-brand text-brand' : 'border-transparent text-white/40 hover:text-white/70'
@@ -95,7 +114,23 @@ export default function SuperAdmin() {
         </button>
       </div>
 
-      {aba === 'metricas' && <PlatformMetrics />}
+      {aba === 'metricas' &&
+        (summaryLoading ? (
+          <p className="text-sm text-white/40">Carregando métricas...</p>
+        ) : summaryError || !summary ? (
+          <p className="text-sm text-red-400">{summaryError ?? 'Erro ao carregar métricas.'}</p>
+        ) : (
+          <PlatformMetrics data={summary} />
+        ))}
+
+      {aba === 'usuarios' &&
+        (summaryLoading ? (
+          <p className="text-sm text-white/40">Carregando usuários...</p>
+        ) : summaryError || !summary ? (
+          <p className="text-sm text-red-400">{summaryError ?? 'Erro ao carregar usuários.'}</p>
+        ) : (
+          <UsersPanel usuarios={summary.usuarios} />
+        ))}
 
       {aba === 'negocios' && (
         <div className="space-y-2">
