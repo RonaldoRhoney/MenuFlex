@@ -15,6 +15,7 @@ import Estoque from './Estoque'
 import Privacidade from './Privacidade'
 import SuperAdmin from './SuperAdmin'
 import Splash from '../../components/Splash'
+import { SkeletonScreen } from '../../components/Skeleton'
 import AdminShell, {
   IconPedidos,
   IconEmpresa,
@@ -87,7 +88,7 @@ export default function Painel() {
     return (
       <div className="relative min-h-full">
         {splashOverlay}
-        <div className="min-h-full flex items-center justify-center bg-slate-950 text-white/50 text-sm">Carregando...</div>
+        <SkeletonScreen />
       </div>
     )
   }

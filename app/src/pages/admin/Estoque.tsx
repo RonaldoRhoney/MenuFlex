@@ -3,6 +3,9 @@ import { supabase } from '../../lib/supabaseClient'
 import { checkPlanFeature } from '../../lib/planFeatures'
 import { deriveEstoqueCor, fetchEstoque, salvarEstoqueItem, type EstoqueRow } from '../../lib/estoque'
 import type { Business, PlanFeatureRow } from '../../lib/types'
+import { SkeletonRow } from '../../components/Skeleton'
+import EmptyState from '../../components/EmptyState'
+import Tooltip from '../../components/Tooltip'
 
 interface EstoqueProps {
   business: Business
@@ -78,7 +81,15 @@ export default function Estoque({ business, planFeatures }: EstoqueProps) {
     await salvarEstoqueItem(business.id, row.item_id, patch)
   }
 
-  if (loading) return <p className="text-sm text-white/40">Carregando...</p>
+  if (loading) {
+    return (
+      <div className="max-w-md space-y-2">
+        <SkeletonRow />
+        <SkeletonRow />
+        <SkeletonRow />
+      </div>
+    )
+  }
 
   const habilitados = itens.filter((i) => i.estoque_habilitado)
   const contagem = {
@@ -119,7 +130,12 @@ export default function Estoque({ business, planFeatures }: EstoqueProps) {
       </div>
 
       <div className="space-y-2">
-        {visiveis.length === 0 && <p className="text-sm text-white/30 py-4">Nenhum item aqui.</p>}
+        {visiveis.length === 0 && (
+          <EmptyState
+            title="Nenhum item aqui"
+            description={filtro === 'todos' ? 'Cadastre itens no Cardápio pra começar a controlar o estoque.' : 'Nada com esse status no momento.'}
+          />
+        )}
         {visiveis.map((row) => {
           const cor = deriveEstoqueCor(row)
           return (
@@ -139,24 +155,28 @@ export default function Estoque({ business, planFeatures }: EstoqueProps) {
               {row.estoque_habilitado && (
                 <>
                   <div className="flex items-center gap-3 mb-2">
-                    <button
-                      onClick={() => atualizarCampo(row, { estoque_atual: Math.max(row.estoque_atual - 1, 0) })}
-                      className="w-8 h-8 rounded-lg border border-white/15 bg-slate-950 text-sm font-medium active:scale-90 transition-transform"
-                    >
-                      −
-                    </button>
+                    <Tooltip label="Diminuir 1 unidade">
+                      <button
+                        onClick={() => atualizarCampo(row, { estoque_atual: Math.max(row.estoque_atual - 1, 0) })}
+                        className="w-8 h-8 rounded-lg border border-white/15 bg-slate-950 text-sm font-medium active:scale-90 transition-transform"
+                      >
+                        −
+                      </button>
+                    </Tooltip>
                     <input
                       type="number"
                       value={row.estoque_atual}
                       onChange={(e) => atualizarCampo(row, { estoque_atual: Math.max(Number(e.target.value) || 0, 0) })}
                       className="w-16 text-center border border-white/15 bg-slate-950 rounded-lg py-1 text-sm"
                     />
-                    <button
-                      onClick={() => atualizarCampo(row, { estoque_atual: row.estoque_atual + 1 })}
-                      className="w-8 h-8 rounded-lg border border-white/15 bg-slate-950 text-sm font-medium active:scale-90 transition-transform"
-                    >
-                      +
-                    </button>
+                    <Tooltip label="Aumentar 1 unidade">
+                      <button
+                        onClick={() => atualizarCampo(row, { estoque_atual: row.estoque_atual + 1 })}
+                        className="w-8 h-8 rounded-lg border border-white/15 bg-slate-950 text-sm font-medium active:scale-90 transition-transform"
+                      >
+                        +
+                      </button>
+                    </Tooltip>
                     {cor === 'vermelho' && (
                       <span className="text-xs text-red-400 ml-1">Esgotado · marcado como indisponível</span>
                     )}

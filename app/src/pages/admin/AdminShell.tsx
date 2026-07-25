@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { signOut } from '../../lib/auth'
+import Breadcrumb from '../../components/Breadcrumb'
 
 export interface AbaItem<T extends string> {
   value: T
@@ -30,9 +31,11 @@ export default function AdminShell<T extends string>({
   children,
 }: AdminShellProps<T>) {
   const navLinkClass = (ativo: boolean) =>
-    `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+    `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors active:scale-95 ${
       ativo ? 'bg-brand text-white' : 'text-white/60 hover:bg-white/5 hover:text-white'
     }`
+
+  const abaAtual = abas.find((a) => a.value === aba)
 
   return (
     <div className="min-h-full flex flex-col sm:flex-row bg-slate-950 text-white">
@@ -87,7 +90,7 @@ export default function AdminShell<T extends string>({
             <button
               key={a.value}
               onClick={() => onSelectAba(a.value)}
-              className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium ${
+              className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-transform active:scale-95 ${
                 aba === a.value ? 'bg-brand text-white' : 'text-white/60'
               }`}
             >
@@ -103,6 +106,7 @@ export default function AdminShell<T extends string>({
       </header>
 
       <main className="flex-1 overflow-y-auto p-4 sm:p-6">
+        {abaAtual && <Breadcrumb trail={[title, abaAtual.label]} />}
         <div key={aba} className="animate-fade-in">
           {children}
         </div>

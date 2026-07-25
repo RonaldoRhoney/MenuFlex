@@ -4,6 +4,7 @@ import { fetchPlatformSummary, type PlatformSummary } from '../../lib/platformSu
 import type { Business, Plan, PartnerReferral, ReferralStatus } from '../../lib/types'
 import PlatformMetrics from '../../components/admin/PlatformMetrics'
 import UsersPanel from '../../components/admin/UsersPanel'
+import { Skeleton, SkeletonRow } from '../../components/Skeleton'
 
 // Só renderiza pra rhoneyinc@gmail.com (ver Painel.tsx) — mas o que garante de verdade
 // que só esse e-mail vê todos os negócios/indicações é a policy is_super_admin() em
@@ -78,7 +79,15 @@ export default function SuperAdmin() {
     setSalvandoId(null)
   }
 
-  if (loading) return <p className="text-sm text-white/40">Carregando...</p>
+  if (loading) {
+    return (
+      <div className="space-y-2 max-w-xl">
+        <Skeleton className="h-5 w-52" />
+        <SkeletonRow />
+        <SkeletonRow />
+      </div>
+    )
+  }
 
   return (
     <div>
@@ -129,7 +138,10 @@ export default function SuperAdmin() {
 
       {aba === 'metricas' &&
         (summaryLoading ? (
-          <p className="text-sm text-white/40">Carregando métricas...</p>
+          <div className="space-y-2 max-w-xl">
+            <SkeletonRow />
+            <SkeletonRow />
+          </div>
         ) : summaryError || !summary ? (
           <p className="text-sm text-red-400">{summaryError ?? 'Erro ao carregar métricas.'}</p>
         ) : (
@@ -138,7 +150,10 @@ export default function SuperAdmin() {
 
       {aba === 'usuarios' &&
         (summaryLoading ? (
-          <p className="text-sm text-white/40">Carregando usuários...</p>
+          <div className="space-y-2 max-w-xl">
+            <SkeletonRow />
+            <SkeletonRow />
+          </div>
         ) : summaryError || !summary ? (
           <p className="text-sm text-red-400">{summaryError ?? 'Erro ao carregar usuários.'}</p>
         ) : (
