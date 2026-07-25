@@ -2,12 +2,14 @@ import { useState } from 'react'
 
 interface BarChartProps {
   data: { dia: string; total: number }[]
+  formatLabel?: (dia: string) => string
+  formatTooltip?: (total: number) => string
 }
 
 // Gráfico de barras (não linha, de propósito): com poucos dias de dado, uma
 // linha entre 1-2 pontos sugere uma "tendência" contínua que não existe —
 // contagem discreta por dia é o job de barras, não de linha.
-export default function BarChart({ data }: BarChartProps) {
+export default function BarChart({ data, formatLabel, formatTooltip }: BarChartProps) {
   const [hoverIdx, setHoverIdx] = useState<number | null>(null)
 
   if (data.length === 0) {
@@ -71,10 +73,15 @@ export default function BarChart({ data }: BarChartProps) {
 
         {data.map((d, i) => {
           if (i % labelEvery !== 0 && i !== data.length - 1) return null
-          const [, mes, dia] = d.dia.split('-')
+          const label = formatLabel
+            ? formatLabel(d.dia)
+            : (() => {
+                const [, mes, dia] = d.dia.split('-')
+                return `${dia}/${mes}`
+              })()
           return (
             <text key={d.dia} x={xCenterAt(i)} y={H - 6} textAnchor="middle" fontSize={9} fill="rgba(255,255,255,0.35)">
-              {dia}/{mes}
+              {label}
             </text>
           )
         })}
@@ -98,9 +105,9 @@ export default function BarChart({ data }: BarChartProps) {
           className="absolute pointer-events-none bg-neutral-900 text-white text-xs rounded-md px-2.5 py-1.5 -translate-x-1/2 -translate-y-full"
           style={{ left: `${(xCenterAt(hoverIdx!) / W) * 100}%`, top: `${(yAt(hovered.total) / H) * 100}%` }}
         >
-          {hovered.dia.split('-').slice(1).reverse().join('/')}
+          {formatLabel ? formatLabel(hovered.dia) : hovered.dia.split('-').slice(1).reverse().join('/')}
           <strong className="block text-orange-300">
-            {hovered.total} {hovered.total === 1 ? 'acesso' : 'acessos'}
+            {formatTooltip ? formatTooltip(hovered.total) : `${hovered.total} ${hovered.total === 1 ? 'acesso' : 'acessos'}`}
           </strong>
         </div>
       )}
