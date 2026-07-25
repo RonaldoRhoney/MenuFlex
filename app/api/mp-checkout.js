@@ -112,8 +112,15 @@ export default async function handler(req, res) {
 
   await admin.from('plan_payments').update({ mp_preference_id: mpData.id }).eq('id', payment.id);
 
-  // Com credencial de teste, o Mercado Pago devolve sandbox_init_point (paga-se
-  // com um usuário/cartão de teste); com credencial de produção, só init_point
-  // existe. Preferimos o sandbox quando disponível.
-  res.status(200).json({ checkout_url: mpData.sandbox_init_point || mpData.init_point });
+  // BUG CORRIGIDO 2026-07-25: a API do Mercado Pago devolve os dois campos
+  // (init_point E sandbox_init_point) SEMPRE, independente da credencial —
+  // não dá pra decidir por qual campo existe. Quem decide é o tipo de
+  // credencial usada pra criar a preferência: token começando com "TEST-"
+  // (ambiente de teste) deve ir pro sandbox_init_point; qualquer outro
+  // (produção, "APP_USR-...") vai pro init_point real. Com o código antigo
+  // (sandbox_init_point || init_point), o checkout NUNCA processava
+  // pagamento de verdade, mesmo com credencial de produção configurada.
+  const isTestCredential = MP_ACCESS_TOKEN.startsWith('TEST-');
+  const checkoutUrl = isTestCredential ? mpData.sandbox_init_point : mpData.init_point;
+  res.status(200).json({ checkout_url: checkoutUrl });
 }
