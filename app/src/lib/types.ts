@@ -133,6 +133,17 @@ export interface Order {
   created_at: string
 }
 
+export type EstoqueCor = 'verde' | 'amarelo' | 'vermelho'
+
+export interface EstoqueItem {
+  item_id: string
+  business_id: string
+  estoque_atual: number
+  estoque_minimo: number
+  estoque_habilitado: boolean
+  updated_at: string
+}
+
 export interface OrderItem {
   id: string
   order_id: string

@@ -11,6 +11,7 @@ import FilaPedidos from './FilaPedidos'
 import MinhaEmpresa from './MinhaEmpresa'
 import Configuracoes from './Configuracoes'
 import Analytics from './Analytics'
+import Estoque from './Estoque'
 import Privacidade from './Privacidade'
 import SuperAdmin from './SuperAdmin'
 import Splash from '../../components/Splash'
@@ -20,16 +21,18 @@ import AdminShell, {
   IconCardapio,
   IconConfig,
   IconAnalytics,
+  IconEstoque,
   IconPrivacidade,
   IconGerencia,
 } from './AdminShell'
 
-type Aba = 'fila' | 'minha_empresa' | 'cardapio' | 'configuracoes' | 'analytics' | 'privacidade' | 'super_admin'
+type Aba = 'fila' | 'minha_empresa' | 'cardapio' | 'estoque' | 'configuracoes' | 'analytics' | 'privacidade' | 'super_admin'
 
 const ABAS = [
   { value: 'minha_empresa' as Aba, label: 'Minha Empresa', icon: <IconEmpresa /> },
   { value: 'cardapio' as Aba, label: 'Cardápio', icon: <IconCardapio /> },
   { value: 'fila' as Aba, label: 'Pedidos', icon: <IconPedidos /> },
+  { value: 'estoque' as Aba, label: 'Estoque', icon: <IconEstoque /> },
   { value: 'analytics' as Aba, label: 'Analytics', icon: <IconAnalytics /> },
   { value: 'configuracoes' as Aba, label: 'Configurações', icon: <IconConfig /> },
   { value: 'privacidade' as Aba, label: 'Privacidade', icon: <IconPrivacidade /> },
@@ -147,6 +150,7 @@ export default function Painel() {
           <MinhaEmpresa business={business} planFeatures={planFeatures} onUpdated={setBusiness} />
         )}
         {aba === 'cardapio' && <CardapioAdmin business={business} />}
+        {aba === 'estoque' && <Estoque business={business} planFeatures={planFeatures} />}
         {aba === 'configuracoes' && <Configuracoes business={business} onUpdated={setBusiness} />}
         {aba === 'analytics' && <Analytics business={business} planFeatures={planFeatures} />}
         {aba === 'privacidade' && <Privacidade />}

@@ -25,7 +25,7 @@ const PLANOS: { value: Plan; label: string; preco: string; itens: string[] }[] =
     value: 'basico',
     label: 'Básico',
     preco: 'R$ 19,90/mês',
-    itens: ['Tudo do Free', 'Delivery + pedido no local', 'Logo própria', 'Proximidade 300m · Analytics'],
+    itens: ['Tudo do Free', 'Delivery + pedido no local', 'Logo própria', 'Controle de estoque', 'Proximidade 300m · Analytics'],
   },
   {
     value: 'premium',
