@@ -131,6 +131,19 @@ export default function Analytics({ business, planFeatures }: AnalyticsProps) {
     )
   }
 
+  function exportarCsv() {
+    const header = ['id', 'data', 'tipo', 'status', 'total']
+    const linhas = orders.map((o) => [o.id, new Date(o.created_at).toLocaleString('pt-BR'), o.order_type, o.status, o.total.toFixed(2)])
+    const csv = [header, ...linhas].map((linha) => linha.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n')
+    const blob = new Blob([`﻿${csv}`], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `pedidos-${business.name.replace(/\s+/g, '_')}-${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   const validos = orders.filter((o) => o.status !== 'cancelado')
   const totalPedidos = orders.length
   const faturamento = validos.reduce((sum, o) => sum + o.total, 0)
@@ -163,6 +176,18 @@ export default function Analytics({ business, planFeatures }: AnalyticsProps) {
 
   return (
     <div className="space-y-8 max-w-2xl">
+      <div className="flex items-center justify-between">
+        <h2 className="font-semibold">Analytics</h2>
+        {orders.length > 0 && (
+          <button
+            onClick={exportarCsv}
+            className="text-xs rounded-full border border-white/15 bg-slate-900 text-white/70 px-3 py-1.5 transition-transform active:scale-95 hover:border-white/25"
+          >
+            Exportar CSV
+          </button>
+        )}
+      </div>
+
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
         <KpiCard label="Pedidos" value={totalPedidos} accent />
         <KpiCard label="Faturamento" value={formatarReais(faturamento)} accent />

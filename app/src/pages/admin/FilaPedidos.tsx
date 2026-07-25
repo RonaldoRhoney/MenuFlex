@@ -3,6 +3,17 @@ import { supabase } from '../../lib/supabaseClient'
 import { startAlertLoop, stopAlertLoop } from '../../lib/sound'
 import type { Business, Order, OrderStatus } from '../../lib/types'
 
+// Tempo decorrido desde a criação do pedido — ajuda o lojista a notar visualmente
+// o que está parado há mais tempo, sem depender de configurar um "tempo estimado"
+// que o schema não tem hoje (evita inventar dado que não existe de verdade).
+function tempoDecorrido(createdAt: string, agora: number): string {
+  const min = Math.floor((agora - new Date(createdAt).getTime()) / 60000)
+  if (min < 1) return 'agora'
+  if (min < 60) return `há ${min}min`
+  const h = Math.floor(min / 60)
+  return `há ${h}h${min % 60 > 0 ? (min % 60) + 'min' : ''}`
+}
+
 interface FilaPedidosProps {
   business: Business
 }
@@ -19,7 +30,13 @@ export default function FilaPedidos({ business }: FilaPedidosProps) {
   const [soundEnabled, setSoundEnabled] = useState(false)
   const [alerting, setAlerting] = useState(false)
   const [newOrderId, setNewOrderId] = useState<string | null>(null)
+  const [agora, setAgora] = useState(() => Date.now())
   const alertingRef = useRef(false)
+
+  useEffect(() => {
+    const tick = setInterval(() => setAgora(Date.now()), 30_000)
+    return () => clearInterval(tick)
+  }, [])
 
   useEffect(() => {
     if (!supabase) return
@@ -114,7 +131,12 @@ export default function FilaPedidos({ business }: FilaPedidosProps) {
                       order.id === newOrderId ? 'animate-highlight-new' : ''
                     }`}
                   >
-                    <p className="text-xs text-white/40 mb-1">#{order.id.slice(0, 8)} · {order.order_type}</p>
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="text-xs text-white/40">#{order.id.slice(0, 8)} · {order.order_type}</p>
+                      <p className={`text-xs ${col.next && agora - new Date(order.created_at).getTime() > 15 * 60_000 ? 'text-amber-400 font-medium' : 'text-white/30'}`}>
+                        {tempoDecorrido(order.created_at, agora)}
+                      </p>
+                    </div>
                     <p className="font-medium text-sm mb-2">R$ {order.total.toFixed(2).replace('.', ',')}</p>
                     {col.next && (
                       <button
