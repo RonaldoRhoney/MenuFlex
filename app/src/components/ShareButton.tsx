@@ -22,7 +22,7 @@ export default function ShareButton({ business, className, label = '📤 Compart
       try {
         await navigator.share({
           title: 'MenuFlex',
-          text: 'Conheci uma plataforma incrível para criar cardápios digitais profissionais e receber pedidos online. Vale a pena conhecer!',
+          text: 'Quero fazer um convite especial: conheça o MenuFlex — uma experiência simples e elegante para digitalizar seu cardápio e vender mais. Baixe o app e veja com seus próprios olhos.',
           url: link,
         })
         trackShareEvent('share_success')

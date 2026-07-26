@@ -7,13 +7,13 @@ interface ShareModalProps {
 }
 
 const MENSAGEM_WHATSAPP =
-  '🍽️ Estou utilizando o MenuFlex para gerenciar meu cardápio digital e facilitar os pedidos dos meus clientes.\n\nSe você possui restaurante, pizzaria, lanchonete, cafeteria, food truck ou qualquer outro negócio, vale muito a pena conhecer.\n\n🚀 Crie seu cardápio digital gratuitamente:'
+  '👋 Quero fazer um convite especial: conheça o MenuFlex.\n\nTenho usado pra modernizar meu cardápio e agilizar meus pedidos — uma experiência simples e elegante, do jeito que meu negócio merecia.\n\n📲 Baixe o app e veja com seus próprios olhos:'
 const MENSAGEM_LINKEDIN =
-  'Conheça o MenuFlex.\n\nUma plataforma moderna para criação de cardápios digitais, pedidos online e gestão inteligente para restaurantes e empresas de alimentação.'
-const MENSAGEM_X = 'Conheça o MenuFlex.\n\nA forma mais moderna de criar cardápios digitais.'
-const ASSUNTO_EMAIL = 'Conheça o MenuFlex'
+  'Um convite para conhecer o MenuFlex.\n\nA plataforma que está elevando o padrão de cardápios digitais e pedidos online para restaurantes, bares e cafeterias — simples de usar, elegante na experiência.\n\nBaixe o app e comece hoje mesmo:'
+const MENSAGEM_X = 'Conheça o MenuFlex — cardápios digitais elegantes, pedidos em tempo real. Baixe o app e leve seu negócio pro próximo nível 🚀'
+const ASSUNTO_EMAIL = 'Um convite para conhecer o MenuFlex'
 const MENSAGEM_EMAIL =
-  'Olá!\n\nEstou utilizando o MenuFlex para criar meu cardápio digital e gostei bastante.\n\nAchei que poderia ser útil para o seu negócio também.\n\nConfira:'
+  'Olá!\n\nQuero fazer um convite especial: conheça o MenuFlex.\n\nTem transformado a forma como gerencio meu cardápio e recebo pedidos — uma experiência simples e elegante, pensada pra fazer seu negócio brilhar.\n\nBaixe o app e veja com seus próprios olhos:'
 
 export default function ShareModal({ link, onClose }: ShareModalProps) {
   const [copiado, setCopiado] = useState(false)
