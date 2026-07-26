@@ -76,11 +76,11 @@ export default function Login() {
   }
 
   return (
-    <div className="relative min-h-full bg-slate-950 text-white">
+    <div className="relative min-h-dvh bg-slate-950 text-white">
       {showSplash && <Splash onContinue={() => setShowSplash(false)} />}
 
       <div
-        className={`min-h-full flex items-center justify-center px-4 transition-all duration-500 ease-out ${
+        className={`min-h-dvh flex items-center justify-center px-4 transition-all duration-500 ease-out ${
           contentVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
         }`}
       >

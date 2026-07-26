@@ -236,13 +236,13 @@ export default function Loja() {
     setView('acompanhar')
   }
 
-  if (loading) return <div className="p-8 text-center text-neutral-400">Carregando cardápio...</div>
+  if (loading) return <div className="min-h-dvh flex items-center justify-center bg-neutral-50 p-8 text-center text-neutral-400">Carregando cardápio...</div>
   if (notFound || !business) {
-    return <div className="p-8 text-center text-neutral-500">Negócio não encontrado.</div>
+    return <div className="min-h-dvh flex items-center justify-center bg-neutral-50 p-8 text-center text-neutral-500">Negócio não encontrado.</div>
   }
 
   return (
-    <div className="min-h-full flex flex-col">
+    <div className="min-h-dvh flex flex-col bg-neutral-50">
       <div className="flex-1">
         {showInstallHint && (
           <div className="bg-brand text-white text-sm text-center py-2 px-4">

@@ -43,7 +43,7 @@ export default function Parceiros() {
     form.referrerName.trim() && form.referrerPhone.trim() && form.businessName.trim() && form.businessPhone.trim()
 
   return (
-    <div className="min-h-full flex flex-col">
+    <div className="min-h-dvh flex flex-col">
       <div className="flex-1 bg-slate-950 text-white">
         <nav className="max-w-6xl mx-auto px-4 py-5 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">

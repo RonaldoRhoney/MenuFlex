@@ -15,7 +15,7 @@ export function Skeleton({ className = '' }: SkeletonProps) {
 // cada ponto de loading.
 export function SkeletonScreen() {
   return (
-    <div className="min-h-full flex flex-col gap-3 p-6 bg-slate-950">
+    <div className="min-h-dvh flex flex-col gap-3 p-6 bg-slate-950">
       <Skeleton className="h-6 w-40" />
       <Skeleton className="h-4 w-64" />
       <div className="flex flex-col gap-2 mt-4">

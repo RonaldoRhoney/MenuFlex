@@ -11,7 +11,7 @@ function Secao({ titulo, children }: { titulo: string; children: React.ReactNode
 
 export default function TermosUso() {
   return (
-    <div className="min-h-full flex flex-col">
+    <div className="min-h-dvh flex flex-col bg-white">
       <div className="flex-1 max-w-2xl mx-auto px-4 py-12 text-sm text-neutral-600 leading-relaxed">
         <h1 className="text-2xl font-semibold text-neutral-900 mb-1">Termos de Uso</h1>
         <p className="text-xs text-neutral-400 mb-8">Última atualização: julho de 2026</p>

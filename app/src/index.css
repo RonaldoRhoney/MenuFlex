@@ -7,12 +7,26 @@
   --font-display: 'Fraunces', ui-serif, Georgia, serif;
 }
 
+/* min-height (não height fixo) em toda a cadeia — deixa crescer com o
+   conteúdo em vez de cortar, e cobre telas com conteúdo curto sem sobrar
+   fundo do navegador por baixo. 100dvh (com fallback 100vh) evita o corte
+   causado pela barra de endereço do navegador mobile. */
 html, body, #root {
-  height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+html, body {
+  background-color: #020617; /* mesmo tom de bg-slate-950 usado em todo o app */
 }
 
 body {
-  @apply bg-neutral-50 text-neutral-900 antialiased m-0 font-sans;
+  @apply bg-slate-950 text-white antialiased m-0 font-sans;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
 }
 
 /* ============================================================

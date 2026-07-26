@@ -54,7 +54,7 @@ function Home() {
   }, [])
 
   return (
-    <div className="min-h-full flex flex-col">
+    <div className="min-h-dvh flex flex-col">
       <div className="flex-1 bg-slate-950 text-white">
         <nav className="max-w-6xl mx-auto px-4 py-5 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -175,9 +175,9 @@ function Home() {
 
 function PaginaEstatica({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
-    <div className="min-h-full flex flex-col">
+    <div className="min-h-dvh flex flex-col bg-white">
       <div className="flex-1 max-w-2xl mx-auto px-4 py-12">
-        <h1 className="text-2xl font-semibold mb-4">{titulo}</h1>
+        <h1 className="text-2xl font-semibold mb-4 text-neutral-900">{titulo}</h1>
         <div className="text-sm text-neutral-600 leading-relaxed space-y-3">{children}</div>
       </div>
       <Footer />

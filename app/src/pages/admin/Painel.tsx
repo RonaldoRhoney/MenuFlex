@@ -86,7 +86,7 @@ export default function Painel() {
 
   if (sessionLoading || (session && businessLoading)) {
     return (
-      <div className="relative min-h-full">
+      <div className="relative min-h-dvh">
         {splashOverlay}
         <SkeletonScreen />
       </div>
@@ -102,7 +102,7 @@ export default function Painel() {
   // onboarding de "cadastre seu negócio" só pra acessar a Gerência.
   if (!business && isSuperAdmin) {
     return (
-      <div className="relative min-h-full">
+      <div className="relative min-h-dvh">
         {splashOverlay}
         <AdminShell
           title="RhoneyInc"
@@ -119,7 +119,7 @@ export default function Painel() {
 
   if (!business) {
     return (
-      <div className="relative min-h-full">
+      <div className="relative min-h-dvh">
         {splashOverlay}
         <Onboarding
           ownerId={session.user.id}
@@ -137,7 +137,7 @@ export default function Painel() {
     : ABAS
 
   return (
-    <div className="relative min-h-full">
+    <div className="relative min-h-dvh">
       {splashOverlay}
       <AdminShell
         title={business.name}

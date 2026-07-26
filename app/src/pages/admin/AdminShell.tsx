@@ -44,7 +44,7 @@ export default function AdminShell<T extends string>({
   const abaAtual = abas.find((a) => a.value === aba)
 
   return (
-    <div className="min-h-full flex flex-col sm:flex-row bg-slate-950 text-white">
+    <div className="min-h-dvh flex flex-col sm:flex-row bg-slate-950 text-white">
       {/* Sidebar — desktop */}
       <aside className="hidden sm:flex w-60 shrink-0 flex-col border-r border-white/10">
         <div className="px-5 py-5 border-b border-white/10">

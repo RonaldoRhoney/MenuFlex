@@ -91,7 +91,7 @@ export default function Onboarding({ ownerId, onCreated }: OnboardingProps) {
   if (createdBusiness) {
     const segmentosDoNegocio = segments.filter((s) => selectedSegmentIds.includes(s.id))
     return (
-      <div className="min-h-full bg-slate-950 text-white px-4 py-10">
+      <div className="min-h-dvh bg-slate-950 text-white px-4 py-10">
         <MontarCardapio
           business={createdBusiness}
           segments={segmentosDoNegocio}
@@ -103,7 +103,7 @@ export default function Onboarding({ ownerId, onCreated }: OnboardingProps) {
   }
 
   return (
-    <div className="min-h-full flex items-center justify-center px-4 py-10 bg-slate-950 text-white">
+    <div className="min-h-dvh flex items-center justify-center px-4 py-10 bg-slate-950 text-white">
       <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
         <h1 className="text-xl font-semibold text-center mb-2">Cadastre seu negócio</h1>
 
