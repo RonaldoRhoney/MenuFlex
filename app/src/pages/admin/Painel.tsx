@@ -142,6 +142,7 @@ export default function Painel() {
       <AdminShell
         title={business.name}
         subtitle={`Plano ${business.plan}`}
+        email={session.user.email ?? undefined}
         abas={abas}
         aba={aba}
         onSelectAba={setAba}

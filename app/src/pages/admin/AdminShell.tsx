@@ -15,6 +15,7 @@ export interface AbaItem<T extends string> {
 interface AdminShellProps<T extends string> {
   title: string
   subtitle?: string
+  email?: string
   abas: AbaItem<T>[]
   aba: T
   onSelectAba: (aba: T) => void
@@ -28,6 +29,7 @@ interface AdminShellProps<T extends string> {
 export default function AdminShell<T extends string>({
   title,
   subtitle,
+  email,
   abas,
   aba,
   onSelectAba,
@@ -52,6 +54,7 @@ export default function AdminShell<T extends string>({
           </Link>
           <p className="font-semibold truncate">{title}</p>
           {subtitle && <p className="text-xs text-white/40 mt-0.5">{subtitle}</p>}
+          {email && <p className="text-xs text-white/30 mt-0.5 truncate">{email}</p>}
         </div>
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           {abas.map((a) => (
@@ -91,6 +94,7 @@ export default function AdminShell<T extends string>({
           <div>
             <p className="font-semibold text-sm">{title}</p>
             {subtitle && <p className="text-xs text-white/40">{subtitle}</p>}
+            {email && <p className="text-xs text-white/30">{email}</p>}
           </div>
           <div className="flex items-center gap-3">
             {business && <ShareButton business={business} label="📤" className="text-base" />}
