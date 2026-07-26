@@ -11,6 +11,8 @@ const MENSAGEM_WHATSAPP =
 const MENSAGEM_LINKEDIN =
   'Um convite para conhecer o MenuFlex.\n\nA plataforma que está elevando o padrão de cardápios digitais e pedidos online para restaurantes, bares e cafeterias — simples de usar, elegante na experiência.\n\nBaixe o app e comece hoje mesmo:'
 const MENSAGEM_X = 'Conheça o MenuFlex — cardápios digitais elegantes, pedidos em tempo real. Baixe o app e leve seu negócio pro próximo nível 🚀'
+const MENSAGEM_FACEBOOK =
+  'Um convite especial: conheça o MenuFlex — uma experiência simples e elegante para digitalizar seu cardápio e vender mais. Baixe o app e veja com seus próprios olhos.'
 const ASSUNTO_EMAIL = 'Um convite para conhecer o MenuFlex'
 const MENSAGEM_EMAIL =
   'Olá!\n\nQuero fazer um convite especial: conheça o MenuFlex.\n\nTem transformado a forma como gerencio meu cardápio e recebo pedidos — uma experiência simples e elegante, pensada pra fazer seu negócio brilhar.\n\nBaixe o app e veja com seus próprios olhos:'
@@ -43,7 +45,12 @@ export default function ShareModal({ link, onClose }: ShareModalProps) {
       nome: 'Facebook',
       emoji: '📘',
       cor: 'bg-blue-500/10 border-blue-500/30 text-blue-300',
-      onClick: () => abrir(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`, 'share_facebook'),
+      // Facebook/LinkedIn não aceitam mais texto customizado de verdade via
+      // URL (removido por antispam há alguns anos) — quem decide o texto
+      // exibido são as tags Open Graph da própria página (index.html). O
+      // `quote` aqui é só um reforço, sem garantia de funcionar em todo caso.
+      onClick: () =>
+        abrir(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}&quote=${encodeURIComponent(MENSAGEM_FACEBOOK)}`, 'share_facebook'),
     },
     {
       nome: 'LinkedIn',
