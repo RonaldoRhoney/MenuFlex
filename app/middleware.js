@@ -32,7 +32,7 @@ export default async function middleware(request) {
 
     const title = escapeHtml(business.name)
     const description = escapeHtml(business.description || 'Cardápio digital — monte seu pedido e finalize pelo WhatsApp.')
-    const image = business.logo_url || 'https://menuflex.rhoneyinc.com/icons/icon-512.png'
+    const image = escapeHtml(business.logo_url || 'https://menuflex.rhoneyinc.com/icons/icon-512.png')
 
     const html = `<!doctype html><html><head>
 <meta charset="utf-8">
