@@ -259,7 +259,7 @@ export default function Loja() {
   }
 
   return (
-    <div className="min-h-dvh flex flex-col bg-neutral-50">
+    <div className="min-h-dvh flex flex-col bg-neutral-50 text-neutral-900">
       <div className="flex-1">
         {showInstallHint && (
           <div className="bg-brand text-white text-sm text-center py-2 px-4">

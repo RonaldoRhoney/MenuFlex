@@ -2,6 +2,14 @@ import { useState } from 'react'
 import type { Business, MenuCategory, MenuItem } from '../../lib/types'
 import ItemOptionsModal from '../../components/ItemOptionsModal'
 import LiveClock from '../../components/LiveClock'
+import TutorialModal, { type TutorialStep } from '../../components/TutorialModal'
+
+const PASSOS_CLIENTE: TutorialStep[] = [
+  { icon: '📖', title: 'Veja o cardápio', description: 'Navegue pelas categorias e escolha os itens que quiser.' },
+  { icon: '🛒', title: 'Monte seu carrinho', description: 'Toque no + pra adicionar. Ajuste quantidade e adicione observações.' },
+  { icon: '📝', title: 'Revise seu pedido', description: 'Escolha retirada, entrega ou consumo no local e informe seu nome e telefone.' },
+  { icon: '✅', title: 'Finalize e acompanhe', description: 'Confirme o pedido e acompanhe o status em tempo real — ou confirme direto pelo WhatsApp.' },
+]
 
 interface CardapioProps {
   business: Business
@@ -18,6 +26,7 @@ function scrollToCategory(id: string) {
 
 export default function Cardapio({ business, categories, items, onAdd, cartCount, onOpenCart }: CardapioProps) {
   const [itemComOpcoes, setItemComOpcoes] = useState<MenuItem | null>(null)
+  const [tutorialAberto, setTutorialAberto] = useState(false)
 
   function handleAddClick(item: MenuItem) {
     if (item.option_groups && item.option_groups.length > 0) {
@@ -38,6 +47,13 @@ export default function Cardapio({ business, categories, items, onAdd, cartCount
           aria-hidden
           className="pointer-events-none absolute -top-16 left-1/2 -translate-x-1/2 w-64 h-64 rounded-full bg-brand/25 blur-3xl"
         />
+        <button
+          onClick={() => setTutorialAberto(true)}
+          aria-label="Como usar"
+          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-sm transition-colors"
+        >
+          ❓
+        </button>
         <div className="relative flex justify-center mb-2">
           <LiveClock className="text-xs text-white/40" />
         </div>
@@ -131,6 +147,8 @@ export default function Cardapio({ business, categories, items, onAdd, cartCount
           }}
         />
       )}
+
+      {tutorialAberto && <TutorialModal steps={PASSOS_CLIENTE} onClose={() => setTutorialAberto(false)} theme="light" />}
     </div>
   )
 }

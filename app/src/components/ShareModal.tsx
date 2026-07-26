@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { trackShareEvent } from '../lib/referral'
 
 interface ShareModalMensagens {
@@ -121,7 +122,7 @@ export default function ShareModal({
     },
   ]
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 animate-fade-in"
       onClick={onClose}
@@ -176,6 +177,7 @@ export default function ShareModal({
           </a>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

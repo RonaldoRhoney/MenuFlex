@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { startAlertLoop, stopAlertLoop } from '../../lib/sound'
 import type { Business, Order, OrderStatus } from '../../lib/types'
+import OrderDetailsModal from '../../components/admin/OrderDetailsModal'
 
 // Tempo decorrido desde a criação do pedido — ajuda o lojista a notar visualmente
 // o que está parado há mais tempo, sem depender de configurar um "tempo estimado"
@@ -30,6 +31,7 @@ export default function FilaPedidos({ business }: FilaPedidosProps) {
   const [soundEnabled, setSoundEnabled] = useState(false)
   const [alerting, setAlerting] = useState(false)
   const [newOrderId, setNewOrderId] = useState<string | null>(null)
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [agora, setAgora] = useState(() => Date.now())
   const alertingRef = useRef(false)
 
@@ -127,7 +129,10 @@ export default function FilaPedidos({ business }: FilaPedidosProps) {
                 .map((order) => (
                   <div
                     key={order.id}
-                    className={`bg-slate-900 border border-white/10 rounded-lg p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-white/20 animate-slide-up ${
+                    onClick={() => setSelectedOrder(order)}
+                    role="button"
+                    tabIndex={0}
+                    className={`bg-slate-900 border border-white/10 rounded-lg p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-white/20 cursor-pointer animate-slide-up ${
                       order.id === newOrderId ? 'animate-highlight-new' : ''
                     }`}
                   >
@@ -140,7 +145,10 @@ export default function FilaPedidos({ business }: FilaPedidosProps) {
                     <p className="font-medium text-sm mb-2">R$ {order.total.toFixed(2).replace('.', ',')}</p>
                     {col.next && (
                       <button
-                        onClick={() => advance(order, col.next!)}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          advance(order, col.next!)
+                        }}
                         className="text-xs bg-brand text-white rounded-full px-3 py-1 transition-transform active:scale-90 hover:bg-brand-dark"
                       >
                         Marcar {COLUNAS.find((c) => c.status === col.next)?.label}
@@ -155,6 +163,8 @@ export default function FilaPedidos({ business }: FilaPedidosProps) {
           </div>
         ))}
       </div>
+
+      {selectedOrder && <OrderDetailsModal order={selectedOrder} onClose={() => setSelectedOrder(null)} />}
     </div>
   )
 }

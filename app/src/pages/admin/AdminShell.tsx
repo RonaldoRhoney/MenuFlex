@@ -1,9 +1,17 @@
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { signOut } from '../../lib/auth'
 import Breadcrumb from '../../components/Breadcrumb'
 import ShareButton from '../../components/ShareButton'
+import TutorialModal, { type TutorialStep } from '../../components/TutorialModal'
 import type { Business } from '../../lib/types'
+
+const PASSOS_ADMIN: TutorialStep[] = [
+  { icon: <IconCardapio />, title: 'Monte seu cardápio', description: 'Em Cardápio, cadastre categorias e itens com foto, preço e adicionais.' },
+  { icon: <IconEmpresa />, title: 'Configure sua empresa', description: 'Em Minha Empresa, defina nome, logo, endereço e horário de funcionamento.' },
+  { icon: <IconWhatsapp />, title: 'Ative o Cardápio WhatsApp', description: 'Configure seu número, gere o link exclusivo e envie ou compartilhe o cardápio com seus clientes.' },
+  { icon: <IconPedidos />, title: 'Acompanhe os pedidos', description: 'Em Pedidos, veja a fila em tempo real, clique num pedido pra ver os detalhes, e ative o alerta sonoro pra não perder nenhum.' },
+]
 
 export interface AbaItem<T extends string> {
   value: T
@@ -36,6 +44,8 @@ export default function AdminShell<T extends string>({
   children,
   business,
 }: AdminShellProps<T>) {
+  const [tutorialAberto, setTutorialAberto] = useState(false)
+
   const navLinkClass = (ativo: boolean) =>
     `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors active:scale-95 ${
       ativo ? 'bg-brand text-white' : 'text-white/60 hover:bg-white/5 hover:text-white'
@@ -77,6 +87,10 @@ export default function AdminShell<T extends string>({
               className={`w-full ${navLinkClass(false)}`}
             />
           )}
+          <button onClick={() => setTutorialAberto(true)} className={`w-full ${navLinkClass(false)}`}>
+            <IconAjuda />
+            Como usar
+          </button>
           <Link to="/parceiros" target="_blank" rel="noopener noreferrer" className={navLinkClass(false)}>
             <IconHeart />
             Parceiros
@@ -98,6 +112,9 @@ export default function AdminShell<T extends string>({
           </div>
           <div className="flex items-center gap-3">
             {business && <ShareButton business={business} label="📤" className="text-base" />}
+            <button onClick={() => setTutorialAberto(true)} className="text-base" aria-label="Como usar">
+              ❓
+            </button>
             <button onClick={signOut} className="text-xs text-white/60">
               Sair
             </button>
@@ -129,6 +146,8 @@ export default function AdminShell<T extends string>({
           {children}
         </div>
       </main>
+
+      {tutorialAberto && <TutorialModal steps={PASSOS_ADMIN} onClose={() => setTutorialAberto(false)} theme="dark" />}
     </div>
   )
 }
@@ -191,6 +210,15 @@ export function IconPrivacidade() {
   return (
     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
       <path d="M12 3 4 6v6c0 5 3.5 8.5 8 9 4.5-.5 8-4 8-9V6l-8-3Z" />
+    </svg>
+  )
+}
+function IconAjuda() {
+  return (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M9.5 9a2.5 2.5 0 0 1 4.9.8c0 1.7-2.4 1.7-2.4 3.4" />
+      <path d="M12 17.5v.01" />
     </svg>
   )
 }

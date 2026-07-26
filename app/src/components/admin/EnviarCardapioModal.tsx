@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import type { Business, WhatsappConfig } from '../../lib/types'
 import { buildWaMeLink, getCardapioLink, isValidWhatsappNumber, substituirPlaceholders, trackWhatsappEvent } from '../../lib/whatsapp'
 
@@ -24,7 +25,7 @@ export default function EnviarCardapioModal({ business, config, onClose }: Envia
     onClose()
   }
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 animate-fade-in"
       onClick={onClose}
@@ -62,6 +63,7 @@ export default function EnviarCardapioModal({ business, config, onClose }: Envia
           Abrir WhatsApp
         </button>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
