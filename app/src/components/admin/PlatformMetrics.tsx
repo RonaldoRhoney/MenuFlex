@@ -1,6 +1,15 @@
 import BarChart from './BarChart'
 import BarRank from './BarRank'
+import PieChart from './PieChart'
 import type { PlatformSummary } from '../../lib/platformSummary'
+
+// Slots categóricos validados (skill dataviz, passo escuro) — ordem fixa,
+// nunca ciclada por rank. Mesma paleta já usada no painel do VagaLume.
+const CATEGORICAL = ['#3987e5', '#d95926', '#199e70', '#c98500']
+
+function paraFatias(items: { label: string; total: number }[]) {
+  return items.map((item, i) => ({ label: item.label, value: item.total, color: CATEGORICAL[i % CATEGORICAL.length] }))
+}
 
 function KpiCard({ label, value, accent }: { label: string; value: number | string; accent?: boolean }) {
   return (
@@ -52,13 +61,13 @@ export default function PlatformMetrics({ data }: { data: PlatformSummary }) {
         <div>
           <h3 className="text-xs font-medium uppercase tracking-wide text-brand mb-2">Dispositivos</h3>
           <div className="rounded-lg border border-white/10 bg-slate-900 p-3">
-            <BarRank items={data.dispositivos} />
+            <PieChart data={paraFatias(data.dispositivos)} />
           </div>
         </div>
         <div>
           <h3 className="text-xs font-medium uppercase tracking-wide text-brand mb-2">Navegadores</h3>
           <div className="rounded-lg border border-white/10 bg-slate-900 p-3">
-            <BarRank items={data.navegadores} />
+            <PieChart data={paraFatias(data.navegadores)} />
           </div>
         </div>
         <div>
