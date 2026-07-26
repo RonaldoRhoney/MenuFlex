@@ -8,7 +8,7 @@ import { logConsent } from '../../lib/lgpd'
 import { fetchBusinessHours, isOpenNow } from '../../lib/businessHours'
 import { setBusinessJsonLd, clearBusinessJsonLd } from '../../lib/structuredData'
 import { MOCK_BUSINESS, MOCK_CATEGORIES, MOCK_ITEMS, MOCK_PLAN_FEATURES } from '../../lib/mockData'
-import type { Business, BusinessHour, MenuCategory, MenuItem, MenuItemOptionGroup, PlanFeatureRow } from '../../lib/types'
+import type { Business, BusinessHour, CartItem, MenuCategory, MenuItem, MenuItemOptionGroup, PlanFeatureRow } from '../../lib/types'
 import Cardapio from './Cardapio'
 import MontarPedido from './MontarPedido'
 import AcompanharPedido from './AcompanharPedido'
@@ -75,6 +75,13 @@ export default function Loja() {
   const [view, setView] = useState<View>('cardapio')
   const [orderId, setOrderId] = useState<string | null>(null)
   const [orderTotal, setOrderTotal] = useState<number>(0)
+  const [orderSnapshot, setOrderSnapshot] = useState<{
+    items: CartItem[]
+    orderType: 'retirada' | 'delivery' | 'local'
+    deliveryAddress: string
+    customerName: string
+    customerPhone: string
+  } | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
@@ -202,12 +209,21 @@ export default function Loja() {
     setSubmitting(true)
     setErrorMessage(null)
 
+    const snapshot = {
+      items: cart.items,
+      orderType: params.orderType,
+      deliveryAddress: params.deliveryAddress,
+      customerName: params.name,
+      customerPhone: params.phone,
+    }
+
     if (!DB_READY) {
       // Sem banco ainda: simula a criação do pedido localmente (ver AcompanharPedido `simulate`).
       await new Promise((resolve) => setTimeout(resolve, 500))
       setSubmitting(false)
       setOrderTotal(cart.total)
       setOrderId(crypto.randomUUID())
+      setOrderSnapshot(snapshot)
       cart.clear()
       setView('acompanhar')
       return
@@ -232,6 +248,7 @@ export default function Loja() {
       return
     }
     setOrderId(data as string)
+    setOrderSnapshot(snapshot)
     cart.clear()
     setView('acompanhar')
   }
@@ -281,6 +298,8 @@ export default function Loja() {
             orderId={orderId}
             simulate={!DB_READY}
             simulatedTotal={orderTotal}
+            business={business}
+            orderSnapshot={orderSnapshot}
             onVoltarAoCardapio={() => setView('cardapio')}
           />
         )}

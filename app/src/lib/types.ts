@@ -22,6 +22,7 @@ export interface Business {
   opening_hours: string | null
   logo_url: string | null
   usa_horario_programado: boolean
+  whatsapp_number: string | null
 }
 
 export interface BusinessHour {
@@ -161,4 +162,34 @@ export interface CartItem {
   quantity: number
   notes: string
   options_summary?: string
+}
+
+export type WhatsappApiProvider =
+  | 'none'
+  | 'meta_cloud'
+  | 'evolution_api'
+  | 'z_api'
+  | 'twilio'
+  | 'baileys'
+  | '360dialog'
+
+export interface WhatsappConfig {
+  business_id: string
+  welcome_message: string
+  auto_message: string
+  auto_reply_enabled: boolean
+  auto_send_menu_enabled: boolean
+  api_provider: WhatsappApiProvider
+  human_service_hours_note: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type WhatsappEventType = 'click_send' | 'menu_sent' | 'share_click'
+
+export interface WhatsappEvent {
+  id: string
+  business_id: string
+  event_type: WhatsappEventType
+  created_at: string
 }

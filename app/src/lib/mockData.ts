@@ -23,6 +23,7 @@ export const MOCK_BUSINESS: Business = {
   opening_hours: 'Ter a Dom, 18h às 23h',
   logo_url: null,
   usa_horario_programado: false,
+  whatsapp_number: '5591999990000',
 }
 
 export const MOCK_CATEGORIES: MenuCategory[] = [

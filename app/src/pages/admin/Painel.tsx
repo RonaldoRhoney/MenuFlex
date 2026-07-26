@@ -14,6 +14,7 @@ import Analytics from './Analytics'
 import Estoque from './Estoque'
 import Privacidade from './Privacidade'
 import SuperAdmin from './SuperAdmin'
+import CardapioWhatsapp from './CardapioWhatsapp'
 import Splash from '../../components/Splash'
 import { SkeletonScreen } from '../../components/Skeleton'
 import AdminShell, {
@@ -25,15 +26,26 @@ import AdminShell, {
   IconEstoque,
   IconPrivacidade,
   IconGerencia,
+  IconWhatsapp,
 } from './AdminShell'
 
-type Aba = 'fila' | 'minha_empresa' | 'cardapio' | 'estoque' | 'configuracoes' | 'analytics' | 'privacidade' | 'super_admin'
+type Aba =
+  | 'fila'
+  | 'minha_empresa'
+  | 'cardapio'
+  | 'estoque'
+  | 'configuracoes'
+  | 'analytics'
+  | 'privacidade'
+  | 'cardapio_whatsapp'
+  | 'super_admin'
 
 const ABAS = [
   { value: 'minha_empresa' as Aba, label: 'Minha Empresa', icon: <IconEmpresa /> },
   { value: 'cardapio' as Aba, label: 'Cardápio', icon: <IconCardapio /> },
   { value: 'fila' as Aba, label: 'Pedidos', icon: <IconPedidos /> },
   { value: 'estoque' as Aba, label: 'Estoque', icon: <IconEstoque /> },
+  { value: 'cardapio_whatsapp' as Aba, label: 'Cardápio WhatsApp', icon: <IconWhatsapp /> },
   { value: 'analytics' as Aba, label: 'Analytics', icon: <IconAnalytics /> },
   { value: 'configuracoes' as Aba, label: 'Configurações', icon: <IconConfig /> },
   { value: 'privacidade' as Aba, label: 'Privacidade', icon: <IconPrivacidade /> },
@@ -154,6 +166,7 @@ export default function Painel() {
         )}
         {aba === 'cardapio' && <CardapioAdmin business={business} />}
         {aba === 'estoque' && <Estoque business={business} planFeatures={planFeatures} />}
+        {aba === 'cardapio_whatsapp' && <CardapioWhatsapp business={business} planFeatures={planFeatures} />}
         {aba === 'configuracoes' && <Configuracoes business={business} onUpdated={setBusiness} />}
         {aba === 'analytics' && <Analytics business={business} planFeatures={planFeatures} />}
         {aba === 'privacidade' && <Privacidade />}

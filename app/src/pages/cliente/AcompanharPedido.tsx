@@ -1,12 +1,23 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
-import type { OrderStatus } from '../../lib/types'
+import type { Business, CartItem, OrderStatus } from '../../lib/types'
+import { buildOrderSummaryMessage, buildWaMeLink } from '../../lib/whatsapp'
+
+interface OrderSnapshot {
+  items: CartItem[]
+  orderType: 'retirada' | 'delivery' | 'local'
+  deliveryAddress: string
+  customerName: string
+  customerPhone: string
+}
 
 interface AcompanharPedidoProps {
   orderId: string
   onVoltarAoCardapio: () => void
   simulate?: boolean
   simulatedTotal?: number
+  business?: Business | null
+  orderSnapshot?: OrderSnapshot | null
 }
 
 const PASSOS: { status: OrderStatus; label: string }[] = [
@@ -21,6 +32,8 @@ export default function AcompanharPedido({
   onVoltarAoCardapio,
   simulate,
   simulatedTotal,
+  business,
+  orderSnapshot,
 }: AcompanharPedidoProps) {
   const [status, setStatus] = useState<OrderStatus | null>(simulate ? 'recebido' : null)
   const [total, setTotal] = useState<number | null>(simulate ? (simulatedTotal ?? 0) : null)
@@ -110,6 +123,20 @@ export default function AcompanharPedido({
         <p className="text-sm text-neutral-600 mb-8">
           Total: <span className="font-display font-semibold text-neutral-900">R$ {total.toFixed(2).replace('.', ',')}</span>
         </p>
+      )}
+
+      {business?.whatsapp_number && orderSnapshot && total !== null && (
+        <a
+          href={buildWaMeLink(
+            business.whatsapp_number,
+            buildOrderSummaryMessage({ ...orderSnapshot, total }, business),
+          )}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block w-full rounded-lg bg-emerald-600 text-white py-2.5 font-medium mb-4 transition-transform active:scale-95"
+        >
+          Confirmar pelo WhatsApp
+        </a>
       )}
 
       <button onClick={onVoltarAoCardapio} className="text-sm text-brand-dark font-medium hover:text-brand-dark/80 transition-colors">

@@ -194,6 +194,15 @@ export function IconPrivacidade() {
     </svg>
   )
 }
+export function IconWhatsapp() {
+  return (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+      <path d="M20.5 11.9a8.4 8.4 0 1 1-3.6-6.9" />
+      <path d="M20.5 3.5 17 6l1.2 3.7-3.7-1.2Z" />
+      <path d="M8.5 10c.3 2 2.5 4.2 4.5 4.5.9.1 1.6-.5 1.8-1.3l.2-.7a.8.8 0 0 0-.4-.9l-1.4-.7a.8.8 0 0 0-.9.2l-.4.4c-.8-.4-1.7-1.3-2.1-2.1l.4-.4a.8.8 0 0 0 .2-.9l-.7-1.4a.8.8 0 0 0-.9-.4l-.7.2c-.8.2-1.4.9-1.3 1.8Z" />
+    </svg>
+  )
+}
 export function IconGerencia() {
   return (
     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">

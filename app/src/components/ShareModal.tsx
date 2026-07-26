@@ -1,9 +1,24 @@
 import { useState } from 'react'
 import { trackShareEvent } from '../lib/referral'
 
+interface ShareModalMensagens {
+  whatsapp?: string
+  facebook?: string
+  linkedin?: string
+  x?: string
+  telegram?: string
+  emailAssunto?: string
+  emailCorpo?: string
+}
+
 interface ShareModalProps {
   link: string
   onClose: () => void
+  titulo?: string
+  subtitulo?: string
+  mensagens?: ShareModalMensagens
+  qrAltText?: string
+  qrDownloadName?: string
 }
 
 const MENSAGEM_WHATSAPP =
@@ -17,8 +32,23 @@ const ASSUNTO_EMAIL = 'Um convite para conhecer o MenuFlex'
 const MENSAGEM_EMAIL =
   'Olá!\n\nQuero fazer um convite especial: conheça o MenuFlex.\n\nTem transformado a forma como gerencio meu cardápio e recebo pedidos — uma experiência simples e elegante, pensada pra fazer seu negócio brilhar.\n\nBaixe o app e veja com seus próprios olhos:'
 
-export default function ShareModal({ link, onClose }: ShareModalProps) {
+export default function ShareModal({
+  link,
+  onClose,
+  titulo = 'Compartilhe o MenuFlex',
+  subtitulo = 'Ajude outros comerciantes a modernizar seus negócios.',
+  mensagens,
+  qrAltText = 'QR Code do MenuFlex',
+  qrDownloadName = 'menuflex-qrcode.png',
+}: ShareModalProps) {
   const [copiado, setCopiado] = useState(false)
+  const msgWhatsapp = mensagens?.whatsapp ?? MENSAGEM_WHATSAPP
+  const msgFacebook = mensagens?.facebook ?? MENSAGEM_FACEBOOK
+  const msgLinkedin = mensagens?.linkedin ?? MENSAGEM_LINKEDIN
+  const msgX = mensagens?.x ?? MENSAGEM_X
+  const msgTelegram = mensagens?.telegram ?? MENSAGEM_WHATSAPP
+  const assuntoEmail = mensagens?.emailAssunto ?? ASSUNTO_EMAIL
+  const msgEmail = mensagens?.emailCorpo ?? MENSAGEM_EMAIL
 
   function abrir(url: string, evento: string) {
     trackShareEvent(evento)
@@ -39,7 +69,7 @@ export default function ShareModal({ link, onClose }: ShareModalProps) {
       nome: 'WhatsApp',
       emoji: '💬',
       cor: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300',
-      onClick: () => abrir(`https://wa.me/?text=${encodeURIComponent(`${MENSAGEM_WHATSAPP}\n\n${link}`)}`, 'share_whatsapp'),
+      onClick: () => abrir(`https://wa.me/?text=${encodeURIComponent(`${msgWhatsapp}\n\n${link}`)}`, 'share_whatsapp'),
     },
     {
       nome: 'Facebook',
@@ -50,33 +80,33 @@ export default function ShareModal({ link, onClose }: ShareModalProps) {
       // exibido são as tags Open Graph da própria página (index.html). O
       // `quote` aqui é só um reforço, sem garantia de funcionar em todo caso.
       onClick: () =>
-        abrir(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}&quote=${encodeURIComponent(MENSAGEM_FACEBOOK)}`, 'share_facebook'),
+        abrir(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}&quote=${encodeURIComponent(msgFacebook)}`, 'share_facebook'),
     },
     {
       nome: 'LinkedIn',
       emoji: '💼',
       cor: 'bg-sky-500/10 border-sky-500/30 text-sky-300',
       onClick: () =>
-        abrir(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(link)}&summary=${encodeURIComponent(MENSAGEM_LINKEDIN)}`, 'share_linkedin'),
+        abrir(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(link)}&summary=${encodeURIComponent(msgLinkedin)}`, 'share_linkedin'),
     },
     {
       nome: 'X (Twitter)',
       emoji: '✖️',
       cor: 'bg-white/10 border-white/25 text-white/80',
-      onClick: () => abrir(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`${MENSAGEM_X}\n\n${link}`)}`, 'share_twitter'),
+      onClick: () => abrir(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`${msgX}\n\n${link}`)}`, 'share_twitter'),
     },
     {
       nome: 'Telegram',
       emoji: '✈️',
       cor: 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300',
-      onClick: () => abrir(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(MENSAGEM_WHATSAPP)}`, 'share_telegram'),
+      onClick: () => abrir(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(msgTelegram)}`, 'share_telegram'),
     },
     {
       nome: 'E-mail',
       emoji: '✉️',
       cor: 'bg-white/10 border-white/25 text-white/80',
       onClick: () =>
-        abrir(`mailto:?subject=${encodeURIComponent(ASSUNTO_EMAIL)}&body=${encodeURIComponent(`${MENSAGEM_EMAIL}\n\n${link}`)}`, 'share_email'),
+        abrir(`mailto:?subject=${encodeURIComponent(assuntoEmail)}&body=${encodeURIComponent(`${msgEmail}\n\n${link}`)}`, 'share_email'),
     },
     {
       nome: 'Instagram',
@@ -97,19 +127,19 @@ export default function ShareModal({ link, onClose }: ShareModalProps) {
       onClick={onClose}
       role="dialog"
       aria-modal="true"
-      aria-label="Compartilhe o MenuFlex"
+      aria-label={titulo}
     >
       <div
         className="w-full max-w-sm bg-slate-900 border border-white/10 rounded-2xl p-5 animate-pop-in"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between mb-1">
-          <h2 className="font-display font-semibold text-lg">Compartilhe o MenuFlex</h2>
+          <h2 className="font-display font-semibold text-lg">{titulo}</h2>
           <button onClick={onClose} aria-label="Fechar" className="text-white/40 hover:text-white text-xl leading-none">
             ×
           </button>
         </div>
-        <p className="text-sm text-white/50 mb-4">Ajude outros comerciantes a modernizar seus negócios.</p>
+        <p className="text-sm text-white/50 mb-4">{subtitulo}</p>
 
         <div className="grid grid-cols-4 gap-2.5 mb-4">
           {canais.map((c) => (
@@ -133,10 +163,10 @@ export default function ShareModal({ link, onClose }: ShareModalProps) {
         </button>
 
         <div className="flex flex-col items-center gap-2 pt-3 border-t border-white/10">
-          <img src={qrUrl} alt="QR Code do MenuFlex" width={140} height={140} className="rounded-lg bg-white p-2" />
+          <img src={qrUrl} alt={qrAltText} width={140} height={140} className="rounded-lg bg-white p-2" />
           <a
             href={qrUrl}
-            download="menuflex-qrcode.png"
+            download={qrDownloadName}
             target="_blank"
             rel="noreferrer"
             onClick={() => trackShareEvent('share_qrcode')}
