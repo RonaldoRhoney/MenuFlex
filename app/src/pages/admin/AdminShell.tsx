@@ -6,11 +6,15 @@ import ShareButton from '../../components/ShareButton'
 import TutorialModal, { type TutorialStep } from '../../components/TutorialModal'
 import type { Business } from '../../lib/types'
 
+function IconGrande({ children }: { children: ReactNode }) {
+  return <span className="inline-flex scale-[2.4]">{children}</span>
+}
+
 const PASSOS_ADMIN: TutorialStep[] = [
-  { icon: <IconCardapio />, title: 'Monte seu cardápio', description: 'Em Cardápio, cadastre categorias e itens com foto, preço e adicionais.' },
-  { icon: <IconEmpresa />, title: 'Configure sua empresa', description: 'Em Minha Empresa, defina nome, logo, endereço e horário de funcionamento.' },
-  { icon: <IconWhatsapp />, title: 'Ative o Cardápio WhatsApp', description: 'Configure seu número, gere o link exclusivo e envie ou compartilhe o cardápio com seus clientes.' },
-  { icon: <IconPedidos />, title: 'Acompanhe os pedidos', description: 'Em Pedidos, veja a fila em tempo real, clique num pedido pra ver os detalhes, e ative o alerta sonoro pra não perder nenhum.' },
+  { icon: <IconGrande><IconCardapio /></IconGrande>, title: 'Monte seu cardápio', description: 'Em Cardápio, cadastre categorias e itens com foto, preço e adicionais.' },
+  { icon: <IconGrande><IconEmpresa /></IconGrande>, title: 'Configure sua empresa', description: 'Em Minha Empresa, defina nome, logo, endereço e horário de funcionamento.' },
+  { icon: <IconGrande><IconWhatsapp /></IconGrande>, title: 'Ative o Cardápio WhatsApp', description: 'Configure seu número, gere o link exclusivo e envie ou compartilhe o cardápio com seus clientes.' },
+  { icon: <IconGrande><IconPedidos /></IconGrande>, title: 'Acompanhe os pedidos', description: 'Em Pedidos, veja a fila em tempo real, clique num pedido pra ver os detalhes, e ative o alerta sonoro pra não perder nenhum.' },
 ]
 
 export interface AbaItem<T extends string> {
