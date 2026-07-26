@@ -3,6 +3,8 @@ import { supabase } from '../../lib/supabaseClient'
 import { checkPlanFeature } from '../../lib/planFeatures'
 import { fetchBusinessSegmentIds, fetchSegments, saveBusinessSegments } from '../../lib/catalog'
 import type { Business, BusinessType, PlanFeatureRow, Segment } from '../../lib/types'
+import ShareButton from '../../components/ShareButton'
+import { fetchMinhasIndicacoes, type ReferralStats } from '../../lib/referral'
 
 interface MinhaEmpresaProps {
   business: Business
@@ -38,9 +40,12 @@ export default function MinhaEmpresa({ business, planFeatures, onUpdated }: Minh
   const [savingSegments, setSavingSegments] = useState(false)
   const [segmentsSavedOk, setSegmentsSavedOk] = useState(false)
 
+  const [indicacoes, setIndicacoes] = useState<ReferralStats | null>(null)
+
   useEffect(() => {
     fetchSegments().then(setSegments)
     fetchBusinessSegmentIds(business.id).then(setSelectedSegmentIds)
+    fetchMinhasIndicacoes(business.id).then(setIndicacoes)
   }, [business.id])
 
   function toggleSegment(id: string) {
@@ -127,7 +132,20 @@ export default function MinhaEmpresa({ business, planFeatures, onUpdated }: Minh
   }
 
   return (
-    <form onSubmit={handleSave} className="space-y-8 max-w-md">
+    <div className="space-y-8 max-w-md">
+      <section className="bg-slate-900 border border-white/10 rounded-xl p-4 animate-fade-in">
+        <h2 className="font-semibold mb-1">Indique o MenuFlex</h2>
+        <p className="text-sm text-white/50 mb-3">Convide outros comerciantes e ajude mais empresas a venderem online.</p>
+        {indicacoes && (indicacoes.cliques > 0 || indicacoes.cadastros > 0) && (
+          <p className="text-xs text-white/40 mb-3">
+            {indicacoes.cliques} {indicacoes.cliques === 1 ? 'clique' : 'cliques'} · {indicacoes.cadastros}{' '}
+            {indicacoes.cadastros === 1 ? 'cadastro gerado' : 'cadastros gerados'}
+          </p>
+        )}
+        <ShareButton business={business} label="Compartilhar agora" />
+      </section>
+
+      <form onSubmit={handleSave} className="space-y-8">
       <section>
         <h2 className="font-semibold mb-3">Logo do negócio</h2>
         {podePersonalizar ? (
@@ -293,6 +311,7 @@ export default function MinhaEmpresa({ business, planFeatures, onUpdated }: Minh
       >
         {saving ? 'Salvando...' : 'Salvar alterações'}
       </button>
-    </form>
+      </form>
+    </div>
   )
 }

@@ -4,6 +4,7 @@ import { getCurrentPosition } from '../../lib/geo'
 import { fetchSegments, legacyTypeFromSegmentSlugs, saveBusinessSegments } from '../../lib/catalog'
 import type { Business, Segment } from '../../lib/types'
 import MontarCardapio from './MontarCardapio'
+import { registrarCadastroIndicado } from '../../lib/referral'
 
 interface OnboardingProps {
   ownerId: string
@@ -83,6 +84,7 @@ export default function Onboarding({ ownerId, onCreated }: OnboardingProps) {
       return
     }
     await saveBusinessSegments(data.id, selectedSegmentIds)
+    registrarCadastroIndicado(data.id)
     setCreatedBusiness(data as Business)
   }
 

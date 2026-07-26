@@ -145,6 +145,7 @@ export default function Painel() {
         abas={abas}
         aba={aba}
         onSelectAba={setAba}
+        business={business}
       >
         {aba === 'fila' && <FilaPedidos business={business} />}
         {aba === 'minha_empresa' && (

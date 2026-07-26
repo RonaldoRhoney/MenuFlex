@@ -7,6 +7,7 @@ import PoliticaPrivacidade from './pages/PoliticaPrivacidade'
 import TermosUso from './pages/TermosUso'
 import Footer from './components/Footer'
 import { useSession } from './lib/auth'
+import { capturarIndicacao } from './lib/referral'
 
 const PLANOS = [
   {
@@ -46,6 +47,11 @@ const PLANOS = [
 
 function Home() {
   const { session } = useSession()
+
+  useEffect(() => {
+    const ref = new URLSearchParams(window.location.search).get('ref')
+    if (ref) capturarIndicacao(ref)
+  }, [])
 
   return (
     <div className="min-h-full flex flex-col">

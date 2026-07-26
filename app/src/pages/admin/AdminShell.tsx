@@ -2,6 +2,8 @@ import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { signOut } from '../../lib/auth'
 import Breadcrumb from '../../components/Breadcrumb'
+import ShareButton from '../../components/ShareButton'
+import type { Business } from '../../lib/types'
 
 export interface AbaItem<T extends string> {
   value: T
@@ -17,6 +19,7 @@ interface AdminShellProps<T extends string> {
   aba: T
   onSelectAba: (aba: T) => void
   children: ReactNode
+  business?: Business
 }
 
 // Casca compartilhada do painel admin: barra lateral fixa no desktop, abas
@@ -29,6 +32,7 @@ export default function AdminShell<T extends string>({
   aba,
   onSelectAba,
   children,
+  business,
 }: AdminShellProps<T>) {
   const navLinkClass = (ativo: boolean) =>
     `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors active:scale-95 ${
@@ -63,6 +67,13 @@ export default function AdminShell<T extends string>({
           ))}
         </nav>
         <div className="px-3 py-4 border-t border-white/10 space-y-1">
+          {business && (
+            <ShareButton
+              business={business}
+              label="📤 Compartilhar"
+              className={`w-full ${navLinkClass(false)}`}
+            />
+          )}
           <Link to="/parceiros" target="_blank" rel="noopener noreferrer" className={navLinkClass(false)}>
             <IconHeart />
             Parceiros
@@ -81,9 +92,12 @@ export default function AdminShell<T extends string>({
             <p className="font-semibold text-sm">{title}</p>
             {subtitle && <p className="text-xs text-white/40">{subtitle}</p>}
           </div>
-          <button onClick={signOut} className="text-xs text-white/60">
-            Sair
-          </button>
+          <div className="flex items-center gap-3">
+            {business && <ShareButton business={business} label="📤" className="text-base" />}
+            <button onClick={signOut} className="text-xs text-white/60">
+              Sair
+            </button>
+          </div>
         </div>
         <nav className="flex gap-1 px-3 pb-2 overflow-x-auto">
           {abas.map((a) => (
