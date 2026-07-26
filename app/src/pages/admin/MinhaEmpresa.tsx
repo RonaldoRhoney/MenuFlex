@@ -81,13 +81,13 @@ export default function MinhaEmpresa({ business, planFeatures, onUpdated }: Minh
     const { data, error: updateError } = await supabase
       .from('businesses')
       .update({
-        name,
+        name: name.trim(),
         type,
-        description: description || null,
-        address: address || null,
-        neighborhood: neighborhood || null,
-        phone: phone || null,
-        opening_hours: openingHours || null,
+        description: description.trim() || null,
+        address: address.trim() || null,
+        neighborhood: neighborhood.trim() || null,
+        phone: phone.trim() || null,
+        opening_hours: openingHours.trim() || null,
         theme_config: podePersonalizar ? { ...business.theme_config, accent: accentColor } : business.theme_config,
       })
       .eq('id', business.id)
