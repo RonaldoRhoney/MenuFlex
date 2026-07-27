@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import type { Business, MenuCategory, MenuItem } from '../../lib/types'
 import ItemOptionsModal from '../../components/ItemOptionsModal'
 import LiveClock from '../../components/LiveClock'
@@ -27,6 +28,7 @@ function scrollToCategory(id: string) {
 export default function Cardapio({ business, categories, items, onAdd, cartCount, onOpenCart }: CardapioProps) {
   const [itemComOpcoes, setItemComOpcoes] = useState<MenuItem | null>(null)
   const [tutorialAberto, setTutorialAberto] = useState(false)
+  const [fotoAmpliada, setFotoAmpliada] = useState<{ url: string; alt: string } | null>(null)
 
   function handleAddClick(item: MenuItem) {
     if (item.option_groups && item.option_groups.length > 0) {
@@ -98,8 +100,23 @@ export default function Cardapio({ business, categories, items, onAdd, cartCount
                     className="flex items-center gap-3.5 bg-white rounded-2xl p-3 border border-neutral-100 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md animate-fade-in"
                     style={{ animationDelay: `${Math.min(i, 8) * 40}ms` }}
                   >
-                    {item.image_url && (
-                      <img src={item.image_url} alt={item.name} className="w-16 h-16 rounded-xl object-cover shrink-0" />
+                    {item.image_url ? (
+                      <button
+                        onClick={() => setFotoAmpliada({ url: item.image_url!, alt: item.name })}
+                        className="w-16 h-16 rounded-xl overflow-hidden shrink-0"
+                        aria-label={`Ampliar foto de ${item.name}`}
+                      >
+                        <img
+                          src={item.image_url}
+                          alt={item.name}
+                          loading="lazy"
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    ) : (
+                      <div className="w-16 h-16 rounded-xl bg-neutral-100 flex items-center justify-center shrink-0 text-neutral-300 text-xl">
+                        📷
+                      </div>
                     )}
                     <div className="flex-1 min-w-0">
                       <h3 className="font-medium truncate">{item.name}</h3>
@@ -149,6 +166,32 @@ export default function Cardapio({ business, categories, items, onAdd, cartCount
       )}
 
       {tutorialAberto && <TutorialModal steps={PASSOS_CLIENTE} onClose={() => setTutorialAberto(false)} theme="light" />}
+
+      {fotoAmpliada &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 animate-fade-in"
+            onClick={() => setFotoAmpliada(null)}
+            role="dialog"
+            aria-modal="true"
+            aria-label={fotoAmpliada.alt}
+          >
+            <button
+              onClick={() => setFotoAmpliada(null)}
+              aria-label="Fechar"
+              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/10 text-white text-xl leading-none"
+            >
+              ×
+            </button>
+            <img
+              src={fotoAmpliada.url}
+              alt={fotoAmpliada.alt}
+              className="max-w-full max-h-full rounded-2xl object-contain animate-pop-in"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>,
+          document.body,
+        )}
     </div>
   )
 }

@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { fetchBusinessSegmentIds, fetchSegments } from '../../lib/catalog'
+import { uploadMenuItemPhoto } from '../../lib/imagePipeline'
 import type { Business, MenuCategory, MenuItem, Segment } from '../../lib/types'
 import ItemOptionsEditor from './ItemOptionsEditor'
+import ItemPhotoModal from '../../components/admin/ItemPhotoModal'
 import MontarCardapio from './MontarCardapio'
 
 interface CardapioAdminProps {
@@ -26,6 +28,11 @@ export default function CardapioAdmin({ business }: CardapioAdminProps) {
   const [mostrarSugestoes, setMostrarSugestoes] = useState(false)
   const [segmentosDoNegocio, setSegmentosDoNegocio] = useState<Segment[]>([])
   const [mostrarCatalogo, setMostrarCatalogo] = useState(false)
+  const [newItemPhotoFile, setNewItemPhotoFile] = useState<File | null>(null)
+  const [newItemPhotoPreview, setNewItemPhotoPreview] = useState<string | null>(null)
+  const [uploadingNewItemPhoto, setUploadingNewItemPhoto] = useState(false)
+  const [itemComFotoAbertoId, setItemComFotoAbertoId] = useState<string | null>(null)
+  const newItemPhotoInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     async function loadSegmentos() {
@@ -127,17 +134,37 @@ export default function CardapioAdmin({ business }: CardapioAdminProps) {
     if (!supabase || !newItem.name.trim() || !newItem.category_id) return
     const name = newItem.name.trim()
     const price = Number(newItem.price) || 0
-    await supabase.from('menu_items').insert({
-      business_id: business.id,
-      category_id: newItem.category_id,
-      name,
-      description: newItem.description || null,
-      price,
-      order_index: items.filter((i) => i.category_id === newItem.category_id).length,
-    })
+    const { data: novoItem, error } = await supabase
+      .from('menu_items')
+      .insert({
+        business_id: business.id,
+        category_id: newItem.category_id,
+        name,
+        description: newItem.description || null,
+        price,
+        order_index: items.filter((i) => i.category_id === newItem.category_id).length,
+      })
+      .select()
+      .single()
+    if (error || !novoItem) return
+
+    if (newItemPhotoFile) {
+      setUploadingNewItemPhoto(true)
+      try {
+        const image_url = await uploadMenuItemPhoto(business.id, novoItem.id, newItemPhotoFile)
+        await supabase.from('menu_items').update({ image_url }).eq('id', novoItem.id)
+      } catch {
+        // item já foi criado; a foto pode ser adicionada depois pelo botão "Foto"
+      } finally {
+        setUploadingNewItemPhoto(false)
+      }
+    }
+
     registrarNoCatalogo(name, newItem.description.trim(), price, newItem.category_id)
     setNewItem({ category_id: newItem.category_id, name: '', description: '', price: '' })
     setSugestoes([])
+    setNewItemPhotoFile(null)
+    setNewItemPhotoPreview(null)
     reload()
   }
 
@@ -244,6 +271,39 @@ export default function CardapioAdmin({ business }: CardapioAdminProps) {
               </div>
             )}
           </div>
+
+          <div className="col-span-2 flex items-center gap-3 border border-white/15 bg-slate-900 rounded-lg px-3 py-2.5">
+            <div className="w-14 h-14 rounded-lg bg-slate-950 border border-white/10 flex items-center justify-center overflow-hidden shrink-0">
+              {newItemPhotoPreview ? (
+                <img src={newItemPhotoPreview} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-xl opacity-40">📷</span>
+              )}
+            </div>
+            <div className="flex-1">
+              <p className="text-xs text-white/40 mb-1">Foto do produto (opcional)</p>
+              <input
+                ref={newItemPhotoInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (!file) return
+                  setNewItemPhotoFile(file)
+                  setNewItemPhotoPreview(URL.createObjectURL(file))
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => newItemPhotoInputRef.current?.click()}
+                className="text-xs text-brand font-medium"
+              >
+                {newItemPhotoPreview ? 'Trocar foto' : 'Adicionar Foto'}
+              </button>
+            </div>
+          </div>
+
           <input
             value={newItem.description}
             onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
@@ -258,16 +318,31 @@ export default function CardapioAdmin({ business }: CardapioAdminProps) {
             step="0.01"
             className="border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm placeholder:text-white/30"
           />
-          <button className="rounded-lg bg-brand text-white px-4 text-sm font-medium">Adicionar item</button>
+          <button disabled={uploadingNewItemPhoto} className="rounded-lg bg-brand text-white px-4 text-sm font-medium disabled:opacity-50">
+            {uploadingNewItemPhoto ? 'Enviando foto...' : 'Adicionar item'}
+          </button>
         </form>
 
         <div className="space-y-2">
           {items.map((item) => (
             <div key={item.id} className="bg-slate-900 border border-white/10 rounded-lg overflow-hidden">
               <div className="flex items-center justify-between p-3">
-                <div>
-                  <p className="font-medium text-sm">{item.name}</p>
-                  <p className="text-xs text-white/40">R$ {item.price.toFixed(2).replace('.', ',')}</p>
+                <div className="flex items-center gap-3 min-w-0">
+                  <button
+                    onClick={() => setItemComFotoAbertoId(item.id)}
+                    className="w-10 h-10 rounded-lg bg-slate-950 border border-white/10 flex items-center justify-center overflow-hidden shrink-0"
+                    title="Foto do produto"
+                  >
+                    {item.image_url ? (
+                      <img src={item.image_url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-sm opacity-40">📷</span>
+                    )}
+                  </button>
+                  <div className="min-w-0">
+                    <p className="font-medium text-sm truncate">{item.name}</p>
+                    <p className="text-xs text-white/40">R$ {item.price.toFixed(2).replace('.', ',')}</p>
+                  </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <button
@@ -296,6 +371,17 @@ export default function CardapioAdmin({ business }: CardapioAdminProps) {
           ))}
         </div>
       </section>
+
+      {itemComFotoAbertoId && (
+        <ItemPhotoModal
+          businessId={business.id}
+          item={items.find((i) => i.id === itemComFotoAbertoId)!}
+          onClose={() => setItemComFotoAbertoId(null)}
+          onUpdated={(updated) => {
+            setItems((prev) => prev.map((i) => (i.id === updated.id ? updated : i)))
+          }}
+        />
+      )}
     </div>
   )
 }
