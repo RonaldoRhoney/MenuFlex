@@ -24,6 +24,17 @@ const SUPER_ADMIN_EMAIL = 'rhoneyinc@gmail.com';
 // também (não há uma única fonte de verdade pra isso ainda).
 const PRECO_PLANO = { free: 0, basico: 19.9, premium: 39.9 };
 
+// created_at vem em UTC do Postgres — agrupar por dia usando .slice(0,10) direto
+// no ISO string conta pelo dia em UTC, não no horário do Brasil. Toda visita
+// entre ~21h e meia-noite (America/Belem, UTC-3) cai no dia seguinte em UTC e
+// aparecia com data errada no gráfico (bug real, achado em produção). Mesmo
+// fuso fixo já usado em businessHours.ts/LiveClock.tsx — mantém consistência.
+function diaBelem(isoString) {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Belem', year: 'numeric', month: '2-digit', day: '2-digit' }).format(
+    new Date(isoString),
+  );
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     res.status(405).json({ error: 'Método não permitido.' });
@@ -109,7 +120,7 @@ export default async function handler(req, res) {
     const porDia = {};
     for (const row of rows) {
       if (row.created_at < inicio14d) continue;
-      const dia = row.created_at.slice(0, 10);
+      const dia = diaBelem(row.created_at);
       porDia[dia] = (porDia[dia] || 0) + 1;
     }
 
@@ -140,7 +151,7 @@ export default async function handler(req, res) {
     const cadastrosPorDia = {};
     for (const u of usuarios) {
       if (!u.created_at) continue;
-      const dia = u.created_at.slice(0, 10);
+      const dia = diaBelem(u.created_at);
       cadastrosPorDia[dia] = (cadastrosPorDia[dia] || 0) + 1;
     }
 
@@ -171,7 +182,7 @@ export default async function handler(req, res) {
     // Operacional: volume e ticket médio de pedidos (todos os negócios),
     // últimos 30 dias.
     const pedidosRows = pedidos.data || [];
-    const pedidosHoje = pedidosRows.filter((o) => o.created_at.slice(0, 10) === agora.toISOString().slice(0, 10)).length;
+    const pedidosHoje = pedidosRows.filter((o) => diaBelem(o.created_at) === diaBelem(agora.toISOString())).length;
     const pedidos7d = pedidosRows.filter((o) => o.created_at >= inicio7d).length;
     const pedidosPorStatus = {};
     let somaTotal = 0;
