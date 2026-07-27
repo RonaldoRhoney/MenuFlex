@@ -31,6 +31,7 @@ export default function CardapioAdmin({ business }: CardapioAdminProps) {
   const [newItemPhotoFile, setNewItemPhotoFile] = useState<File | null>(null)
   const [newItemPhotoPreview, setNewItemPhotoPreview] = useState<string | null>(null)
   const [uploadingNewItemPhoto, setUploadingNewItemPhoto] = useState(false)
+  const [newItemPhotoError, setNewItemPhotoError] = useState<string | null>(null)
   const [itemComFotoAbertoId, setItemComFotoAbertoId] = useState<string | null>(null)
   const newItemPhotoInputRef = useRef<HTMLInputElement>(null)
 
@@ -150,11 +151,14 @@ export default function CardapioAdmin({ business }: CardapioAdminProps) {
 
     if (newItemPhotoFile) {
       setUploadingNewItemPhoto(true)
+      setNewItemPhotoError(null)
       try {
         const image_url = await uploadMenuItemPhoto(business.id, novoItem.id, newItemPhotoFile)
-        await supabase.from('menu_items').update({ image_url }).eq('id', novoItem.id)
-      } catch {
+        const { error: photoUpdateError } = await supabase.from('menu_items').update({ image_url }).eq('id', novoItem.id)
+        if (photoUpdateError) throw photoUpdateError
+      } catch (err) {
         // item já foi criado; a foto pode ser adicionada depois pelo botão "Foto"
+        setNewItemPhotoError(err instanceof Error ? err.message : 'Erro ao enviar a foto')
       } finally {
         setUploadingNewItemPhoto(false)
       }
@@ -321,6 +325,11 @@ export default function CardapioAdmin({ business }: CardapioAdminProps) {
           <button disabled={uploadingNewItemPhoto} className="rounded-lg bg-brand text-white px-4 text-sm font-medium disabled:opacity-50">
             {uploadingNewItemPhoto ? 'Enviando foto...' : 'Adicionar item'}
           </button>
+          {newItemPhotoError && (
+            <p className="col-span-2 text-xs text-red-400">
+              Item criado, mas a foto falhou: {newItemPhotoError}
+            </p>
+          )}
         </form>
 
         <div className="space-y-2">
