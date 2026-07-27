@@ -111,9 +111,9 @@ export default function MinhaEmpresa({ business, planFeatures, onUpdated }: Minh
     try {
       const ext = file.name.split('.').pop()
       const path = `${business.id}/logo-${Date.now()}.${ext}`
-      const { error: uploadError } = await supabase.storage.from('menu-images').upload(path, file, {
-        upsert: true,
-      })
+      // sem upsert: o nome já é único (timestamp), sempre um insert puro —
+      // upsert exigiria uma policy de select que não existia (ver migration 0019)
+      const { error: uploadError } = await supabase.storage.from('menu-images').upload(path, file)
       if (uploadError) throw uploadError
       const { data: publicUrl } = supabase.storage.from('menu-images').getPublicUrl(path)
       const { data, error: updateError } = await supabase

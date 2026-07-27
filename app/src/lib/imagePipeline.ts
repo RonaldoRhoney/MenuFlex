@@ -64,8 +64,10 @@ export async function uploadMenuItemPhoto(businessId: string, itemId: string, fi
   const blob = await compressImage(file)
   const ext = blob.type === 'image/webp' ? 'webp' : 'jpg'
   const path = `${businessId}/item-${itemId}-${Date.now()}.${ext}`
+  // sem upsert: o nome já é único (timestamp), então é sempre um insert puro —
+  // evita depender do fluxo de upsert do Storage, que precisa de uma policy de
+  // select pra checar se já existe arquivo com aquele nome (ver migration 0019)
   const { error: uploadError } = await supabase.storage.from('menu-images').upload(path, blob, {
-    upsert: true,
     contentType: blob.type,
   })
   if (uploadError) throw uploadError
