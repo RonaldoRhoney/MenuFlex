@@ -10,7 +10,7 @@ import type { Business, PlanFeatureRow } from '../../lib/types'
 import Login from './Login'
 import Onboarding from './Onboarding'
 import CardapioAdmin from './Cardapio'
-import FilaPedidos from './FilaPedidos'
+import PedidosGate from './PedidosGate'
 import MinhaEmpresa from './MinhaEmpresa'
 import Configuracoes from './Configuracoes'
 import Analytics from './Analytics'
@@ -201,7 +201,7 @@ export default function Painel() {
           )
         }
       >
-        {aba === 'fila' && <FilaPedidos business={business} />}
+        {aba === 'fila' && <PedidosGate business={business} planFeatures={planFeatures} onIrPara={setAba} />}
         {aba === 'minha_empresa' && (
           <MinhaEmpresa business={business} planFeatures={planFeatures} onUpdated={handleBusinessUpdated} />
         )}
