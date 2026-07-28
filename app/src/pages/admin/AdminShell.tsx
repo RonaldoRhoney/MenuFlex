@@ -210,6 +210,16 @@ export function IconEstoque() {
     </svg>
   )
 }
+export function IconInsumos() {
+  return (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+      <path d="M12 3v18" />
+      <path d="M4 7h16" />
+      <path d="M4 7 2 12a2.5 2.5 0 0 0 5 0L4 7Z" />
+      <path d="M20 7l-2 5a2.5 2.5 0 0 0 5 0L20 7Z" />
+    </svg>
+  )
+}
 export function IconPrivacidade() {
   return (
     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">

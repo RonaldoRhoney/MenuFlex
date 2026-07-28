@@ -12,6 +12,7 @@ import MinhaEmpresa from './MinhaEmpresa'
 import Configuracoes from './Configuracoes'
 import Analytics from './Analytics'
 import Estoque from './Estoque'
+import Insumos from './Insumos'
 import Privacidade from './Privacidade'
 import SuperAdmin from './SuperAdmin'
 import CardapioWhatsapp from './CardapioWhatsapp'
@@ -24,6 +25,7 @@ import AdminShell, {
   IconConfig,
   IconAnalytics,
   IconEstoque,
+  IconInsumos,
   IconPrivacidade,
   IconGerencia,
   IconWhatsapp,
@@ -34,6 +36,7 @@ type Aba =
   | 'minha_empresa'
   | 'cardapio'
   | 'estoque'
+  | 'insumos'
   | 'configuracoes'
   | 'analytics'
   | 'privacidade'
@@ -45,6 +48,7 @@ const ABAS = [
   { value: 'cardapio' as Aba, label: 'Cardápio', icon: <IconCardapio /> },
   { value: 'fila' as Aba, label: 'Pedidos', icon: <IconPedidos /> },
   { value: 'estoque' as Aba, label: 'Estoque', icon: <IconEstoque /> },
+  { value: 'insumos' as Aba, label: 'Insumos', icon: <IconInsumos /> },
   { value: 'cardapio_whatsapp' as Aba, label: 'Cardápio WhatsApp', icon: <IconWhatsapp /> },
   { value: 'analytics' as Aba, label: 'Analytics', icon: <IconAnalytics /> },
   { value: 'configuracoes' as Aba, label: 'Configurações', icon: <IconConfig /> },
@@ -164,8 +168,9 @@ export default function Painel() {
         {aba === 'minha_empresa' && (
           <MinhaEmpresa business={business} planFeatures={planFeatures} onUpdated={setBusiness} />
         )}
-        {aba === 'cardapio' && <CardapioAdmin business={business} />}
+        {aba === 'cardapio' && <CardapioAdmin business={business} planFeatures={planFeatures} />}
         {aba === 'estoque' && <Estoque business={business} planFeatures={planFeatures} />}
+        {aba === 'insumos' && <Insumos business={business} planFeatures={planFeatures} />}
         {aba === 'cardapio_whatsapp' && <CardapioWhatsapp business={business} planFeatures={planFeatures} />}
         {aba === 'configuracoes' && <Configuracoes business={business} onUpdated={setBusiness} />}
         {aba === 'analytics' && <Analytics business={business} planFeatures={planFeatures} />}

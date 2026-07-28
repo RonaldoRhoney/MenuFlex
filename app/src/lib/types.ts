@@ -87,6 +87,8 @@ export interface MenuItem {
   option_groups?: MenuItemOptionGroup[]
   origem_catalogo_id?: string | null
   veio_do_catalogo?: boolean
+  custo?: number
+  margem?: number
 }
 
 export type ReferralStatus = 'novo' | 'contatado' | 'convertido' | 'descartado'
@@ -143,6 +145,31 @@ export interface EstoqueItem {
   estoque_minimo: number
   estoque_habilitado: boolean
   updated_at: string
+}
+
+export interface Insumo {
+  id: string
+  business_id: string
+  nome: string
+  unidade: string
+  categoria: string | null
+  estoque_atual: number
+  estoque_minimo: number
+  custo_unitario: number
+  fornecedor: string | null
+  lote: string | null
+  validade: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface FichaTecnicaItem {
+  id: string
+  menu_item_id: string
+  insumo_id: string
+  quantidade: number
+  created_at: string
+  insumo?: Pick<Insumo, 'id' | 'nome' | 'unidade' | 'custo_unitario'>
 }
 
 export interface OrderItem {

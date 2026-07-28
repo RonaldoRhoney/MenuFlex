@@ -2,13 +2,16 @@ import { useRef, useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { fetchBusinessSegmentIds, fetchSegments } from '../../lib/catalog'
 import { uploadMenuItemPhoto } from '../../lib/imagePipeline'
-import type { Business, MenuCategory, MenuItem, Segment } from '../../lib/types'
+import { checkPlanFeature } from '../../lib/planFeatures'
+import type { Business, MenuCategory, MenuItem, PlanFeatureRow, Segment } from '../../lib/types'
 import ItemOptionsEditor from './ItemOptionsEditor'
 import ItemPhotoModal from '../../components/admin/ItemPhotoModal'
+import FichaTecnicaEditor from './FichaTecnicaEditor'
 import MontarCardapio from './MontarCardapio'
 
 interface CardapioAdminProps {
   business: Business
+  planFeatures: PlanFeatureRow[]
 }
 
 interface CatalogSuggestion {
@@ -18,7 +21,9 @@ interface CatalogSuggestion {
   suggested_price: number | null
 }
 
-export default function CardapioAdmin({ business }: CardapioAdminProps) {
+export default function CardapioAdmin({ business, planFeatures }: CardapioAdminProps) {
+  const podeErp = checkPlanFeature(planFeatures, business.plan, 'gestao_erp')
+  const [itemComFichaAbertoId, setItemComFichaAbertoId] = useState<string | null>(null)
   const [categories, setCategories] = useState<MenuCategory[]>([])
   const [items, setItems] = useState<MenuItem[]>([])
   const [newCategoryName, setNewCategoryName] = useState('')
@@ -362,6 +367,14 @@ export default function CardapioAdmin({ business }: CardapioAdminProps) {
                   >
                     {itemComOpcoesAbertoId === item.id ? 'Fechar opções' : 'Opções'}
                   </button>
+                  {podeErp && (
+                    <button
+                      onClick={() => setItemComFichaAbertoId(itemComFichaAbertoId === item.id ? null : item.id)}
+                      className="text-xs px-2 py-1 rounded-full bg-brand/10 text-brand font-medium"
+                    >
+                      {itemComFichaAbertoId === item.id ? 'Fechar ficha' : 'Ficha técnica'}
+                    </button>
+                  )}
                   <button
                     onClick={() => toggleAvailable(item)}
                     className={`text-xs px-2 py-1 rounded-full ${
@@ -376,6 +389,13 @@ export default function CardapioAdmin({ business }: CardapioAdminProps) {
                 </div>
               </div>
               {itemComOpcoesAbertoId === item.id && <ItemOptionsEditor menuItemId={item.id} />}
+              {itemComFichaAbertoId === item.id && (
+                <FichaTecnicaEditor
+                  businessId={business.id}
+                  menuItem={item}
+                  onUpdated={(updated) => setItems((prev) => prev.map((i) => (i.id === updated.id ? updated : i)))}
+                />
+              )}
             </div>
           ))}
         </div>
