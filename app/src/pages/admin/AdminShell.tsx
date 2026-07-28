@@ -33,6 +33,7 @@ interface AdminShellProps<T extends string> {
   onSelectAba: (aba: T) => void
   children: ReactNode
   business?: Business
+  trialCard?: ReactNode
 }
 
 // Casca compartilhada do painel admin: barra lateral fixa no desktop, abas
@@ -47,6 +48,7 @@ export default function AdminShell<T extends string>({
   onSelectAba,
   children,
   business,
+  trialCard,
 }: AdminShellProps<T>) {
   const [tutorialAberto, setTutorialAberto] = useState(false)
 
@@ -106,6 +108,9 @@ export default function AdminShell<T extends string>({
         </div>
       </aside>
 
+      <div className="flex-1 flex flex-col min-w-0">
+      {trialCard}
+
       {/* Header + abas — mobile */}
       <header className="sm:hidden border-b border-white/10">
         <div className="px-4 py-3 flex items-center justify-between">
@@ -150,6 +155,7 @@ export default function AdminShell<T extends string>({
           {children}
         </div>
       </main>
+      </div>
 
       {tutorialAberto && <TutorialModal steps={PASSOS_ADMIN} onClose={() => setTutorialAberto(false)} theme="dark" />}
     </div>

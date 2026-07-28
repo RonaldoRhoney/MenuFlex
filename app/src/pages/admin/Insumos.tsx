@@ -35,7 +35,7 @@ const NOVO_VAZIO: NovoInsumo = {
 }
 
 export default function Insumos({ business, planFeatures }: InsumosProps) {
-  const podeErp = checkPlanFeature(planFeatures, business.plan, 'gestao_erp')
+  const podeErp = checkPlanFeature(planFeatures, business, 'gestao_erp')
 
   const [itens, setItens] = useState<Insumo[]>([])
   const [loading, setLoading] = useState(true)

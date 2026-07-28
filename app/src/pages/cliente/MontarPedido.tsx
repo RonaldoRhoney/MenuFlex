@@ -27,8 +27,8 @@ export default function MontarPedido({
   submitting,
   errorMessage,
 }: MontarPedidoProps) {
-  const podeLocal = checkPlanFeature(planFeatures, business.plan, 'pedido_local')
-  const podeDelivery = checkPlanFeature(planFeatures, business.plan, 'delivery')
+  const podeLocal = checkPlanFeature(planFeatures, business, 'pedido_local')
+  const podeDelivery = checkPlanFeature(planFeatures, business, 'delivery')
 
   const [orderType, setOrderType] = useState<OrderType>('retirada')
   const [deliveryAddress, setDeliveryAddress] = useState('')

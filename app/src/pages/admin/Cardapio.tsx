@@ -22,7 +22,7 @@ interface CatalogSuggestion {
 }
 
 export default function CardapioAdmin({ business, planFeatures }: CardapioAdminProps) {
-  const podeErp = checkPlanFeature(planFeatures, business.plan, 'gestao_erp')
+  const podeErp = checkPlanFeature(planFeatures, business, 'gestao_erp')
   const [itemComFichaAbertoId, setItemComFichaAbertoId] = useState<string | null>(null)
   const [categories, setCategories] = useState<MenuCategory[]>([])
   const [items, setItems] = useState<MenuItem[]>([])

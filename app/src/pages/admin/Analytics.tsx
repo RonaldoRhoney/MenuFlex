@@ -74,9 +74,9 @@ export default function Analytics({ business, planFeatures }: AnalyticsProps) {
   const [periodoExport, setPeriodoExport] = useState<PeriodoExport>('semana')
   const [exportando, setExportando] = useState<'xlsx' | 'pdf' | null>(null)
 
-  const podeBasico = checkPlanFeature(planFeatures, business.plan, 'analytics_basico')
-  const podeAvancado = checkPlanFeature(planFeatures, business.plan, 'analytics_avancado')
-  const podeExportar = checkPlanFeature(planFeatures, business.plan, 'exportar_vendas')
+  const podeBasico = checkPlanFeature(planFeatures, business, 'analytics_basico')
+  const podeAvancado = checkPlanFeature(planFeatures, business, 'analytics_avancado')
+  const podeExportar = checkPlanFeature(planFeatures, business, 'exportar_vendas')
 
   useEffect(() => {
     if (!supabase || !podeBasico) {

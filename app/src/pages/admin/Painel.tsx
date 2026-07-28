@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react'
 import { useSession, consumeLoginIntent } from '../../lib/auth'
 import { supabase } from '../../lib/supabaseClient'
 import { loadPlanFeatures } from '../../lib/planFeatures'
+import { fetchTrial, isTrialAtivo } from '../../lib/trial'
+import TrialWelcomeModal from '../../components/admin/TrialWelcomeModal'
+import TrialCountdownCard from '../../components/admin/TrialCountdownCard'
 import { SUPER_ADMIN_EMAIL } from '../../lib/constants'
 import type { Business, PlanFeatureRow } from '../../lib/types'
 import Login from './Login'
@@ -61,6 +64,7 @@ export default function Painel() {
   const [businessLoading, setBusinessLoading] = useState(true)
   const [planFeatures, setPlanFeatures] = useState<PlanFeatureRow[]>([])
   const [aba, setAba] = useState<Aba>('fila')
+  const [welcomeAberto, setWelcomeAberto] = useState(false)
 
   // Mesma animação de entrada do Splash (Login.tsx), agora também no login
   // bem-sucedido. A flag de intenção (sessionStorage, ver lib/auth.ts) —não
@@ -88,7 +92,13 @@ export default function Painel() {
         .eq('owner_id', session!.user.id)
         .maybeSingle()
       if (!active) return
-      setBusiness(data as Business | null)
+      if (data) {
+        const trial = await fetchTrial(data.id)
+        if (!active) return
+        setBusiness({ ...(data as Business), trial })
+      } else {
+        setBusiness(null)
+      }
       setBusinessLoading(false)
       loadPlanFeatures().then((f) => active && setPlanFeatures(f))
     }
@@ -97,6 +107,24 @@ export default function Painel() {
       active = false
     }
   }, [session?.user])
+
+  // onUpdated (Minha Empresa/Configurações) devolve a linha crua do update,
+  // sem o campo `trial` (que não é coluna de businesses, vem de trial_periods
+  // à parte) — preserva o trial já carregado em vez de perdê-lo a cada save.
+  function handleBusinessUpdated(atualizado: Business) {
+    setBusiness((prev) => ({ ...atualizado, trial: prev?.trial ?? atualizado.trial }))
+  }
+
+  // Mostra a tela de boas-vindas do trial uma única vez por negócio — flag em
+  // localStorage, não em coluna nova no banco, já que é só um "já vi isso".
+  useEffect(() => {
+    if (!business || !isTrialAtivo(business.trial)) return
+    const chave = `menuflex_trial_welcome_visto_${business.id}`
+    if (localStorage.getItem(chave) !== '1') {
+      setWelcomeAberto(true)
+      localStorage.setItem(chave, '1')
+    }
+  }, [business?.id, business?.trial])
 
   const splashOverlay = justLoggedIn && <Splash onContinue={() => setJustLoggedIn(false)} />
 
@@ -163,20 +191,38 @@ export default function Painel() {
         aba={aba}
         onSelectAba={setAba}
         business={business}
+        trialCard={
+          business.trial && (
+            <TrialCountdownCard
+              businessId={business.id}
+              trial={business.trial}
+              onConhecerPlanos={() => setAba('configuracoes')}
+            />
+          )
+        }
       >
         {aba === 'fila' && <FilaPedidos business={business} />}
         {aba === 'minha_empresa' && (
-          <MinhaEmpresa business={business} planFeatures={planFeatures} onUpdated={setBusiness} />
+          <MinhaEmpresa business={business} planFeatures={planFeatures} onUpdated={handleBusinessUpdated} />
         )}
         {aba === 'cardapio' && <CardapioAdmin business={business} planFeatures={planFeatures} />}
         {aba === 'estoque' && <Estoque business={business} planFeatures={planFeatures} />}
         {aba === 'insumos' && <Insumos business={business} planFeatures={planFeatures} />}
         {aba === 'cardapio_whatsapp' && <CardapioWhatsapp business={business} planFeatures={planFeatures} />}
-        {aba === 'configuracoes' && <Configuracoes business={business} onUpdated={setBusiness} />}
+        {aba === 'configuracoes' && <Configuracoes business={business} onUpdated={handleBusinessUpdated} />}
         {aba === 'analytics' && <Analytics business={business} planFeatures={planFeatures} />}
         {aba === 'privacidade' && <Privacidade />}
         {aba === 'super_admin' && isSuperAdmin && <SuperAdmin />}
       </AdminShell>
+      {welcomeAberto && (
+        <TrialWelcomeModal
+          onClose={() => setWelcomeAberto(false)}
+          onConhecerPlanos={() => {
+            setWelcomeAberto(false)
+            setAba('configuracoes')
+          }}
+        />
+      )}
     </div>
   )
 }

@@ -176,7 +176,7 @@ export default function Loja() {
 
   async function checkProximity() {
     if (!business || business.lat === null || business.lng === null) return
-    const radius = getPlanUsageLimit(planFeatures, business.plan, 'instalacao_proximidade')
+    const radius = getPlanUsageLimit(planFeatures, business, 'instalacao_proximidade')
     if (!radius) return
     try {
       const pos = await getCurrentPosition()

@@ -77,8 +77,8 @@ export default function MinhaEmpresa({ business, planFeatures, onUpdated }: Minh
   // logo própria; Premium libera identidade completa) — mesma feature já usada em
   // Configurações antes dessa tela existir.
   const podePersonalizar =
-    checkPlanFeature(planFeatures, business.plan, 'logo_propria') ||
-    checkPlanFeature(planFeatures, business.plan, 'identidade_completa')
+    checkPlanFeature(planFeatures, business, 'logo_propria') ||
+    checkPlanFeature(planFeatures, business, 'identidade_completa')
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()

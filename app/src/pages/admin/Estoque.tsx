@@ -26,7 +26,7 @@ const CORES = {
 }
 
 export default function Estoque({ business, planFeatures }: EstoqueProps) {
-  const podeEstoque = checkPlanFeature(planFeatures, business.plan, 'controle_estoque')
+  const podeEstoque = checkPlanFeature(planFeatures, business, 'controle_estoque')
 
   const [itens, setItens] = useState<EstoqueRow[]>([])
   const [loading, setLoading] = useState(true)

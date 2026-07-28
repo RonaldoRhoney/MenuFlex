@@ -13,6 +13,7 @@ export interface Business {
   type: BusinessType
   plan: Plan
   theme_config: ThemeConfig
+  trial?: { started_at: string; ends_at: string } | null
   lat: number | null
   lng: number | null
   is_open: boolean
