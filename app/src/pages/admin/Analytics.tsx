@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { checkPlanFeature } from '../../lib/planFeatures'
 import type { Business, Order, OrderType, PlanFeatureRow } from '../../lib/types'
+import { exportarVendasPdf, exportarVendasXlsx, type PeriodoExport } from '../../lib/salesExport'
 import BarChart from '../../components/admin/BarChart'
 import BarRank from '../../components/admin/BarRank'
 import PieChart from '../../components/admin/PieChart'
@@ -70,9 +71,12 @@ export default function Analytics({ business, planFeatures }: AnalyticsProps) {
   const [orders, setOrders] = useState<Order[]>([])
   const [produtos, setProdutos] = useState<ProdutoVendido[]>([])
   const [loading, setLoading] = useState(true)
+  const [periodoExport, setPeriodoExport] = useState<PeriodoExport>('semana')
+  const [exportando, setExportando] = useState<'xlsx' | 'pdf' | null>(null)
 
   const podeBasico = checkPlanFeature(planFeatures, business.plan, 'analytics_basico')
   const podeAvancado = checkPlanFeature(planFeatures, business.plan, 'analytics_avancado')
+  const podeExportar = checkPlanFeature(planFeatures, business.plan, 'exportar_vendas')
 
   useEffect(() => {
     if (!supabase || !podeBasico) {
@@ -144,6 +148,16 @@ export default function Analytics({ business, planFeatures }: AnalyticsProps) {
     URL.revokeObjectURL(url)
   }
 
+  async function handleExportar(formato: 'xlsx' | 'pdf') {
+    setExportando(formato)
+    try {
+      if (formato === 'xlsx') await exportarVendasXlsx(business, orders, periodoExport)
+      else await exportarVendasPdf(business, orders, periodoExport)
+    } finally {
+      setExportando(null)
+    }
+  }
+
   const validos = orders.filter((o) => o.status !== 'cancelado')
   const totalPedidos = orders.length
   const faturamento = validos.reduce((sum, o) => sum + o.total, 0)
@@ -194,6 +208,45 @@ export default function Analytics({ business, planFeatures }: AnalyticsProps) {
         <KpiCard label="Clientes únicos" value={clientesUnicos} />
         <KpiCard label="Ticket médio" value={formatarReais(ticketMedio)} />
       </div>
+
+      <Bloco title="Exportar vendas">
+        {podeExportar ? (
+          <div className="space-y-3">
+            <div className="flex gap-2">
+              {(['dia', 'semana', 'mes'] as PeriodoExport[]).map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setPeriodoExport(p)}
+                  className={`text-xs rounded-full px-3 py-1.5 border transition-colors ${
+                    periodoExport === p ? 'bg-brand border-brand text-white' : 'border-white/15 text-white/60 hover:border-white/25'
+                  }`}
+                >
+                  {p === 'dia' ? 'Dia' : p === 'semana' ? 'Semana' : 'Mês'}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleExportar('xlsx')}
+                disabled={exportando !== null || orders.length === 0}
+                className="text-xs rounded-full border border-white/15 bg-slate-950 text-white/70 px-3 py-1.5 transition-transform active:scale-95 hover:border-white/25 disabled:opacity-50"
+              >
+                {exportando === 'xlsx' ? 'Gerando...' : 'Baixar XLSX'}
+              </button>
+              <button
+                onClick={() => handleExportar('pdf')}
+                disabled={exportando !== null || orders.length === 0}
+                className="text-xs rounded-full border border-white/15 bg-slate-950 text-white/70 px-3 py-1.5 transition-transform active:scale-95 hover:border-white/25 disabled:opacity-50"
+              >
+                {exportando === 'pdf' ? 'Gerando...' : 'Baixar PDF'}
+              </button>
+            </div>
+            {orders.length === 0 && <p className="text-xs text-white/40">Sem pedidos pra exportar ainda.</p>}
+          </div>
+        ) : (
+          <p className="text-sm text-white/40">Exportação de vendas em PDF e XLSX disponível a partir do plano Básico.</p>
+        )}
+      </Bloco>
 
       <Bloco title="Faturamento · últimos 14 dias">
         <BarChart data={faturamentoPorDia} formatTooltip={(v) => formatarReais(v)} />
