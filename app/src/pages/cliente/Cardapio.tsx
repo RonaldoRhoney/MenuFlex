@@ -143,16 +143,18 @@ export default function Cardapio({ business, categories, items, onAdd, cartCount
         })}
       </section>
 
-      {cartCount > 0 && (
-        <div className="fixed bottom-0 inset-x-0 p-4 animate-slide-up">
-          <button
-            onClick={onOpenCart}
-            className="w-full max-w-2xl mx-auto block rounded-2xl bg-[var(--biz-botao-compra)] text-white py-3.5 font-medium shadow-lg transition-transform active:scale-[0.98] hover:shadow-xl"
-          >
-            Ver pedido ({cartCount} {cartCount === 1 ? 'item' : 'itens'})
-          </button>
-        </div>
-      )}
+      {cartCount > 0 &&
+        createPortal(
+          <div className="fixed bottom-0 inset-x-0 p-4 animate-slide-up">
+            <button
+              onClick={onOpenCart}
+              className="w-full max-w-2xl mx-auto block rounded-2xl bg-[var(--biz-botao-compra)] text-white py-3.5 font-medium shadow-lg transition-transform active:scale-[0.98] hover:shadow-xl"
+            >
+              Ver pedido ({cartCount} {cartCount === 1 ? 'item' : 'itens'})
+            </button>
+          </div>,
+          document.body,
+        )}
 
       {itemComOpcoes && (
         <ItemOptionsModal

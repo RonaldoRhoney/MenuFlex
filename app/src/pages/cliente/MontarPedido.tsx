@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import type { Business, CartItem, OrderType, PlanFeatureRow } from '../../lib/types'
 import { checkPlanFeature } from '../../lib/planFeatures'
 
@@ -45,6 +46,7 @@ export default function MontarPedido({
     items.length > 0 && name.trim().length > 0 && (orderType !== 'delivery' || deliveryAddress.trim().length > 0)
 
   return (
+    <>
     <div className="max-w-2xl mx-auto px-4 pb-32 pt-6">
       <button onClick={onBack} className="text-sm text-neutral-500 hover:text-neutral-700 mb-4 transition-colors">
         ← Voltar ao cardápio
@@ -138,7 +140,12 @@ export default function MontarPedido({
       </div>
 
       {errorMessage && <p className="text-sm text-red-600 mb-4">{errorMessage}</p>}
+    </div>
 
+    {/* Portal direto pro body: escapa de qualquer ancestral que vire
+        containing block (transform/filter), o mesmo bug já visto nos
+        modais desta app — "fixed" sem isso pode acabar preso lá em cima. */}
+    {createPortal(
       <div className="fixed bottom-0 inset-x-0 p-4 bg-[var(--biz-cards)]/90 backdrop-blur-md border-t border-neutral-200">
         <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
           <span className="font-display text-lg font-semibold text-[var(--biz-precos)]">R$ {total.toFixed(2).replace('.', ',')}</span>
@@ -150,7 +157,9 @@ export default function MontarPedido({
             {submitting ? 'Enviando...' : 'Confirmar pedido'}
           </button>
         </div>
-      </div>
-    </div>
+      </div>,
+      document.body,
+    )}
+    </>
   )
 }
