@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { Business, CartItem, OrderType, PlanFeatureRow } from '../../lib/types'
 import { checkPlanFeature } from '../../lib/planFeatures'
+import { themeToCssVars } from '../../lib/theme'
 
 interface MontarPedidoProps {
   business: Business
@@ -146,7 +147,10 @@ export default function MontarPedido({
         containing block (transform/filter), o mesmo bug já visto nos
         modais desta app — "fixed" sem isso pode acabar preso lá em cima. */}
     {createPortal(
-      <div className="fixed bottom-0 inset-x-0 p-4 bg-[var(--biz-cards)]/90 backdrop-blur-md border-t border-neutral-200">
+      <div
+        className="fixed bottom-0 inset-x-0 p-4 bg-[var(--biz-cards)]/90 backdrop-blur-md border-t border-neutral-200"
+        style={themeToCssVars(business.theme_config)}
+      >
         <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
           <span className="font-display text-lg font-semibold text-[var(--biz-precos)]">R$ {total.toFixed(2).replace('.', ',')}</span>
           <button

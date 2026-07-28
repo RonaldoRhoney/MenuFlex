@@ -4,6 +4,7 @@ import type { Business, MenuCategory, MenuItem } from '../../lib/types'
 import ItemOptionsModal from '../../components/ItemOptionsModal'
 import LiveClock from '../../components/LiveClock'
 import TutorialModal, { type TutorialStep } from '../../components/TutorialModal'
+import { themeToCssVars } from '../../lib/theme'
 
 const PASSOS_CLIENTE: TutorialStep[] = [
   { icon: '📖', title: 'Veja o cardápio', description: 'Navegue pelas categorias e escolha os itens que quiser.' },
@@ -145,7 +146,7 @@ export default function Cardapio({ business, categories, items, onAdd, cartCount
 
       {cartCount > 0 &&
         createPortal(
-          <div className="fixed bottom-0 inset-x-0 p-4 animate-slide-up">
+          <div className="fixed bottom-0 inset-x-0 p-4 animate-slide-up" style={themeToCssVars(business.theme_config)}>
             <button
               onClick={onOpenCart}
               className="w-full max-w-2xl mx-auto block rounded-2xl bg-[var(--biz-botao-compra)] text-white py-3.5 font-medium shadow-lg transition-transform active:scale-[0.98] hover:shadow-xl"
