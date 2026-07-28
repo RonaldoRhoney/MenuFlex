@@ -5,6 +5,7 @@ import { fetchBusinessSegmentIds, fetchSegments, saveBusinessSegments } from '..
 import type { Business, BusinessType, PlanFeatureRow, Segment } from '../../lib/types'
 import ShareButton from '../../components/ShareButton'
 import { fetchMinhasIndicacoes, type ReferralStats } from '../../lib/referral'
+import { DEFAULTS, type ThemeConfig } from '../../lib/theme'
 
 interface MinhaEmpresaProps {
   business: Business
@@ -28,7 +29,14 @@ export default function MinhaEmpresa({ business, planFeatures, onUpdated }: Minh
   const [neighborhood, setNeighborhood] = useState(business.neighborhood ?? '')
   const [phone, setPhone] = useState(business.phone ?? '')
   const [openingHours, setOpeningHours] = useState(business.opening_hours ?? '')
-  const [accentColor, setAccentColor] = useState(business.theme_config?.accent ?? '#f97316')
+  // migra o campo antigo "accent" (única cor que existia antes) pra "destaque",
+  // sem perder a cor que o lojista já tinha configurado.
+  const accentAntigo = (business.theme_config as ThemeConfig & { accent?: string })?.accent
+  const [theme, setTheme] = useState<ThemeConfig>({
+    ...DEFAULTS,
+    ...(accentAntigo ? { destaque: accentAntigo } : {}),
+    ...business.theme_config,
+  })
 
   const [saving, setSaving] = useState(false)
   const [savedOk, setSavedOk] = useState(false)
@@ -88,7 +96,7 @@ export default function MinhaEmpresa({ business, planFeatures, onUpdated }: Minh
         neighborhood: neighborhood.trim() || null,
         phone: phone.trim() || null,
         opening_hours: openingHours.trim() || null,
-        theme_config: podePersonalizar ? { ...business.theme_config, accent: accentColor } : business.theme_config,
+        theme_config: podePersonalizar ? theme : business.theme_config,
       })
       .eq('id', business.id)
       .select()
@@ -288,14 +296,39 @@ export default function MinhaEmpresa({ business, planFeatures, onUpdated }: Minh
       </section>
 
       <section>
-        <h2 className="font-semibold mb-3">Cor de destaque</h2>
+        <h2 className="font-semibold mb-1">Identidade visual do cardápio</h2>
+        <p className="text-xs text-white/40 mb-3">
+          Essas cores aparecem só no cardápio público do seu negócio — o painel administrativo continua com o visual padrão do MenuFlex.
+        </p>
         {podePersonalizar ? (
-          <input
-            type="color"
-            value={accentColor}
-            onChange={(e) => setAccentColor(e.target.value)}
-            className="w-10 h-10"
-          />
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+            {(
+              [
+                ['primaria', 'Principal (banner)'],
+                ['secundaria', 'Secundária'],
+                ['destaque', 'Destaque'],
+                ['fundo', 'Fundo'],
+                ['cards', 'Cards'],
+                ['botoes', 'Botões'],
+                ['textos', 'Textos'],
+                ['precos', 'Preços'],
+                ['icones', 'Ícones'],
+                ['badges', 'Badges'],
+                ['avisos', 'Avisos'],
+                ['botao_compra', 'Botão de compra'],
+              ] as [keyof ThemeConfig, string][]
+            ).map(([chave, label]) => (
+              <label key={chave} className="flex flex-col items-center gap-1">
+                <input
+                  type="color"
+                  value={theme[chave] ?? DEFAULTS[chave]}
+                  onChange={(e) => setTheme((t) => ({ ...t, [chave]: e.target.value }))}
+                  className="w-10 h-10"
+                />
+                <span className="text-[11px] text-white/50 text-center">{label}</span>
+              </label>
+            ))}
+          </div>
         ) : (
           <p className="text-sm text-white/40">Disponível a partir do plano Básico.</p>
         )}

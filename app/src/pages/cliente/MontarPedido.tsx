@@ -53,7 +53,7 @@ export default function MontarPedido({
 
       <div className="space-y-3 mb-7">
         {items.map((item) => (
-          <div key={item.line_id} className="bg-white rounded-2xl p-3.5 border border-neutral-100 shadow-sm">
+          <div key={item.line_id} className="bg-[var(--biz-cards)] rounded-2xl p-3.5 border border-neutral-100 shadow-sm">
             <div className="flex justify-between items-center gap-3">
               <div className="min-w-0">
                 <span className="font-medium">{item.name}</span>
@@ -64,14 +64,14 @@ export default function MontarPedido({
               <div className="flex items-center gap-2.5 shrink-0">
                 <button
                   onClick={() => onSetQuantity(item.line_id, item.quantity - 1)}
-                  className="w-7 h-7 rounded-full border border-neutral-300 transition-transform active:scale-90 hover:border-brand"
+                  className="w-7 h-7 rounded-full border border-neutral-300 transition-transform active:scale-90 hover:border-[var(--biz-destaque)]"
                 >
                   −
                 </button>
                 <span className="w-5 text-center tabular-nums">{item.quantity}</span>
                 <button
                   onClick={() => onSetQuantity(item.line_id, item.quantity + 1)}
-                  className="w-7 h-7 rounded-full border border-neutral-300 transition-transform active:scale-90 hover:border-brand"
+                  className="w-7 h-7 rounded-full border border-neutral-300 transition-transform active:scale-90 hover:border-[var(--biz-destaque)]"
                 >
                   +
                 </button>
@@ -81,7 +81,7 @@ export default function MontarPedido({
               value={item.notes}
               onChange={(e) => onSetNotes(item.line_id, e.target.value)}
               placeholder="Observações (ex: sem cebola)"
-              className="mt-2.5 w-full text-sm border border-neutral-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-brand transition-colors"
+              className="mt-2.5 w-full text-sm border border-neutral-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-[var(--biz-destaque)] transition-colors"
             />
           </div>
         ))}
@@ -96,8 +96,8 @@ export default function MontarPedido({
               onClick={() => setOrderType(opt.value)}
               className={`px-3.5 py-2 rounded-xl text-sm font-medium border transition-colors ${
                 orderType === opt.value
-                  ? 'bg-brand text-white border-brand'
-                  : 'border-neutral-200 bg-white text-neutral-600 hover:border-brand/50'
+                  ? 'bg-[var(--biz-botoes)] text-white border-[var(--biz-botoes)]'
+                  : 'border-neutral-200 bg-[var(--biz-cards)] text-neutral-600 hover:border-[var(--biz-destaque)]/50'
               }`}
             >
               {opt.label}
@@ -112,7 +112,7 @@ export default function MontarPedido({
           <textarea
             value={deliveryAddress}
             onChange={(e) => setDeliveryAddress(e.target.value)}
-            className="w-full border border-neutral-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-brand transition-colors"
+            className="w-full border border-neutral-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--biz-destaque)] transition-colors"
             rows={2}
           />
         </div>
@@ -124,7 +124,7 @@ export default function MontarPedido({
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full border border-neutral-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-brand transition-colors"
+            className="w-full border border-neutral-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--biz-destaque)] transition-colors"
           />
         </div>
         <div>
@@ -132,20 +132,20 @@ export default function MontarPedido({
           <input
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            className="w-full border border-neutral-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-brand transition-colors"
+            className="w-full border border-neutral-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--biz-destaque)] transition-colors"
           />
         </div>
       </div>
 
       {errorMessage && <p className="text-sm text-red-600 mb-4">{errorMessage}</p>}
 
-      <div className="fixed bottom-0 inset-x-0 p-4 bg-white/90 backdrop-blur-md border-t border-neutral-200">
+      <div className="fixed bottom-0 inset-x-0 p-4 bg-[var(--biz-cards)]/90 backdrop-blur-md border-t border-neutral-200">
         <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
-          <span className="font-display text-lg font-semibold">R$ {total.toFixed(2).replace('.', ',')}</span>
+          <span className="font-display text-lg font-semibold text-[var(--biz-precos)]">R$ {total.toFixed(2).replace('.', ',')}</span>
           <button
             disabled={!canSubmit || submitting}
             onClick={() => onSubmit({ orderType, deliveryAddress, name, phone })}
-            className="rounded-2xl bg-brand text-white px-6 py-3 font-medium shadow-lg shadow-brand/20 transition-transform active:scale-[0.98] disabled:opacity-40 disabled:shadow-none enabled:hover:bg-brand-dark"
+            className="rounded-2xl bg-[var(--biz-botao-compra)] text-white px-6 py-3 font-medium shadow-lg transition-transform active:scale-[0.98] disabled:opacity-40 disabled:shadow-none"
           >
             {submitting ? 'Enviando...' : 'Confirmar pedido'}
           </button>

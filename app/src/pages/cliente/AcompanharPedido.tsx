@@ -97,7 +97,7 @@ export default function AcompanharPedido({
         <div className="relative mb-9">
           <div className="absolute top-4 left-4 right-4 h-0.5 bg-neutral-200" />
           <div
-            className="absolute top-4 left-4 right-4 h-0.5 origin-left bg-brand transition-transform duration-700 ease-out"
+            className="absolute top-4 left-4 right-4 h-0.5 origin-left bg-[var(--biz-destaque)] transition-transform duration-700 ease-out"
             style={{ transform: `scaleX(${progressoPercent / 100})` }}
           />
           <div className="relative flex justify-between">
@@ -105,7 +105,7 @@ export default function AcompanharPedido({
               <div key={passo.status} className="flex-1 flex flex-col items-center">
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-colors duration-500 ${
-                    i <= stepIndex ? 'bg-brand text-white' : 'bg-white border-2 border-neutral-200 text-neutral-400'
+                    i <= stepIndex ? 'bg-[var(--biz-botoes)] text-white' : 'bg-[var(--biz-cards)] border-2 border-neutral-200 text-neutral-400'
                   }`}
                 >
                   {i < stepIndex ? '✓' : i + 1}
@@ -121,7 +121,7 @@ export default function AcompanharPedido({
 
       {total !== null && (
         <p className="text-sm text-neutral-600 mb-8">
-          Total: <span className="font-display font-semibold text-neutral-900">R$ {total.toFixed(2).replace('.', ',')}</span>
+          Total: <span className="font-display font-semibold text-[var(--biz-precos)]">R$ {total.toFixed(2).replace('.', ',')}</span>
         </p>
       )}
 
@@ -139,7 +139,7 @@ export default function AcompanharPedido({
         </a>
       )}
 
-      <button onClick={onVoltarAoCardapio} className="text-sm text-brand-dark font-medium hover:text-brand-dark/80 transition-colors">
+      <button onClick={onVoltarAoCardapio} className="text-sm text-[var(--biz-destaque)] font-medium hover:opacity-80 transition-colors">
         Voltar ao cardápio
       </button>
     </div>

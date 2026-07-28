@@ -44,10 +44,10 @@ export default function Cardapio({ business, categories, items, onAdd, cartCount
 
   return (
     <div id="top" className="max-w-2xl mx-auto pb-28">
-      <header className="relative overflow-hidden bg-neutral-900 text-white px-4 pt-5 pb-7 text-center">
+      <header className="relative overflow-hidden bg-[var(--biz-primaria)] text-white px-4 pt-5 pb-7 text-center">
         <div
           aria-hidden
-          className="pointer-events-none absolute -top-16 left-1/2 -translate-x-1/2 w-64 h-64 rounded-full bg-brand/25 blur-3xl"
+          className="pointer-events-none absolute -top-16 left-1/2 -translate-x-1/2 w-64 h-64 rounded-full bg-[var(--biz-destaque)]/25 blur-3xl"
         />
         <button
           onClick={() => setTutorialAberto(true)}
@@ -74,12 +74,12 @@ export default function Cardapio({ business, categories, items, onAdd, cartCount
       </header>
 
       {categoriasComItens.length > 1 && (
-        <nav className="sticky top-0 z-10 bg-neutral-50/90 backdrop-blur border-b border-neutral-200/70 px-4 py-2.5 flex gap-2 overflow-x-auto">
+        <nav className="sticky top-0 z-10 bg-[var(--biz-fundo)]/90 backdrop-blur border-b border-neutral-200/70 px-4 py-2.5 flex gap-2 overflow-x-auto">
           {categoriasComItens.map((cat) => (
             <button
               key={cat.id}
               onClick={() => scrollToCategory(cat.id)}
-              className="shrink-0 text-sm font-medium px-3.5 py-1.5 rounded-full bg-white border border-neutral-200 text-neutral-600 hover:border-brand hover:text-brand-dark transition-colors"
+              className="shrink-0 text-sm font-medium px-3.5 py-1.5 rounded-full bg-[var(--biz-cards)] border border-neutral-200 text-[var(--biz-secundaria)] hover:border-[var(--biz-destaque)] hover:text-[var(--biz-destaque)] transition-colors"
             >
               {cat.name}
             </button>
@@ -97,7 +97,7 @@ export default function Cardapio({ business, categories, items, onAdd, cartCount
                 {catItems.map((item, i) => (
                   <div
                     key={item.id}
-                    className="flex items-center gap-3.5 bg-white rounded-2xl p-3 border border-neutral-100 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md animate-fade-in"
+                    className="flex items-center gap-3.5 bg-[var(--biz-cards)] rounded-2xl p-3 border border-neutral-100 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md animate-fade-in"
                     style={{ animationDelay: `${Math.min(i, 8) * 40}ms` }}
                   >
                     {item.image_url ? (
@@ -123,14 +123,14 @@ export default function Cardapio({ business, categories, items, onAdd, cartCount
                       {item.description && (
                         <p className="text-sm text-neutral-500 line-clamp-2 mt-0.5">{item.description}</p>
                       )}
-                      <span className="inline-block mt-1.5 text-sm font-semibold text-brand-dark">
+                      <span className="inline-block mt-1.5 text-sm font-semibold text-[var(--biz-precos)]">
                         R$ {item.price.toFixed(2).replace('.', ',')}
                       </span>
                     </div>
                     <button
                       onClick={() => handleAddClick(item)}
                       disabled={!business.is_open}
-                      className="shrink-0 rounded-full bg-brand text-white w-9 h-9 text-lg font-bold disabled:opacity-40 transition-transform active:scale-90 hover:scale-110"
+                      className="shrink-0 rounded-full bg-[var(--biz-botoes)] text-white w-9 h-9 text-lg font-bold disabled:opacity-40 transition-transform active:scale-90 hover:scale-110"
                       aria-label={`Adicionar ${item.name}`}
                     >
                       +
@@ -147,7 +147,7 @@ export default function Cardapio({ business, categories, items, onAdd, cartCount
         <div className="fixed bottom-0 inset-x-0 p-4 animate-slide-up">
           <button
             onClick={onOpenCart}
-            className="w-full max-w-2xl mx-auto block rounded-2xl bg-brand text-white py-3.5 font-medium shadow-lg transition-transform active:scale-[0.98] hover:shadow-xl"
+            className="w-full max-w-2xl mx-auto block rounded-2xl bg-[var(--biz-botao-compra)] text-white py-3.5 font-medium shadow-lg transition-transform active:scale-[0.98] hover:shadow-xl"
           >
             Ver pedido ({cartCount} {cartCount === 1 ? 'item' : 'itens'})
           </button>

@@ -7,6 +7,7 @@ import { getCurrentPosition, isWithinRadius } from '../../lib/geo'
 import { logConsent } from '../../lib/lgpd'
 import { fetchBusinessHours, isOpenNow } from '../../lib/businessHours'
 import { setBusinessJsonLd, clearBusinessJsonLd } from '../../lib/structuredData'
+import { themeToCssVars } from '../../lib/theme'
 import { MOCK_BUSINESS, MOCK_CATEGORIES, MOCK_ITEMS, MOCK_PLAN_FEATURES } from '../../lib/mockData'
 import type { Business, BusinessHour, CartItem, MenuCategory, MenuItem, MenuItemOptionGroup, PlanFeatureRow } from '../../lib/types'
 import Cardapio from './Cardapio'
@@ -259,10 +260,13 @@ export default function Loja() {
   }
 
   return (
-    <div className="min-h-dvh flex flex-col bg-neutral-50 text-neutral-900">
+    <div
+      className="min-h-dvh flex flex-col bg-[var(--biz-fundo)] text-[var(--biz-textos)]"
+      style={themeToCssVars(business.theme_config)}
+    >
       <div className="flex-1">
         {showInstallHint && (
-          <div className="bg-brand text-white text-sm text-center py-2 px-4">
+          <div className="bg-[var(--biz-botao-compra)] text-white text-sm text-center py-2 px-4">
             Você está perto de {business.name}! Instale o app para pedir mais rápido da próxima vez.
           </div>
         )}

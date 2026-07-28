@@ -1,3 +1,5 @@
+import type { ThemeConfig } from './theme'
+
 export type BusinessType = 'lanche_rua' | 'bar' | 'restaurante' | 'hamburgueria' | 'outro'
 export type Plan = 'free' | 'basico' | 'premium'
 export type OrderType = 'retirada' | 'delivery' | 'local'
@@ -10,7 +12,7 @@ export interface Business {
   slug: string
   type: BusinessType
   plan: Plan
-  theme_config: Record<string, string>
+  theme_config: ThemeConfig
   lat: number | null
   lng: number | null
   is_open: boolean

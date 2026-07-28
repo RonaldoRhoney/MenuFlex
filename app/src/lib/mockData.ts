@@ -11,7 +11,7 @@ export const MOCK_BUSINESS: Business = {
   slug: 'burger-do-ze',
   type: 'hamburgueria',
   plan: 'premium',
-  theme_config: { accent: '#f97316' },
+  theme_config: { destaque: '#f97316' },
   lat: -1.4558,
   lng: -48.4902,
   is_open: true,
