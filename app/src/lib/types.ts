@@ -26,6 +26,12 @@ export interface Business {
   logo_url: string | null
   usa_horario_programado: boolean
   whatsapp_number: string | null
+  city: string | null
+  state: string | null
+  pix_key: string | null
+  instagram: string | null
+  facebook: string | null
+  delivery_fee: number | null
 }
 
 export interface BusinessHour {

@@ -6,6 +6,8 @@ import type { Business, BusinessType, PlanFeatureRow, Segment } from '../../lib/
 import ShareButton from '../../components/ShareButton'
 import { fetchMinhasIndicacoes, type ReferralStats } from '../../lib/referral'
 import { DEFAULTS, type ThemeConfig } from '../../lib/theme'
+import { progressoEmpresa } from '../../lib/setupProgress'
+import ProgressBar from '../../components/admin/ProgressBar'
 
 interface MinhaEmpresaProps {
   business: Business
@@ -29,6 +31,12 @@ export default function MinhaEmpresa({ business, planFeatures, onUpdated }: Minh
   const [neighborhood, setNeighborhood] = useState(business.neighborhood ?? '')
   const [phone, setPhone] = useState(business.phone ?? '')
   const [openingHours, setOpeningHours] = useState(business.opening_hours ?? '')
+  const [city, setCity] = useState(business.city ?? '')
+  const [state, setState] = useState(business.state ?? '')
+  const [pixKey, setPixKey] = useState(business.pix_key ?? '')
+  const [instagram, setInstagram] = useState(business.instagram ?? '')
+  const [facebook, setFacebook] = useState(business.facebook ?? '')
+  const [deliveryFee, setDeliveryFee] = useState(business.delivery_fee?.toString() ?? '')
   // migra o campo antigo "accent" (única cor que existia antes) pra "destaque",
   // sem perder a cor que o lojista já tinha configurado.
   const accentAntigo = (business.theme_config as ThemeConfig & { accent?: string })?.accent
@@ -80,6 +88,24 @@ export default function MinhaEmpresa({ business, planFeatures, onUpdated }: Minh
     checkPlanFeature(planFeatures, business, 'logo_propria') ||
     checkPlanFeature(planFeatures, business, 'identidade_completa')
 
+  const temDelivery = checkPlanFeature(planFeatures, business, 'delivery')
+  // Calculado sobre o estado local do formulário (não só o já salvo) — o %
+  // sobe em tempo real conforme o lojista digita, antes mesmo de salvar.
+  const progresso = progressoEmpresa(
+    {
+      ...business,
+      name,
+      address,
+      city,
+      state,
+      phone,
+      opening_hours: openingHours,
+      description,
+      delivery_fee: deliveryFee ? Number(deliveryFee) : null,
+    },
+    temDelivery,
+  )
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
     if (!supabase) return
@@ -96,6 +122,12 @@ export default function MinhaEmpresa({ business, planFeatures, onUpdated }: Minh
         neighborhood: neighborhood.trim() || null,
         phone: phone.trim() || null,
         opening_hours: openingHours.trim() || null,
+        city: city.trim() || null,
+        state: state.trim() || null,
+        pix_key: pixKey.trim() || null,
+        instagram: instagram.trim() || null,
+        facebook: facebook.trim() || null,
+        delivery_fee: deliveryFee ? Number(deliveryFee) : null,
         theme_config: podePersonalizar ? theme : business.theme_config,
       })
       .eq('id', business.id)
@@ -141,6 +173,8 @@ export default function MinhaEmpresa({ business, planFeatures, onUpdated }: Minh
 
   return (
     <div className="space-y-8 max-w-md">
+      <ProgressBar label="Configuração da empresa" percentual={progresso.percentual} faltando={progresso.faltando} />
+
       <section className="bg-slate-900 border border-white/10 rounded-xl p-4 animate-fade-in">
         <h2 className="font-semibold mb-1">Indique o MenuFlex</h2>
         <p className="text-sm text-white/50 mb-3">Convide outros comerciantes e ajude mais empresas a venderem online.</p>
@@ -241,6 +275,27 @@ export default function MinhaEmpresa({ business, planFeatures, onUpdated }: Minh
             />
             <p className="text-xs text-white/40 mt-1">Usado só pra estatística agregada de onde a RhoneyInc está presente.</p>
           </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-sm font-medium mb-1 block">Cidade</label>
+              <input
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                placeholder="Ex: Belém"
+                className="w-full border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm placeholder:text-white/30"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">Estado</label>
+              <input
+                value={state}
+                onChange={(e) => setState(e.target.value)}
+                placeholder="Ex: PA"
+                maxLength={2}
+                className="w-full border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm placeholder:text-white/30 uppercase"
+              />
+            </div>
+          </div>
           <div>
             <label className="text-sm font-medium mb-1 block">Telefone / WhatsApp</label>
             <input
@@ -258,6 +313,48 @@ export default function MinhaEmpresa({ business, planFeatures, onUpdated }: Minh
               placeholder="Ex: Ter a Dom, 18h às 23h"
               className="w-full border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm placeholder:text-white/30"
             />
+          </div>
+          {temDelivery && (
+            <div>
+              <label className="text-sm font-medium mb-1 block">Taxa de entrega (R$)</label>
+              <input
+                value={deliveryFee}
+                onChange={(e) => setDeliveryFee(e.target.value)}
+                type="number"
+                step="0.01"
+                placeholder="Ex: 5.00"
+                className="w-full border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm placeholder:text-white/30"
+              />
+            </div>
+          )}
+          <div>
+            <label className="text-sm font-medium mb-1 block">Chave PIX (opcional)</label>
+            <input
+              value={pixKey}
+              onChange={(e) => setPixKey(e.target.value)}
+              placeholder="CPF, e-mail, telefone ou chave aleatória"
+              className="w-full border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm placeholder:text-white/30"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-sm font-medium mb-1 block">Instagram (opcional)</label>
+              <input
+                value={instagram}
+                onChange={(e) => setInstagram(e.target.value)}
+                placeholder="@seunegocio"
+                className="w-full border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm placeholder:text-white/30"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">Facebook (opcional)</label>
+              <input
+                value={facebook}
+                onChange={(e) => setFacebook(e.target.value)}
+                placeholder="facebook.com/seunegocio"
+                className="w-full border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm placeholder:text-white/30"
+              />
+            </div>
           </div>
         </div>
       </section>

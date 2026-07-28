@@ -8,6 +8,8 @@ import ItemOptionsEditor from './ItemOptionsEditor'
 import ItemPhotoModal from '../../components/admin/ItemPhotoModal'
 import FichaTecnicaEditor from './FichaTecnicaEditor'
 import MontarCardapio from './MontarCardapio'
+import { progressoCardapio } from '../../lib/setupProgress'
+import ProgressBar from '../../components/admin/ProgressBar'
 
 interface CardapioAdminProps {
   business: Business
@@ -204,8 +206,12 @@ export default function CardapioAdmin({ business, planFeatures }: CardapioAdminP
     )
   }
 
+  const progresso = progressoCardapio(items)
+
   return (
     <div className="space-y-8">
+      <ProgressBar label="Cardápio" percentual={progresso.percentual} faltando={progresso.faltando} />
+
       {segmentosDoNegocio.length > 0 && (
         <button
           onClick={() => setMostrarCatalogo(true)}

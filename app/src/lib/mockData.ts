@@ -24,6 +24,12 @@ export const MOCK_BUSINESS: Business = {
   logo_url: null,
   usa_horario_programado: false,
   whatsapp_number: '5591999990000',
+  city: 'Belém',
+  state: 'PA',
+  pix_key: null,
+  instagram: null,
+  facebook: null,
+  delivery_fee: null,
 }
 
 export const MOCK_CATEGORIES: MenuCategory[] = [
