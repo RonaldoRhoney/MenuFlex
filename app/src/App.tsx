@@ -85,54 +85,41 @@ function Home() {
           </div>
         </nav>
 
-        <div className="max-w-6xl mx-auto px-4 pt-10 pb-20 grid lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <span className="inline-block font-mono text-xs uppercase tracking-wider bg-brand/15 text-brand px-3 py-1 rounded-full mb-5">
-              MVP · Fase 1
-            </span>
-            <h1 className="text-4xl sm:text-5xl font-bold leading-tight mb-5">
-              Cardápio digital que <span className="text-brand">funciona no bolso do cliente.</span>
-            </h1>
-            <p className="text-white/60 max-w-md mb-8">
-              Lanche de rua, bar, restaurante ou hamburgueria — um único app, seus cardápios, seus
-              pedidos em tempo real. Instalável no celular do cliente por proximidade.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Link
-                to="/admin?cadastro=1"
-                className="rounded-lg bg-brand text-white px-5 py-2.5 font-medium hover:bg-brand-dark"
-              >
-                Começar de graça
-              </Link>
-              <a
-                href="#planos"
-                className="rounded-lg border border-white/20 text-white px-5 py-2.5 font-medium hover:bg-white/5"
-              >
-                Ver planos
-              </a>
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-white/10 bg-slate-900 shadow-xl p-4">
-            <p className="font-mono text-xs text-white/40 mb-3">/loja/burger-do-ze</p>
-            <div className="flex items-center justify-between mb-3">
-              <span className="font-semibold">Burger do Zé</span>
-              <span className="text-xs font-medium bg-brand/15 text-brand px-2.5 py-1 rounded-full">
-                Aberto
-              </span>
-            </div>
-            <div className="divide-y divide-white/10">
-              {[
-                ['Cheddar Duplo', 'R$ 28,90'],
-                ['Batata Cheddar Bacon', 'R$ 22,00'],
-                ['Milk Shake Ovomaltine', 'R$ 18,00'],
-              ].map(([nome, preco]) => (
-                <div key={nome} className="flex items-center justify-between py-2.5 text-sm">
-                  <span className="text-white/80">{nome}</span>
-                  <span className="text-white/60">{preco}</span>
-                </div>
-              ))}
-            </div>
+        <div className="max-w-6xl mx-auto px-4 pt-10 pb-16">
+          {/* H1 visualmente oculto: a arte da hero já comunica a mensagem
+              principal (texto embutido na própria imagem), mas mantém a
+              semântica/SEO de uma página sem <h1> visível. */}
+          <h1 className="sr-only">
+            MenuFlex — cardápio digital com pedidos via WhatsApp que transforma pedidos em experiências
+          </h1>
+          <picture>
+            <source srcSet="/images/hero/menuflex-hero.webp" type="image/webp" />
+            <img
+              src="/images/hero/menuflex-hero.png"
+              alt="MenuFlex: cardápio digital no celular com QR Code na mesa do restaurante — mais que um cardápio, uma experiência que vende"
+              width={1536}
+              height={1024}
+              // Hero é o maior elemento acima da dobra (LCP) — carregar eager
+              // com prioridade alta é o certo aqui; lazy loading é pra imagem
+              // fora da tela inicial, o que pioraria a métrica nesse caso.
+              loading="eager"
+              fetchPriority="high"
+              className="w-full h-auto rounded-2xl shadow-xl"
+            />
+          </picture>
+          <div className="flex flex-wrap justify-center gap-3 mt-8">
+            <Link
+              to="/admin?cadastro=1"
+              className="rounded-lg bg-brand text-white px-5 py-2.5 font-medium hover:bg-brand-dark"
+            >
+              Começar de graça
+            </Link>
+            <a
+              href="#planos"
+              className="rounded-lg border border-white/20 text-white px-5 py-2.5 font-medium hover:bg-white/5"
+            >
+              Ver planos
+            </a>
           </div>
         </div>
 
