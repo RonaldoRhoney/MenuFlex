@@ -40,6 +40,7 @@ export default function CardapioAdmin({ business, planFeatures }: CardapioAdminP
   const [uploadingNewItemPhoto, setUploadingNewItemPhoto] = useState(false)
   const [newItemPhotoError, setNewItemPhotoError] = useState<string | null>(null)
   const [itemComFotoAbertoId, setItemComFotoAbertoId] = useState<string | null>(null)
+  const [tentouSalvarItem, setTentouSalvarItem] = useState(false)
   const newItemPhotoInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -137,9 +138,25 @@ export default function CardapioAdmin({ business, planFeatures }: CardapioAdminP
     reload()
   }
 
+  // Fase 2 do Smart Setup Validation: foto/nome/categoria/preço/descrição
+  // passam a ser obrigatórios pra CRIAR um item novo (itens já cadastrados
+  // sem foto não são bloqueados retroativamente, só aparecem na barra de
+  // progresso do Cardápio).
+  function camposFaltandoNovoItem(): string[] {
+    const faltando: string[] = []
+    if (!newItem.name.trim()) faltando.push('nome')
+    if (!newItem.category_id) faltando.push('categoria')
+    if (!(Number(newItem.price) > 0)) faltando.push('preço')
+    if (!newItem.description.trim()) faltando.push('descrição')
+    if (!newItemPhotoFile) faltando.push('foto')
+    return faltando
+  }
+  const itemValido = camposFaltandoNovoItem().length === 0
+
   async function addItem(e: React.FormEvent) {
     e.preventDefault()
-    if (!supabase || !newItem.name.trim() || !newItem.category_id) return
+    setTentouSalvarItem(true)
+    if (!supabase || !itemValido) return
     const name = newItem.name.trim()
     const price = Number(newItem.price) || 0
     const { data: novoItem, error } = await supabase
@@ -176,6 +193,7 @@ export default function CardapioAdmin({ business, planFeatures }: CardapioAdminP
     setSugestoes([])
     setNewItemPhotoFile(null)
     setNewItemPhotoPreview(null)
+    setTentouSalvarItem(false)
     reload()
   }
 
@@ -247,7 +265,9 @@ export default function CardapioAdmin({ business, planFeatures }: CardapioAdminP
           <select
             value={newItem.category_id}
             onChange={(e) => setNewItem({ ...newItem, category_id: e.target.value })}
-            className="col-span-2 border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm"
+            className={`col-span-2 border bg-slate-900 rounded-lg px-3 py-2 text-sm ${
+              tentouSalvarItem && !newItem.category_id ? 'border-red-500' : 'border-white/15'
+            }`}
           >
             <option value="">Categoria...</option>
             {categories.map((c) => (
@@ -256,6 +276,9 @@ export default function CardapioAdmin({ business, planFeatures }: CardapioAdminP
               </option>
             ))}
           </select>
+          {tentouSalvarItem && !newItem.category_id && (
+            <p className="col-span-2 text-xs text-red-400 -mt-1">⚠️ Complete este campo para continuar.</p>
+          )}
           <div className="col-span-2 relative">
             <input
               value={newItem.name}
@@ -264,8 +287,13 @@ export default function CardapioAdmin({ business, planFeatures }: CardapioAdminP
               onBlur={() => setTimeout(() => setMostrarSugestoes(false), 150)}
               placeholder="Nome do item — comece a digitar pra ver sugestões"
               autoComplete="off"
-              className="w-full border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm placeholder:text-white/30"
+              className={`w-full border bg-slate-900 rounded-lg px-3 py-2 text-sm placeholder:text-white/30 ${
+                tentouSalvarItem && !newItem.name.trim() ? 'border-red-500' : 'border-white/15'
+              }`}
             />
+            {tentouSalvarItem && !newItem.name.trim() && (
+              <p className="text-xs text-red-400 mt-1">⚠️ Complete este campo para continuar.</p>
+            )}
             {mostrarSugestoes && sugestoes.length > 0 && (
               <div className="absolute z-10 top-full left-0 right-0 mt-1 bg-slate-900 border border-white/15 rounded-lg overflow-hidden shadow-xl">
                 {sugestoes.map((s) => (
@@ -287,7 +315,11 @@ export default function CardapioAdmin({ business, planFeatures }: CardapioAdminP
             )}
           </div>
 
-          <div className="col-span-2 flex items-center gap-3 border border-white/15 bg-slate-900 rounded-lg px-3 py-2.5">
+          <div
+            className={`col-span-2 flex items-center gap-3 border bg-slate-900 rounded-lg px-3 py-2.5 ${
+              tentouSalvarItem && !newItemPhotoFile ? 'border-red-500' : 'border-white/15'
+            }`}
+          >
             <div className="w-14 h-14 rounded-lg bg-slate-950 border border-white/10 flex items-center justify-center overflow-hidden shrink-0">
               {newItemPhotoPreview ? (
                 <img src={newItemPhotoPreview} alt="" className="w-full h-full object-cover" />
@@ -296,7 +328,7 @@ export default function CardapioAdmin({ business, planFeatures }: CardapioAdminP
               )}
             </div>
             <div className="flex-1">
-              <p className="text-xs text-white/40 mb-1">Foto do produto (opcional)</p>
+              <p className="text-xs text-white/40 mb-1">Foto do produto (obrigatória)</p>
               <input
                 ref={newItemPhotoInputRef}
                 type="file"
@@ -318,24 +350,43 @@ export default function CardapioAdmin({ business, planFeatures }: CardapioAdminP
               </button>
             </div>
           </div>
+          {tentouSalvarItem && !newItemPhotoFile && (
+            <p className="col-span-2 text-xs text-red-400 -mt-1">
+              ⚠️ A foto do produto é obrigatória, pois melhora a experiência do cliente e aumenta as chances de venda.
+            </p>
+          )}
 
           <input
             value={newItem.description}
             onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
             placeholder="Descrição"
-            className="col-span-2 border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm placeholder:text-white/30"
+            className={`col-span-2 border bg-slate-900 rounded-lg px-3 py-2 text-sm placeholder:text-white/30 ${
+              tentouSalvarItem && !newItem.description.trim() ? 'border-red-500' : 'border-white/15'
+            }`}
           />
+          {tentouSalvarItem && !newItem.description.trim() && (
+            <p className="col-span-2 text-xs text-red-400 -mt-1">⚠️ Complete este campo para continuar.</p>
+          )}
           <input
             value={newItem.price}
             onChange={(e) => setNewItem({ ...newItem, price: e.target.value })}
             placeholder="Preço"
             type="number"
             step="0.01"
-            className="border border-white/15 bg-slate-900 rounded-lg px-3 py-2 text-sm placeholder:text-white/30"
+            className={`border bg-slate-900 rounded-lg px-3 py-2 text-sm placeholder:text-white/30 ${
+              tentouSalvarItem && !(Number(newItem.price) > 0) ? 'border-red-500' : 'border-white/15'
+            }`}
           />
-          <button disabled={uploadingNewItemPhoto} className="rounded-lg bg-brand text-white px-4 text-sm font-medium disabled:opacity-50">
+          <button
+            disabled={uploadingNewItemPhoto}
+            title={!itemValido ? 'Complete os requisitos mínimos para continuar.' : undefined}
+            className="rounded-lg bg-brand text-white px-4 text-sm font-medium disabled:opacity-50"
+          >
             {uploadingNewItemPhoto ? 'Enviando foto...' : 'Adicionar item'}
           </button>
+          {tentouSalvarItem && !(Number(newItem.price) > 0) && (
+            <p className="text-xs text-red-400 -mt-1">⚠️ Complete este campo para continuar.</p>
+          )}
           {newItemPhotoError && (
             <p className="col-span-2 text-xs text-red-400">
               Item criado, mas a foto falhou: {newItemPhotoError}
