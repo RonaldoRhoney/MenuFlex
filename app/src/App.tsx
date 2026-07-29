@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom'
 import Loja from './pages/cliente/Loja'
 import Painel from './pages/admin/Painel'
@@ -6,6 +6,7 @@ import Parceiros from './pages/Parceiros'
 import PoliticaPrivacidade from './pages/PoliticaPrivacidade'
 import TermosUso from './pages/TermosUso'
 import Footer from './components/Footer'
+import LandingTutorialModal from './components/landing/LandingTutorialModal'
 import { useSession } from './lib/auth'
 import { capturarIndicacao } from './lib/referral'
 
@@ -47,6 +48,7 @@ const PLANOS = [
 
 function Home() {
   const { session } = useSession()
+  const [tutorialAberto, setTutorialAberto] = useState(false)
 
   useEffect(() => {
     const ref = new URLSearchParams(window.location.search).get('ref')
@@ -120,6 +122,13 @@ function Home() {
             >
               Ver planos
             </a>
+            <button
+              onClick={() => setTutorialAberto(true)}
+              aria-label="Ver como o MenuFlex funciona"
+              className="rounded-lg border border-white/20 text-white px-5 py-2.5 font-medium hover:bg-white/5 inline-flex items-center gap-1.5"
+            >
+              🎓 Como usar
+            </button>
           </div>
         </div>
 
@@ -156,6 +165,7 @@ function Home() {
         </div>
       </div>
       <Footer />
+      {tutorialAberto && <LandingTutorialModal onClose={() => setTutorialAberto(false)} />}
     </div>
   )
 }
