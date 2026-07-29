@@ -209,7 +209,9 @@ export default function Painel() {
         {aba === 'estoque' && <Estoque business={business} planFeatures={planFeatures} />}
         {aba === 'insumos' && <Insumos business={business} planFeatures={planFeatures} />}
         {aba === 'cardapio_whatsapp' && <CardapioWhatsapp business={business} planFeatures={planFeatures} />}
-        {aba === 'configuracoes' && <Configuracoes business={business} onUpdated={handleBusinessUpdated} />}
+        {aba === 'configuracoes' && (
+          <Configuracoes business={business} planFeatures={planFeatures} onUpdated={handleBusinessUpdated} />
+        )}
         {aba === 'analytics' && <Analytics business={business} planFeatures={planFeatures} />}
         {aba === 'privacidade' && <Privacidade />}
         {aba === 'super_admin' && isSuperAdmin && <SuperAdmin />}

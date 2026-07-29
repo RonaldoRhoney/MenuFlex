@@ -1,13 +1,25 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { startPlanUpgrade } from '../../lib/payments'
+import { checkPlanFeature } from '../../lib/planFeatures'
 import { DIAS_SEMANA, fetchBusinessHours, saveBusinessHours } from '../../lib/businessHours'
-import type { Business, BusinessHour, Plan } from '../../lib/types'
+import type { Business, BusinessHour, EstoqueComportamento, Plan, PlanFeatureRow } from '../../lib/types'
 
 interface ConfiguracoesProps {
   business: Business
+  planFeatures: PlanFeatureRow[]
   onUpdated: (business: Business) => void
 }
+
+const OPCOES_COMPORTAMENTO: { value: EstoqueComportamento; label: string; descricao: string }[] = [
+  { value: 'ocultar', label: 'Ocultar do cardápio', descricao: 'O produto some da lista até você repor o ingrediente.' },
+  {
+    value: 'indisponivel',
+    label: 'Mostrar como indisponível',
+    descricao: 'O produto continua aparecendo, mas marcado como indisponível e sem poder ser adicionado ao carrinho.',
+  },
+  { value: 'permitir', label: 'Vender mesmo assim', descricao: 'O produto continua disponível normalmente, mesmo sem o ingrediente em estoque.' },
+]
 
 const PLANOS: { value: Plan; label: string; preco: string; itens: string[] }[] = [
   {
@@ -50,8 +62,11 @@ const DIA_VAZIO = (day_of_week: number): BusinessHour => ({
   closed: true,
 })
 
-export default function Configuracoes({ business, onUpdated }: ConfiguracoesProps) {
+export default function Configuracoes({ business, planFeatures, onUpdated }: ConfiguracoesProps) {
+  const podeErp = checkPlanFeature(planFeatures, business, 'gestao_erp')
   const [isOpen, setIsOpen] = useState(business.is_open)
+  const [estoqueComportamento, setEstoqueComportamento] = useState(business.estoque_comportamento)
+  const [salvandoComportamento, setSalvandoComportamento] = useState(false)
   const [upgrading, setUpgrading] = useState<Plan | null>(null)
   const [upgradeError, setUpgradeError] = useState<string | null>(null)
 
@@ -74,6 +89,20 @@ export default function Configuracoes({ business, onUpdated }: ConfiguracoesProp
     const next = !isOpen
     setIsOpen(next)
     const { data } = await supabase.from('businesses').update({ is_open: next }).eq('id', business.id).select().single()
+    if (data) onUpdated(data as Business)
+  }
+
+  async function handleComportamento(valor: EstoqueComportamento) {
+    if (!supabase) return
+    setEstoqueComportamento(valor)
+    setSalvandoComportamento(true)
+    const { data } = await supabase
+      .from('businesses')
+      .update({ estoque_comportamento: valor })
+      .eq('id', business.id)
+      .select()
+      .single()
+    setSalvandoComportamento(false)
     if (data) onUpdated(data as Business)
   }
 
@@ -193,6 +222,38 @@ export default function Configuracoes({ business, onUpdated }: ConfiguracoesProp
           </button>
         )}
       </section>
+
+      {podeErp && (
+        <section className="max-w-md">
+          <h2 className="font-semibold mb-1">Quando um ingrediente acabar</h2>
+          <p className="text-xs text-white/40 mb-3">
+            Vale pra produtos com ficha técnica — o que fazer no cardápio quando algum ingrediente da receita zerar.
+          </p>
+          <div className="space-y-2">
+            {OPCOES_COMPORTAMENTO.map((op) => (
+              <label
+                key={op.value}
+                className={`flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors ${
+                  estoqueComportamento === op.value ? 'border-brand bg-brand/5' : 'border-white/10 bg-slate-900'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="estoque_comportamento"
+                  checked={estoqueComportamento === op.value}
+                  onChange={() => handleComportamento(op.value)}
+                  disabled={salvandoComportamento}
+                  className="mt-1"
+                />
+                <span>
+                  <span className="text-sm font-medium block">{op.label}</span>
+                  <span className="text-xs text-white/40">{op.descricao}</span>
+                </span>
+              </label>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section>
         <h2 className="font-semibold mb-3">Plano atual: {business.plan}</h2>

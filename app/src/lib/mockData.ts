@@ -30,6 +30,7 @@ export const MOCK_BUSINESS: Business = {
   instagram: null,
   facebook: null,
   delivery_fee: null,
+  estoque_comportamento: 'ocultar',
 }
 
 export const MOCK_CATEGORIES: MenuCategory[] = [

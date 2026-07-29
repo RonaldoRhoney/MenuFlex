@@ -98,7 +98,9 @@ export default function Cardapio({ business, categories, items, onAdd, cartCount
                 {catItems.map((item, i) => (
                   <div
                     key={item.id}
-                    className="flex items-center gap-3.5 bg-[var(--biz-cards)] rounded-2xl p-3 border border-neutral-100 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md animate-fade-in"
+                    className={`flex items-center gap-3.5 bg-[var(--biz-cards)] rounded-2xl p-3 border border-neutral-100 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md animate-fade-in ${
+                      item.sem_estoque_ingrediente ? 'opacity-60' : ''
+                    }`}
                     style={{ animationDelay: `${Math.min(i, 8) * 40}ms` }}
                   >
                     {item.image_url ? (
@@ -124,13 +126,20 @@ export default function Cardapio({ business, categories, items, onAdd, cartCount
                       {item.description && (
                         <p className="text-sm text-neutral-500 line-clamp-2 mt-0.5">{item.description}</p>
                       )}
-                      <span className="inline-block mt-1.5 text-sm font-semibold text-[var(--biz-precos)]">
-                        R$ {item.price.toFixed(2).replace('.', ',')}
-                      </span>
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <span className="text-sm font-semibold text-[var(--biz-precos)]">
+                          R$ {item.price.toFixed(2).replace('.', ',')}
+                        </span>
+                        {item.sem_estoque_ingrediente && (
+                          <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-red-500/10 text-red-500">
+                            Indisponível
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <button
                       onClick={() => handleAddClick(item)}
-                      disabled={!business.is_open}
+                      disabled={!business.is_open || item.sem_estoque_ingrediente}
                       className="shrink-0 rounded-full bg-[var(--biz-botoes)] text-white w-9 h-9 text-lg font-bold disabled:opacity-40 transition-transform active:scale-90 hover:scale-110"
                       aria-label={`Adicionar ${item.name}`}
                     >

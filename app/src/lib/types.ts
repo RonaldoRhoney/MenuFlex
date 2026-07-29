@@ -4,6 +4,7 @@ export type BusinessType = 'lanche_rua' | 'bar' | 'restaurante' | 'hamburgueria'
 export type Plan = 'free' | 'basico' | 'premium'
 export type OrderType = 'retirada' | 'delivery' | 'local'
 export type OrderStatus = 'recebido' | 'preparo' | 'pronto' | 'entregue' | 'cancelado'
+export type EstoqueComportamento = 'ocultar' | 'indisponivel' | 'permitir'
 
 export interface Business {
   id: string
@@ -32,6 +33,7 @@ export interface Business {
   instagram: string | null
   facebook: string | null
   delivery_fee: number | null
+  estoque_comportamento: EstoqueComportamento
 }
 
 export interface BusinessHour {
@@ -98,6 +100,7 @@ export interface MenuItem {
   veio_do_catalogo?: boolean
   custo?: number
   margem?: number
+  sem_estoque_ingrediente?: boolean
 }
 
 export type ReferralStatus = 'novo' | 'contatado' | 'convertido' | 'descartado'
