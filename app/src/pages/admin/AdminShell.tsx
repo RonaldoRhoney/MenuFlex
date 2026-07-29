@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { signOut } from '../../lib/auth'
 import Breadcrumb from '../../components/Breadcrumb'
@@ -51,10 +51,19 @@ export default function AdminShell<T extends string>({
   trialCard,
 }: AdminShellProps<T>) {
   const [tutorialAberto, setTutorialAberto] = useState(false)
+  const mobileAtivoRef = useRef<HTMLButtonElement>(null)
+
+  // Item ativo da barra mobile sempre centralizado ao trocar de aba —
+  // dá pra rolar o dedo livremente sem perder de vista onde está.
+  useEffect(() => {
+    mobileAtivoRef.current?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
+  }, [aba])
 
   const navLinkClass = (ativo: boolean) =>
-    `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors active:scale-95 ${
-      ativo ? 'bg-brand text-white' : 'text-white/60 hover:bg-white/5 hover:text-white'
+    `relative flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 ${
+      ativo
+        ? 'bg-gradient-to-r from-brand to-brand-dark text-white shadow-lg shadow-brand/25 -translate-y-0.5 border border-white/10'
+        : 'border border-transparent text-white/60 hover:bg-white/5 hover:text-white hover:border-white/10'
     }`
 
   const abaAtual = abas.find((a) => a.value === aba)
@@ -72,18 +81,28 @@ export default function AdminShell<T extends string>({
           {subtitle && <p className="text-xs text-white/40 mt-0.5">{subtitle}</p>}
           {email && <p className="text-xs text-white/30 mt-0.5 truncate">{email}</p>}
         </div>
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-          {abas.map((a) => (
-            <button key={a.value} onClick={() => onSelectAba(a.value)} className={`w-full ${navLinkClass(aba === a.value)}`}>
-              {a.icon}
-              {a.label}
-              {!!a.badge && (
-                <span className="ml-auto inline-flex items-center justify-center text-[11px] bg-white/15 rounded-full w-5 h-5">
-                  {a.badge}
-                </span>
-              )}
-            </button>
-          ))}
+        <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
+          {abas.map((a) => {
+            const ativo = aba === a.value
+            return (
+              <button
+                key={a.value}
+                onClick={() => onSelectAba(a.value)}
+                aria-label={a.label}
+                aria-current={ativo ? 'page' : undefined}
+                className={`w-full ${navLinkClass(ativo)}`}
+              >
+                {ativo && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 rounded-full bg-white/80" />}
+                {a.icon}
+                {a.label}
+                {!!a.badge && (
+                  <span className="ml-auto inline-flex items-center justify-center text-[11px] bg-white/15 rounded-full w-5 h-5">
+                    {a.badge}
+                  </span>
+                )}
+              </button>
+            )
+          })}
         </nav>
         <div className="px-3 py-4 border-t border-white/10 space-y-1">
           {business && (
@@ -129,23 +148,32 @@ export default function AdminShell<T extends string>({
             </button>
           </div>
         </div>
-        <nav className="flex gap-1 px-3 pb-2 overflow-x-auto">
-          {abas.map((a) => (
-            <button
-              key={a.value}
-              onClick={() => onSelectAba(a.value)}
-              className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-transform active:scale-95 ${
-                aba === a.value ? 'bg-brand text-white' : 'text-white/60'
-              }`}
-            >
-              {a.label}
-              {!!a.badge && (
-                <span className="inline-flex items-center justify-center text-[10px] bg-white/20 rounded-full w-4 h-4">
-                  {a.badge}
-                </span>
-              )}
-            </button>
-          ))}
+        <nav className="flex gap-1.5 px-3 pb-2 overflow-x-auto scroll-smooth no-scrollbar">
+          {abas.map((a) => {
+            const ativo = aba === a.value
+            return (
+              <button
+                key={a.value}
+                ref={ativo ? mobileAtivoRef : undefined}
+                onClick={() => onSelectAba(a.value)}
+                aria-label={a.label}
+                aria-current={ativo ? 'page' : undefined}
+                className={`shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 ${
+                  ativo
+                    ? 'bg-gradient-to-r from-brand to-brand-dark text-white shadow-md shadow-brand/25 border border-white/10'
+                    : 'border border-white/10 text-white/60 active:bg-white/5'
+                }`}
+              >
+                {a.icon}
+                {a.label}
+                {!!a.badge && (
+                  <span className="inline-flex items-center justify-center text-[10px] bg-white/20 rounded-full w-4 h-4">
+                    {a.badge}
+                  </span>
+                )}
+              </button>
+            )
+          })}
         </nav>
       </header>
 

@@ -71,3 +71,13 @@ body {
     animation: none !important;
   }
 }
+
+/* Rolagem horizontal das abas do admin no mobile — barra de scroll some,
+   mas o gesto de rolar continua funcionando normalmente. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
