@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabaseClient'
 import { fetchBusinessSegmentIds, fetchSegments } from '../../lib/catalog'
 import { uploadMenuItemPhoto } from '../../lib/imagePipeline'
 import { checkPlanFeature } from '../../lib/planFeatures'
+import { useSession } from '../../lib/auth'
 import type { Business, MenuCategory, MenuItem, PlanFeatureRow, Segment } from '../../lib/types'
 import ItemOptionsEditor from './ItemOptionsEditor'
 import ItemPhotoModal from '../../components/admin/ItemPhotoModal'
@@ -10,6 +11,9 @@ import FichaTecnicaEditor from './FichaTecnicaEditor'
 import MontarCardapio from './MontarCardapio'
 import { progressoCardapio } from '../../lib/setupProgress'
 import ProgressBar from '../../components/admin/ProgressBar'
+import AvailabilityToggle from '../../components/admin/AvailabilityToggle'
+import AvailabilityConfirmModal from '../../components/admin/AvailabilityConfirmModal'
+import Toast, { type ToastData } from '../../components/admin/Toast'
 
 interface CardapioAdminProps {
   business: Business
@@ -25,6 +29,11 @@ interface CatalogSuggestion {
 
 export default function CardapioAdmin({ business, planFeatures }: CardapioAdminProps) {
   const podeErp = checkPlanFeature(planFeatures, business, 'gestao_erp')
+  const { session } = useSession()
+  const [souOwner, setSouOwner] = useState(false)
+  const [itemParaAlterarDisponibilidade, setItemParaAlterarDisponibilidade] = useState<MenuItem | null>(null)
+  const [salvandoDisponibilidade, setSalvandoDisponibilidade] = useState(false)
+  const [toast, setToast] = useState<ToastData | null>(null)
   const [itemComFichaAbertoId, setItemComFichaAbertoId] = useState<string | null>(null)
   const [categories, setCategories] = useState<MenuCategory[]>([])
   const [items, setItems] = useState<MenuItem[]>([])
@@ -50,6 +59,52 @@ export default function CardapioAdmin({ business, planFeatures }: CardapioAdminP
     }
     loadSegmentos()
   }, [business.id])
+
+  // Só o dono (role='owner' em business_admins) pode alternar disponibilidade
+  // manualmente — staff continua vendo o indicador, só não consegue clicar.
+  useEffect(() => {
+    if (!supabase || !session?.user) {
+      setSouOwner(false)
+      return
+    }
+    supabase
+      .from('business_admins')
+      .select('role')
+      .eq('business_id', business.id)
+      .eq('user_id', session.user.id)
+      .maybeSingle()
+      .then(({ data }) => setSouOwner(data?.role === 'owner'))
+  }, [business.id, session?.user?.id])
+
+  function abrirConfirmacaoDisponibilidade(item: MenuItem) {
+    setItemParaAlterarDisponibilidade(item)
+  }
+
+  async function confirmarAlteracaoDisponibilidade(motivo: string) {
+    if (!supabase || !itemParaAlterarDisponibilidade) return
+    const item = itemParaAlterarDisponibilidade
+    const novoStatus = !item.is_available
+    setSalvandoDisponibilidade(true)
+    try {
+      const { error } = await supabase.rpc('alterar_disponibilidade_produto', {
+        p_menu_item_id: item.id,
+        p_novo_status: novoStatus,
+        p_motivo: motivo || null,
+      })
+      if (error) throw error
+      // Atualização otimista: só o card alterado, sem reload() da lista inteira.
+      setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, is_available: novoStatus } : i)))
+      setToast({
+        mensagem: novoStatus ? '✅ Produto disponibilizado com sucesso.' : '⚪ Produto marcado como indisponível.',
+        tipo: 'sucesso',
+      })
+      setItemParaAlterarDisponibilidade(null)
+    } catch (err) {
+      setToast({ mensagem: err instanceof Error ? err.message : 'Erro ao alterar disponibilidade.', tipo: 'erro' })
+    } finally {
+      setSalvandoDisponibilidade(false)
+    }
+  }
 
   async function reload() {
     if (!supabase) return
@@ -194,12 +249,6 @@ export default function CardapioAdmin({ business, planFeatures }: CardapioAdminP
     setNewItemPhotoFile(null)
     setNewItemPhotoPreview(null)
     setTentouSalvarItem(false)
-    reload()
-  }
-
-  async function toggleAvailable(item: MenuItem) {
-    if (!supabase) return
-    await supabase.from('menu_items').update({ is_available: !item.is_available }).eq('id', item.id)
     reload()
   }
 
@@ -414,14 +463,13 @@ export default function CardapioAdmin({ business, planFeatures }: CardapioAdminP
                     {/* line-clamp-2: quebra em até 2 linhas antes de cortar — nome do
                         produto tem prioridade máxima, nunca trunca numa linha só. */}
                     <p className="font-medium text-sm leading-snug line-clamp-2 break-words">{item.name}</p>
-                    <button
-                      onClick={() => toggleAvailable(item)}
-                      className={`shrink-0 text-xs px-2 py-1 rounded-full whitespace-nowrap ${
-                        item.is_available ? 'bg-green-500/15 text-green-400' : 'bg-white/10 text-white/40'
-                      }`}
-                    >
-                      {item.is_available ? 'Disponível' : 'Indisponível'}
-                    </button>
+                    <div className="shrink-0">
+                      <AvailabilityToggle
+                        disponivel={item.is_available}
+                        podeAlterar={souOwner}
+                        onClick={() => abrirConfirmacaoDisponibilidade(item)}
+                      />
+                    </div>
                   </div>
                   <p className="text-xs text-white/40 mt-0.5">R$ {item.price.toFixed(2).replace('.', ',')}</p>
                 </div>
@@ -473,6 +521,17 @@ export default function CardapioAdmin({ business, planFeatures }: CardapioAdminP
           }}
         />
       )}
+
+      {itemParaAlterarDisponibilidade && (
+        <AvailabilityConfirmModal
+          itemNome={itemParaAlterarDisponibilidade.name}
+          statusAtual={itemParaAlterarDisponibilidade.is_available}
+          salvando={salvandoDisponibilidade}
+          onCancel={() => setItemParaAlterarDisponibilidade(null)}
+          onConfirm={confirmarAlteracaoDisponibilidade}
+        />
+      )}
+      <Toast toast={toast} onClose={() => setToast(null)} />
     </div>
   )
 }
