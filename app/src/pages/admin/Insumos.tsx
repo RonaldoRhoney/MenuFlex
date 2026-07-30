@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { supabase } from '../../lib/supabaseClient'
 import { checkPlanFeature } from '../../lib/planFeatures'
 import { excluirInsumo, fetchInsumos, salvarInsumo } from '../../lib/insumos'
 import type { Business, Insumo, PlanFeatureRow } from '../../lib/types'
@@ -48,10 +49,34 @@ export default function Insumos({ business, planFeatures }: InsumosProps) {
       setLoading(false)
       return
     }
+    let active = true
     fetchInsumos(business.id).then((data) => {
-      setItens(data)
-      setLoading(false)
+      if (active) {
+        setItens(data)
+        setLoading(false)
+      }
     })
+
+    if (!supabase) return
+    // Sem isso, o estoque debitado automaticamente ao avançar um pedido pra
+    // "Em preparo" (0024_baixa_estoque_ingrediente.sql) só aparecia aqui
+    // depois de recarregar a página manualmente — mesmo padrão já usado em
+    // Estoque.tsx.
+    const channel = supabase
+      .channel(`insumos-${business.id}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'insumos', filter: `business_id=eq.${business.id}` },
+        () => {
+          fetchInsumos(business.id).then((data) => active && setItens(data))
+        },
+      )
+      .subscribe()
+
+    return () => {
+      active = false
+      supabase!.removeChannel(channel)
+    }
   }, [business.id, podeErp])
 
   if (!podeErp) {
@@ -205,15 +230,31 @@ export default function Insumos({ business, planFeatures }: InsumosProps) {
                 {i.fornecedor && ` · ${i.fornecedor}`}
               </p>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <input
-                type="number"
-                step="0.0001"
-                value={i.custo_unitario}
-                onChange={(e) => editarCampo(i, { custo_unitario: Number(e.target.value) || 0 })}
-                className="w-20 text-center border border-white/15 bg-slate-950 rounded-lg py-1 text-xs"
-                title="Custo por unidade"
-              />
+            <div className="flex items-center gap-3 shrink-0">
+              <div className="flex flex-col items-center gap-0.5">
+                <span className="text-[10px] uppercase tracking-wide text-white/30">Estoque</span>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={i.estoque_atual}
+                  onChange={(e) => editarCampo(i, { estoque_atual: Math.max(Number(e.target.value) || 0, 0) })}
+                  className={`w-20 text-center border rounded-lg py-1 text-xs bg-slate-950 ${
+                    i.estoque_atual <= i.estoque_minimo ? 'border-red-500/50 text-red-400' : 'border-white/15'
+                  }`}
+                  title={`Estoque atual (${i.unidade}) — debitado automaticamente ao vender itens com esse insumo na ficha técnica`}
+                />
+              </div>
+              <div className="flex flex-col items-center gap-0.5">
+                <span className="text-[10px] uppercase tracking-wide text-white/30">Custo</span>
+                <input
+                  type="number"
+                  step="0.0001"
+                  value={i.custo_unitario}
+                  onChange={(e) => editarCampo(i, { custo_unitario: Number(e.target.value) || 0 })}
+                  className="w-20 text-center border border-white/15 bg-slate-950 rounded-lg py-1 text-xs"
+                  title="Custo por unidade"
+                />
+              </div>
               <button onClick={() => apagar(i.id)} className="text-xs text-red-400/70 hover:text-red-400 px-2">
                 Remover
               </button>
