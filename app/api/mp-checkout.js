@@ -16,6 +16,7 @@
 // ============================================================
 
 import { createClient } from '@supabase/supabase-js';
+import { estourouLimite } from './_lib/rateLimit.js';
 
 const PLAN_PRICES = { basico: 19.9, premium: 39.9 };
 const PLAN_LABELS = { basico: 'MenuFlex — Plano Básico', premium: 'MenuFlex — Plano Premium' };
@@ -36,6 +37,13 @@ export default async function handler(req, res) {
     return;
   }
 
+  const admin = createClient(SUPABASE_URL, SERVICE_KEY);
+
+  if (await estourouLimite(admin, req, 'mp-checkout', { maxRequisicoes: 10, janelaSegundos: 300 })) {
+    res.status(429).json({ error: 'Muitas tentativas. Aguarde alguns minutos e tente novamente.' });
+    return;
+  }
+
   const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
   const { business_id, plan } = body;
 
@@ -53,8 +61,6 @@ export default async function handler(req, res) {
     res.status(401).json({ error: 'Token ausente.' });
     return;
   }
-
-  const admin = createClient(SUPABASE_URL, SERVICE_KEY);
 
   const { data: userData, error: userError } = await admin.auth.getUser(token);
   if (userError || !userData?.user) {

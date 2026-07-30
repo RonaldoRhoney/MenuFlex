@@ -16,6 +16,7 @@
 // ============================================================
 
 import { createClient } from '@supabase/supabase-js';
+import { estourouLimite } from './_lib/rateLimit.js';
 
 function detectarDispositivo(userAgent) {
   const ua = (userAgent || '').toLowerCase();
@@ -47,10 +48,15 @@ export default async function handler(req, res) {
     return;
   }
 
+  const admin = createClient(SUPABASE_URL, SERVICE_KEY);
+
+  if (await estourouLimite(admin, req, 'track', { maxRequisicoes: 30, janelaSegundos: 60 })) {
+    res.status(429).json({ ok: false, reason: 'rate_limited' });
+    return;
+  }
+
   const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
   const path = typeof body.path === 'string' ? body.path.slice(0, 200) : '/';
-
-  const admin = createClient(SUPABASE_URL, SERVICE_KEY);
 
   const { error } = await admin.from('page_views').insert({
     path,

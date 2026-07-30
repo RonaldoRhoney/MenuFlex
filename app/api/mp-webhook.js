@@ -16,6 +16,7 @@
 // ============================================================
 
 import { createClient } from '@supabase/supabase-js';
+import { estourouLimite } from './_lib/rateLimit.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -29,6 +30,16 @@ export default async function handler(req, res) {
 
   if (!SUPABASE_URL || !SERVICE_KEY || !MP_ACCESS_TOKEN) {
     res.status(200).json({ ok: false, reason: 'not_configured' });
+    return;
+  }
+
+  const admin = createClient(SUPABASE_URL, SERVICE_KEY);
+
+  // Limite generoso — é o Mercado Pago quem chama essa rota (poucos IPs de
+  // servidor, reenvio de notificação é normal), só serve de proteção extra
+  // contra alguém descobrir a URL e martelar ela direto.
+  if (await estourouLimite(admin, req, 'mp-webhook', { maxRequisicoes: 120, janelaSegundos: 60 })) {
+    res.status(200).json({ ok: false, reason: 'rate_limited' });
     return;
   }
 
@@ -58,8 +69,6 @@ export default async function handler(req, res) {
     res.status(200).json({ ok: false, reason: 'no_reference' });
     return;
   }
-
-  const admin = createClient(SUPABASE_URL, SERVICE_KEY);
 
   const { data: planPayment } = await admin
     .from('plan_payments')

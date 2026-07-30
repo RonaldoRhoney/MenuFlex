@@ -16,6 +16,7 @@
 // ============================================================
 
 import { createClient } from '@supabase/supabase-js';
+import { estourouLimite } from './_lib/rateLimit.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -31,6 +32,13 @@ export default async function handler(req, res) {
     return;
   }
 
+  const admin = createClient(SUPABASE_URL, SERVICE_KEY);
+
+  if (await estourouLimite(admin, req, 'track-referral', { maxRequisicoes: 20, janelaSegundos: 60 })) {
+    res.status(429).json({ ok: false, reason: 'rate_limited' });
+    return;
+  }
+
   const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
   const { type, referrer_business_id, referred_business_id } = body;
 
@@ -38,8 +46,6 @@ export default async function handler(req, res) {
     res.status(200).json({ ok: false });
     return;
   }
-
-  const admin = createClient(SUPABASE_URL, SERVICE_KEY);
 
   if (type === 'signup') {
     const authHeader = req.headers.authorization || '';

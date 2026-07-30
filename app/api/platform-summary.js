@@ -16,6 +16,7 @@
 // ============================================================
 
 import { createClient } from '@supabase/supabase-js';
+import { estourouLimite } from './_lib/rateLimit.js';
 
 const SUPER_ADMIN_EMAIL = 'rhoneyinc@gmail.com';
 
@@ -56,6 +57,11 @@ export default async function handler(req, res) {
   }
 
   const admin = createClient(SUPABASE_URL, SERVICE_KEY);
+
+  if (await estourouLimite(admin, req, 'platform-summary', { maxRequisicoes: 30, janelaSegundos: 60 })) {
+    res.status(429).json({ error: 'Muitas requisições. Tente novamente em instantes.' });
+    return;
+  }
 
   const { data: userData, error: userError } = await admin.auth.getUser(token);
   if (userError || !userData?.user) {
