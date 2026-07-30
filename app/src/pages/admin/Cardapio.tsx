@@ -184,11 +184,15 @@ export default function CardapioAdmin({ business, planFeatures }: CardapioAdminP
   async function addCategory(e: React.FormEvent) {
     e.preventDefault()
     if (!supabase || !newCategoryName.trim()) return
-    await supabase.from('menu_categories').insert({
+    const { error } = await supabase.from('menu_categories').insert({
       business_id: business.id,
       name: newCategoryName,
       order_index: categories.length,
     })
+    if (error) {
+      setToast({ mensagem: 'Não foi possível criar a categoria. Tente de novo.', tipo: 'erro' })
+      return
+    }
     setNewCategoryName('')
     reload()
   }
@@ -226,7 +230,10 @@ export default function CardapioAdmin({ business, planFeatures }: CardapioAdminP
       })
       .select()
       .single()
-    if (error || !novoItem) return
+    if (error || !novoItem) {
+      setToast({ mensagem: 'Não foi possível salvar o item. Tente de novo.', tipo: 'erro' })
+      return
+    }
 
     if (newItemPhotoFile) {
       setUploadingNewItemPhoto(true)
@@ -254,7 +261,11 @@ export default function CardapioAdmin({ business, planFeatures }: CardapioAdminP
 
   async function deleteItem(id: string) {
     if (!supabase) return
-    await supabase.from('menu_items').delete().eq('id', id)
+    const { error } = await supabase.from('menu_items').delete().eq('id', id)
+    if (error) {
+      setToast({ mensagem: 'Não foi possível excluir o item. Tente de novo.', tipo: 'erro' })
+      return
+    }
     reload()
   }
 

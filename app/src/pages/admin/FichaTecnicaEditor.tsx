@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { fetchFichaTecnica, fetchInsumos, removerFichaTecnicaItem, salvarFichaTecnicaItem } from '../../lib/insumos'
 import type { FichaTecnicaItem, Insumo, MenuItem } from '../../lib/types'
+import { formatarReais } from '../../lib/format'
 
 interface FichaTecnicaEditorProps {
   businessId: string
@@ -9,9 +10,6 @@ interface FichaTecnicaEditorProps {
   onUpdated: (item: MenuItem) => void
 }
 
-function formatarReais(valor: number) {
-  return `R$ ${valor.toFixed(2).replace('.', ',')}`
-}
 
 // custo/margem em menu_items são calculados por trigger no banco
 // (0021_insumos_ficha_tecnica.sql) — depois de qualquer mudança na receita,

@@ -44,7 +44,23 @@ export default async function handler(req, res) {
     return;
   }
 
+  // Sem isso, qualquer chamada anônima podia mandar um business_id de
+  // terceiro e gerar uma preferência de pagamento + linha 'pending' na
+  // conta de outro negócio (nunca aprovava sozinho, mas gerava lixo/spam).
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+  if (!token) {
+    res.status(401).json({ error: 'Token ausente.' });
+    return;
+  }
+
   const admin = createClient(SUPABASE_URL, SERVICE_KEY);
+
+  const { data: userData, error: userError } = await admin.auth.getUser(token);
+  if (userError || !userData?.user) {
+    res.status(401).json({ error: 'Sessão inválida.' });
+    return;
+  }
 
   // Confere se o negócio existe de verdade antes de criar qualquer cobrança
   // — o valor cobrado vem sempre da tabela de preços do servidor, nunca do
@@ -57,6 +73,21 @@ export default async function handler(req, res) {
 
   if (businessError || !business) {
     res.status(404).json({ error: 'Negócio não encontrado.' });
+    return;
+  }
+
+  // Confirma que quem está pedindo o upgrade realmente administra esse
+  // negócio (owner ou staff — qualquer admin pode mudar de plano, mesmo
+  // nível de confiança já usado no resto do sistema).
+  const { data: vinculo, error: vinculoError } = await admin
+    .from('business_admins')
+    .select('business_id')
+    .eq('business_id', business_id)
+    .eq('user_id', userData.user.id)
+    .maybeSingle();
+
+  if (vinculoError || !vinculo) {
+    res.status(403).json({ error: 'Você não administra esse negócio.' });
     return;
   }
 

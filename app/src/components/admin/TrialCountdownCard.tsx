@@ -1,14 +1,11 @@
 import { useState } from 'react'
 import { diasRestantes, isTrialAtivo, type TrialInfo } from '../../lib/trial'
+import { formatarData } from '../../lib/format'
 
 interface TrialCountdownCardProps {
   businessId: string
   trial: TrialInfo
   onConhecerPlanos: () => void
-}
-
-function formatarData(iso: string) {
-  return new Date(iso).toLocaleDateString('pt-BR')
 }
 
 // Minimizado fica salvo por negócio — "pode ser minimizado, nunca removido":

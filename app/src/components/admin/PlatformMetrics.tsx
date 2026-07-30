@@ -2,6 +2,7 @@ import BarChart from './BarChart'
 import BarRank from './BarRank'
 import PieChart from './PieChart'
 import type { PlatformSummary } from '../../lib/platformSummary'
+import { formatarReais } from '../../lib/format'
 
 // Slots categóricos validados (skill dataviz, passo escuro) — ordem fixa,
 // nunca ciclada por rank. Mesma paleta já usada no painel do VagaLume.
@@ -19,10 +20,6 @@ function KpiCard({ label, value, accent }: { label: string; value: number | stri
       <p className="text-xs text-white/40 mt-0.5">{label}</p>
     </div>
   )
-}
-
-function formatarReais(valor: number) {
-  return `R$ ${valor.toFixed(2).replace('.', ',')}`
 }
 
 const LABEL_STATUS_PAGAMENTO: Record<string, string> = {

@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabaseClient'
 import { checkPlanFeature } from '../../lib/planFeatures'
 import type { Business, Order, OrderType, PlanFeatureRow } from '../../lib/types'
 import { exportarVendasPdf, exportarVendasXlsx, type PeriodoExport } from '../../lib/salesExport'
+import { formatarReais } from '../../lib/format'
 import BarChart from '../../components/admin/BarChart'
 import BarRank from '../../components/admin/BarRank'
 import PieChart from '../../components/admin/PieChart'
@@ -31,10 +32,6 @@ const COR_TIPO: Record<OrderType, string> = {
   retirada: '#f97316',
   delivery: '#3b82f6',
   local: '#10b981',
-}
-
-function formatarReais(valor: number) {
-  return `R$ ${valor.toFixed(2).replace('.', ',')}`
 }
 
 function diasAtras(n: number): string[] {

@@ -1,11 +1,7 @@
 import type { PlatformSummary, UsuarioPlataforma } from '../../lib/platformSummary'
 import PieChart from './PieChart'
 import Heatmap from './Heatmap'
-
-function formatarData(iso: string | null) {
-  if (!iso) return 'Nunca'
-  return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
-}
+import { formatarData } from '../../lib/format'
 
 function KpiCard({ label, value, accent }: { label: string; value: number | string; accent?: boolean }) {
   return (

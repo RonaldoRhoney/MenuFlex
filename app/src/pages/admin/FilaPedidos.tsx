@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabaseClient'
 import { startAlertLoop, stopAlertLoop } from '../../lib/sound'
 import type { Business, Order, OrderStatus } from '../../lib/types'
 import OrderDetailsModal from '../../components/admin/OrderDetailsModal'
+import Toast, { type ToastData } from '../../components/admin/Toast'
 
 // Tempo decorrido desde a criação do pedido — ajuda o lojista a notar visualmente
 // o que está parado há mais tempo, sem depender de configurar um "tempo estimado"
@@ -33,6 +34,7 @@ export default function FilaPedidos({ business }: FilaPedidosProps) {
   const [newOrderId, setNewOrderId] = useState<string | null>(null)
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [agora, setAgora] = useState(() => Date.now())
+  const [toast, setToast] = useState<ToastData | null>(null)
   const alertingRef = useRef(false)
 
   useEffect(() => {
@@ -97,7 +99,10 @@ export default function FilaPedidos({ business }: FilaPedidosProps) {
 
   async function advance(order: Order, next: OrderStatus) {
     if (!supabase) return
-    await supabase.from('orders').update({ status: next }).eq('id', order.id)
+    const { error } = await supabase.from('orders').update({ status: next }).eq('id', order.id)
+    if (error) {
+      setToast({ mensagem: 'Não foi possível avançar o pedido. Tente de novo.', tipo: 'erro' })
+    }
   }
 
   return (
@@ -165,6 +170,7 @@ export default function FilaPedidos({ business }: FilaPedidosProps) {
       </div>
 
       {selectedOrder && <OrderDetailsModal order={selectedOrder} onClose={() => setSelectedOrder(null)} />}
+      <Toast toast={toast} onClose={() => setToast(null)} />
     </div>
   )
 }

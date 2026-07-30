@@ -24,10 +24,19 @@ export async function startPlanUpgrade(business: Business, plan: Exclude<Plan, '
       'Upgrade de plano ainda não está disponível — o checkout do Mercado Pago será ligado quando o backend estiver no ar.',
     )
   }
+  if (!supabase) throw new Error('Supabase não configurado.')
+
+  // O servidor exige esse token pra confirmar que quem está pedindo o
+  // upgrade realmente administra o negócio — sem isso, qualquer um poderia
+  // mandar um business_id de terceiro e gerar cobrança pendente na conta dele.
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+  if (!session) throw new Error('Sessão expirada — faça login novamente antes de mudar de plano.')
 
   const response = await fetch(CHECKOUT_API_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
     body: JSON.stringify({
       business_id: business.id,
       plan,
