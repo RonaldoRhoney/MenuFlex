@@ -98,7 +98,10 @@ export default function FichaTecnicaEditor({ businessId, menuItem, onUpdated }: 
           </div>
         ))}
         {receita.length === 0 && (
-          <p className="text-xs text-white/40">Sem ficha técnica ainda — o item continua vendável normalmente, só sem custo/margem calculados.</p>
+          <p className="text-xs text-white/40">
+            Totalmente opcional — sem ficha técnica, o item continua vendável normalmente, só sem custo/margem
+            calculados e sem baixa automática de estoque de insumo ao vender.
+          </p>
         )}
       </div>
 

@@ -499,7 +499,7 @@ export default function CardapioAdmin({ business, planFeatures }: CardapioAdminP
                     onClick={() => setItemComFichaAbertoId(itemComFichaAbertoId === item.id ? null : item.id)}
                     className="text-xs px-2.5 py-1.5 rounded-full bg-brand/10 text-brand font-medium"
                   >
-                    {itemComFichaAbertoId === item.id ? 'Fechar ficha' : 'Ficha técnica'}
+                    {itemComFichaAbertoId === item.id ? 'Fechar ficha' : 'Ficha técnica (opcional)'}
                   </button>
                 )}
                 <button

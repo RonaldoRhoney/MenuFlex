@@ -48,7 +48,7 @@ export default function FilaPedidos({ business }: FilaPedidosProps) {
 
     supabase
       .from('orders')
-      .select('*')
+      .select('*, customer:customers(name, phone)')
       .eq('business_id', business.id)
       .neq('status', 'cancelado')
       .order('created_at', { ascending: false })
@@ -62,19 +62,37 @@ export default function FilaPedidos({ business }: FilaPedidosProps) {
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'orders', filter: `business_id=eq.${business.id}` },
         (payload) => {
-          setOrders((prev) => [payload.new as Order, ...prev])
-          setNewOrderId((payload.new as Order).id)
-          setTimeout(() => setNewOrderId((cur) => (cur === (payload.new as Order).id ? null : cur)), 1800)
+          const novoPedido = payload.new as Order
+          setOrders((prev) => [novoPedido, ...prev])
+          setNewOrderId(novoPedido.id)
+          setTimeout(() => setNewOrderId((cur) => (cur === novoPedido.id ? null : cur)), 1800)
           alertingRef.current = true
           setAlerting(true)
           if (soundEnabled) startAlertLoop()
+
+          // O evento de INSERT do Realtime só traz as colunas cruas de
+          // orders, sem o join até customers — busca à parte pra completar
+          // nome/telefone no card sem esperar reload da tela inteira.
+          supabase!
+            .from('orders')
+            .select('customer:customers(name, phone)')
+            .eq('id', novoPedido.id)
+            .single()
+            .then(({ data }) => {
+              const customer = (data as unknown as { customer: Order['customer'] } | null)?.customer ?? null
+              setOrders((prev) => prev.map((o) => (o.id === novoPedido.id ? { ...o, customer } : o)))
+            })
         },
       )
       .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'orders', filter: `business_id=eq.${business.id}` },
         (payload) => {
-          setOrders((prev) => prev.map((o) => (o.id === payload.new.id ? (payload.new as Order) : o)))
+          // Mesmo motivo do INSERT acima: o payload de UPDATE não traz o
+          // join, então preserva o customer já carregado em vez de apagá-lo.
+          setOrders((prev) =>
+            prev.map((o) => (o.id === payload.new.id ? { ...(payload.new as Order), customer: o.customer } : o)),
+          )
         },
       )
       .subscribe()
@@ -147,6 +165,12 @@ export default function FilaPedidos({ business }: FilaPedidosProps) {
                         {tempoDecorrido(order.created_at, agora)}
                       </p>
                     </div>
+                    {(order.customer?.name || order.customer?.phone) && (
+                      <p className="text-sm font-medium leading-snug mb-0.5">
+                        {order.customer?.name || 'Cliente'}
+                        {order.customer?.phone && <span className="text-white/40 font-normal"> · {order.customer.phone}</span>}
+                      </p>
+                    )}
                     <p className="font-medium text-sm mb-2">R$ {order.total.toFixed(2).replace('.', ',')}</p>
                     {col.next && (
                       <button

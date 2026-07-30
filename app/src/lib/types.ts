@@ -146,6 +146,7 @@ export interface Order {
   total: number
   delivery_address: string | null
   created_at: string
+  customer?: { name: string | null; phone: string | null } | null
 }
 
 export type EstoqueCor = 'verde' | 'amarelo' | 'vermelho'
