@@ -397,53 +397,58 @@ export default function CardapioAdmin({ business, planFeatures }: CardapioAdminP
         <div className="space-y-2">
           {items.map((item) => (
             <div key={item.id} className="bg-slate-900 border border-white/10 rounded-lg overflow-hidden">
-              <div className="flex items-center justify-between p-3">
-                <div className="flex items-center gap-3 min-w-0">
-                  <button
-                    onClick={() => setItemComFotoAbertoId(item.id)}
-                    className="w-10 h-10 rounded-lg bg-slate-950 border border-white/10 flex items-center justify-center overflow-hidden shrink-0"
-                    title="Foto do produto"
-                  >
-                    {item.image_url ? (
-                      <img src={item.image_url} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-sm opacity-40">📷</span>
-                    )}
-                  </button>
-                  <div className="min-w-0">
-                    <p className="font-medium text-sm truncate">{item.name}</p>
-                    <p className="text-xs text-white/40">R$ {item.price.toFixed(2).replace('.', ',')}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() =>
-                      setItemComOpcoesAbertoId(itemComOpcoesAbertoId === item.id ? null : item.id)
-                    }
-                    className="text-xs px-2 py-1 rounded-full bg-brand/10 text-brand font-medium"
-                  >
-                    {itemComOpcoesAbertoId === item.id ? 'Fechar opções' : 'Opções'}
-                  </button>
-                  {podeErp && (
-                    <button
-                      onClick={() => setItemComFichaAbertoId(itemComFichaAbertoId === item.id ? null : item.id)}
-                      className="text-xs px-2 py-1 rounded-full bg-brand/10 text-brand font-medium"
-                    >
-                      {itemComFichaAbertoId === item.id ? 'Fechar ficha' : 'Ficha técnica'}
-                    </button>
+              <div className="flex items-start gap-3 p-3">
+                <button
+                  onClick={() => setItemComFotoAbertoId(item.id)}
+                  className="w-12 h-12 rounded-lg bg-slate-950 border border-white/10 flex items-center justify-center overflow-hidden shrink-0"
+                  title="Foto do produto"
+                >
+                  {item.image_url ? (
+                    <img src={item.image_url} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-sm opacity-40">📷</span>
                   )}
-                  <button
-                    onClick={() => toggleAvailable(item)}
-                    className={`text-xs px-2 py-1 rounded-full ${
-                      item.is_available ? 'bg-green-500/15 text-green-400' : 'bg-white/10 text-white/40'
-                    }`}
-                  >
-                    {item.is_available ? 'Disponível' : 'Indisponível'}
-                  </button>
-                  <button onClick={() => deleteItem(item.id)} className="text-xs text-red-400">
-                    Excluir
-                  </button>
+                </button>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2">
+                    {/* line-clamp-2: quebra em até 2 linhas antes de cortar — nome do
+                        produto tem prioridade máxima, nunca trunca numa linha só. */}
+                    <p className="font-medium text-sm leading-snug line-clamp-2 break-words">{item.name}</p>
+                    <button
+                      onClick={() => toggleAvailable(item)}
+                      className={`shrink-0 text-xs px-2 py-1 rounded-full whitespace-nowrap ${
+                        item.is_available ? 'bg-green-500/15 text-green-400' : 'bg-white/10 text-white/40'
+                      }`}
+                    >
+                      {item.is_available ? 'Disponível' : 'Indisponível'}
+                    </button>
+                  </div>
+                  <p className="text-xs text-white/40 mt-0.5">R$ {item.price.toFixed(2).replace('.', ',')}</p>
                 </div>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 px-3 pb-3">
+                <button
+                  onClick={() =>
+                    setItemComOpcoesAbertoId(itemComOpcoesAbertoId === item.id ? null : item.id)
+                  }
+                  className="text-xs px-2.5 py-1.5 rounded-full bg-brand/10 text-brand font-medium"
+                >
+                  {itemComOpcoesAbertoId === item.id ? 'Fechar opções' : 'Opções'}
+                </button>
+                {podeErp && (
+                  <button
+                    onClick={() => setItemComFichaAbertoId(itemComFichaAbertoId === item.id ? null : item.id)}
+                    className="text-xs px-2.5 py-1.5 rounded-full bg-brand/10 text-brand font-medium"
+                  >
+                    {itemComFichaAbertoId === item.id ? 'Fechar ficha' : 'Ficha técnica'}
+                  </button>
+                )}
+                <button
+                  onClick={() => deleteItem(item.id)}
+                  className="text-xs px-2.5 py-1.5 rounded-full text-red-400 hover:bg-red-500/10 ml-auto"
+                >
+                  Excluir
+                </button>
               </div>
               {itemComOpcoesAbertoId === item.id && <ItemOptionsEditor menuItemId={item.id} />}
               {itemComFichaAbertoId === item.id && (

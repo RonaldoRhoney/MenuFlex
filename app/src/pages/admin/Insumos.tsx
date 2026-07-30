@@ -197,9 +197,9 @@ export default function Insumos({ business, planFeatures }: InsumosProps) {
           <EmptyState title="Nenhum insumo cadastrado" description="Cadastre o primeiro insumo acima pra começar a montar fichas técnicas." />
         )}
         {itens.map((i) => (
-          <div key={i.id} className="border border-white/10 bg-slate-900 rounded-xl p-3 flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <p className="font-medium text-sm truncate">{i.nome}</p>
+          <div key={i.id} className="border border-white/10 bg-slate-900 rounded-xl p-3 flex flex-wrap items-center justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="font-medium text-sm leading-snug line-clamp-2 break-words">{i.nome}</p>
               <p className="text-xs text-white/40">
                 {i.unidade} · R$ {i.custo_unitario.toFixed(4)}/{i.unidade}
                 {i.fornecedor && ` · ${i.fornecedor}`}

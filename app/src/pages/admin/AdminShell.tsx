@@ -77,7 +77,7 @@ export default function AdminShell<T extends string>({
             <span className="w-7 h-7 rounded-lg bg-brand flex items-center justify-center font-bold text-sm shrink-0">M</span>
             <span className="font-semibold text-sm">MenuFlex</span>
           </Link>
-          <p className="font-semibold truncate">{title}</p>
+          <p className="font-semibold leading-snug break-words">{title}</p>
           {subtitle && <p className="text-xs text-white/40 mt-0.5">{subtitle}</p>}
           {email && <p className="text-xs text-white/30 mt-0.5 truncate">{email}</p>}
         </div>

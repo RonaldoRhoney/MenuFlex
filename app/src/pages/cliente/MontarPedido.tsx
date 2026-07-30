@@ -61,7 +61,7 @@ export default function MontarPedido({
               <div className="min-w-0">
                 <span className="font-medium">{item.name}</span>
                 {item.options_summary && (
-                  <p className="text-xs text-neutral-500 truncate mt-0.5">{item.options_summary}</p>
+                  <p className="text-xs text-neutral-500 line-clamp-2 mt-0.5">{item.options_summary}</p>
                 )}
               </div>
               <div className="flex items-center gap-2.5 shrink-0">

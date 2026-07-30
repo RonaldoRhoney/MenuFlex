@@ -122,7 +122,7 @@ export default function Cardapio({ business, categories, items, onAdd, cartCount
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium truncate">{item.name}</h3>
+                      <h3 className="font-medium leading-snug line-clamp-2 break-words">{item.name}</h3>
                       {item.description && (
                         <p className="text-sm text-neutral-500 line-clamp-2 mt-0.5">{item.description}</p>
                       )}
