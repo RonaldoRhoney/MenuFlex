@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import type { Business, CartItem, OrderStatus } from '../../lib/types'
 import { buildOrderSummaryMessage, buildWaMeLink } from '../../lib/whatsapp'
+import { formatarDataHora } from '../../lib/format'
 
 interface OrderSnapshot {
   items: CartItem[]
@@ -37,6 +38,9 @@ export default function AcompanharPedido({
 }: AcompanharPedidoProps) {
   const [status, setStatus] = useState<OrderStatus | null>(simulate ? 'recebido' : null)
   const [total, setTotal] = useState<number | null>(simulate ? (simulatedTotal ?? 0) : null)
+  const [dadosPedido, setDadosPedido] = useState<{ createdAt: string; customerName: string | null; customerPhone: string | null } | null>(
+    null,
+  )
 
   // Sem banco ainda: avança o status sozinho, só pra demonstrar a tela por completo.
   useEffect(() => {
@@ -60,6 +64,11 @@ export default function AcompanharPedido({
         if (!active || !data || data.length === 0) return
         setStatus(data[0].status)
         setTotal(data[0].total)
+        setDadosPedido({
+          createdAt: data[0].created_at,
+          customerName: data[0].customer_name,
+          customerPhone: data[0].customer_phone,
+        })
       })
 
     const channel = supabase
@@ -87,9 +96,23 @@ export default function AcompanharPedido({
   return (
     <div className="max-w-md mx-auto px-4 py-10 text-center animate-fade-in">
       <h1 className="font-display text-2xl font-semibold tracking-tight mb-1.5">Acompanhe seu pedido</h1>
-      <span className="inline-block font-mono text-xs tracking-wide bg-neutral-100 text-neutral-500 px-3 py-1 rounded-full mb-9">
+      <span className="inline-block font-mono text-xs tracking-wide bg-neutral-100 text-neutral-500 px-3 py-1 rounded-full mb-3">
         Pedido #{orderId.slice(0, 8)}
       </span>
+
+      {(() => {
+        const nome = dadosPedido?.customerName ?? orderSnapshot?.customerName ?? null
+        const telefone = dadosPedido?.customerPhone ?? orderSnapshot?.customerPhone ?? null
+        const dataHora = dadosPedido?.createdAt ? formatarDataHora(dadosPedido.createdAt) : null
+        if (!nome && !telefone && !dataHora) return null
+        return (
+          <div className="text-sm text-neutral-600 mb-8 space-y-0.5">
+            {nome && <p>{nome}</p>}
+            {telefone && <p className="text-neutral-400">{telefone}</p>}
+            {dataHora && <p className="text-xs text-neutral-400">{dataHora}</p>}
+          </div>
+        )
+      })()}
 
       {cancelado ? (
         <p className="text-red-600 font-medium mb-8">Este pedido foi cancelado.</p>
