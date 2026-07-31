@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { checkPlanFeature } from '../../lib/planFeatures'
 import { excluirInsumo, fetchInsumoUsoPorItem, fetchInsumos, salvarInsumo } from '../../lib/insumos'
@@ -201,10 +201,23 @@ export default function Insumos({ business, planFeatures }: InsumosProps) {
     }))
   }
 
-  async function editarCampo(insumo: Insumo, patch: Partial<Insumo>) {
+  // Debounce por insumo — sem isso, digitar um valor de vários dígitos no
+  // campo de estoque/custo disparava uma requisição de UPDATE por tecla.
+  // Acumula (merge) o patch pendente em vez de substituir, senão editar
+  // estoque e custo em sequência rápida perderia a primeira mudança.
+  const debounceTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
+  const patchesPendentes = useRef<Record<string, Partial<Insumo>>>({})
+
+  function editarCampo(insumo: Insumo, patch: Partial<Insumo>) {
     const atualizado = { ...insumo, ...patch }
     setItens((prev) => prev.map((i) => (i.id === insumo.id ? atualizado : i)))
-    await salvarInsumo(business.id, patch, insumo.id)
+    patchesPendentes.current[insumo.id] = { ...patchesPendentes.current[insumo.id], ...patch }
+    clearTimeout(debounceTimers.current[insumo.id])
+    debounceTimers.current[insumo.id] = setTimeout(() => {
+      const pendente = patchesPendentes.current[insumo.id]
+      delete patchesPendentes.current[insumo.id]
+      if (pendente) salvarInsumo(business.id, pendente, insumo.id)
+    }, 500)
   }
 
   async function duplicar(insumo: Insumo) {
