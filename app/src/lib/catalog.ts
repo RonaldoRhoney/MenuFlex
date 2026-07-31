@@ -13,6 +13,22 @@ export async function fetchBusinessSegmentIds(businessId: string): Promise<strin
   return (data ?? []).map((r) => r.segment_id as string)
 }
 
+// Usado pela biblioteca de sugestões de insumo (Insumos.tsx) — só precisa do
+// slug pra bater com SUGESTOES_POR_SEGMENTO, sem carregar a tabela inteira de
+// segments à parte.
+export async function fetchBusinessSegmentSlugs(businessId: string): Promise<string[]> {
+  if (!supabase) return []
+  const { data } = await supabase
+    .from('business_segments')
+    .select('segments(slug, order_index)')
+    .eq('business_id', businessId)
+  return ((data ?? []) as unknown as Array<{ segments: { slug: string; order_index: number } | null }>)
+    .map((r) => r.segments)
+    .filter((s): s is { slug: string; order_index: number } => !!s)
+    .sort((a, b) => a.order_index - b.order_index)
+    .map((s) => s.slug)
+}
+
 export async function saveBusinessSegments(businessId: string, segmentIds: string[]) {
   if (!supabase || segmentIds.length === 0) return
   await supabase
