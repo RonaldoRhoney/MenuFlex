@@ -77,7 +77,13 @@ export default function AdminShell<T extends string>({
             <span className="w-7 h-7 rounded-lg bg-brand flex items-center justify-center font-bold text-sm shrink-0">M</span>
             <span className="font-semibold text-sm">MenuFlex</span>
           </Link>
-          <p className="font-semibold leading-snug break-words">{title}</p>
+          <div className="flex items-center justify-between gap-2">
+            <p className="font-semibold leading-snug break-words min-w-0">{title}</p>
+            <button onClick={signOut} className="shrink-0 flex items-center gap-1 text-xs text-white/50 hover:text-white transition-colors">
+              <IconExit />
+              Sair
+            </button>
+          </div>
           {subtitle && <p className="text-xs text-white/40 mt-0.5">{subtitle}</p>}
           {email && <p className="text-xs text-white/30 mt-0.5 truncate">{email}</p>}
         </div>
@@ -120,10 +126,6 @@ export default function AdminShell<T extends string>({
             <IconHeart />
             Parceiros
           </Link>
-          <button onClick={signOut} className={`w-full ${navLinkClass(false)}`}>
-            <IconExit />
-            Sair
-          </button>
         </div>
       </aside>
 
