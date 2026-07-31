@@ -123,6 +123,18 @@ export default function FilaPedidos({ business }: FilaPedidosProps) {
     }
   }
 
+  async function cancelar(order: Order) {
+    if (!supabase) return
+    if (!confirm('Cancelar este pedido? Se o estoque já tinha sido debitado (pedido em preparo ou depois), ele volta automaticamente.')) return
+    const { error } = await supabase.from('orders').update({ status: 'cancelado' }).eq('id', order.id)
+    if (error) {
+      setToast({ mensagem: 'Não foi possível cancelar o pedido. Tente de novo.', tipo: 'erro' })
+      return
+    }
+    setOrders((prev) => prev.filter((o) => o.id !== order.id))
+    setToast({ mensagem: 'Pedido cancelado.', tipo: 'neutro' })
+  }
+
   return (
     <div>
       {!soundEnabled && (
@@ -172,17 +184,28 @@ export default function FilaPedidos({ business }: FilaPedidosProps) {
                       </p>
                     )}
                     <p className="font-medium text-sm mb-2">R$ {order.total.toFixed(2).replace('.', ',')}</p>
-                    {col.next && (
+                    <div className="flex items-center gap-2">
+                      {col.next && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            advance(order, col.next!)
+                          }}
+                          className="text-xs bg-brand text-white rounded-full px-3 py-1 transition-transform active:scale-90 hover:bg-brand-dark"
+                        >
+                          Marcar {COLUNAS.find((c) => c.status === col.next)?.label}
+                        </button>
+                      )}
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
-                          advance(order, col.next!)
+                          cancelar(order)
                         }}
-                        className="text-xs bg-brand text-white rounded-full px-3 py-1 transition-transform active:scale-90 hover:bg-brand-dark"
+                        className="text-xs text-red-400/70 hover:text-red-400 px-2 py-1"
                       >
-                        Marcar {COLUNAS.find((c) => c.status === col.next)?.label}
+                        Cancelar
                       </button>
-                    )}
+                    </div>
                   </div>
                 ))}
               {orders.filter((o) => o.status === col.status).length === 0 && (
